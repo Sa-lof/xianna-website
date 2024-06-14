@@ -3,6 +3,7 @@
 import React from "react";
 import MainGrid from "../components/MainGrid/MainGrid";
 import { Box } from "@mui/material";
+import '../../src/App.css';
 
 const Home: React.FC = () => {
   return (
