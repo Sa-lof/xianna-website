@@ -1,16 +1,19 @@
 import React from "react";
 import {
   Grid,
-  Button,
   Card,
   CardContent,
   Typography,
   Avatar,
+  Box,
 } from "@mui/material";
 
 import InstagramIcon from "@mui/icons-material/Instagram";
-import { IconButton } from "@mui/material";
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import LargeButton from "../LargeButton/LargeButton";
+import SmallButton from "../SmallButton/SmallButton";
+import CarouselCardTest from "../CarouselCardTest/CarouselCardTest";
+
+import placeholder1 from "../../assets/placeholders/place1.jpg";
 
 const MainGrid: React.FC = () => {
   const pink = "#E61F93";
@@ -19,7 +22,7 @@ const MainGrid: React.FC = () => {
   const lightpink = "#FAACC1";
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={6} sm={12}>
         <Card
           className="flex flex-col h-full"
           sx={{ backgroundColor: pink, color: "white", padding: 2 }}
@@ -46,10 +49,15 @@ const MainGrid: React.FC = () => {
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={3} sm={12}>
         <Card
-          className="bg-blue-500 flex flex-col h-full justify-center items-center"
-          sx={{ color: "white", backgroundColor: yellow, padding: 2 }}
+          className="flex flex-col h-full"
+          sx={{
+            color: "white",
+            backgroundColor: yellow,
+            padding: 2,
+            position: "relative",
+          }}
         >
           <CardContent className="flex-grow flex justify-center items-center">
             <Typography
@@ -59,25 +67,25 @@ const MainGrid: React.FC = () => {
               Cuestionario de Estilo
             </Typography>
           </CardContent>
-          <IconButton
+          <Box
             sx={{
-              color: "black",
-              backgroundColor: "white",
-              borderRadius: "50%",
-              width: 60,
-              height: 60,
-              "&:hover": {
-                backgroundColor: "white",
-                transform: "scale(1.1)",
-                transition: "transform 0.3s ease-in-out",
-              },
+              position: "absolute",
+              bottom: 16,
+              right: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <ArrowOutwardIcon />
-          </IconButton>
+            <SmallButton
+              backgroundColor="white"
+              arrowColor="black"
+              link="/profile"
+            />
+          </Box>
         </Card>
       </Grid>
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={3} sm={12}>
         <Card
           className="bg-blue-500 text-white flex flex-col items-center h-full"
           sx={{ color: "white", backgroundColor: blue, padding: 2 }}
@@ -90,26 +98,69 @@ const MainGrid: React.FC = () => {
               Forma parte de Xianna
             </Typography>
           </CardContent>
-          <Button variant="contained" className="bg-white text-blue-500 mt-2">
-            Ver Perfil
-          </Button>
+          <LargeButton
+            text="Regístrate"
+            link="/signup"
+            textColor="black"
+            arrowColor="black"
+            backgroundColor="white"
+          />
         </Card>
       </Grid>
-      <Grid item xs={12} md={3}>
-        <Card className="flex flex-col h-full">
-          <CardContent className="flex-grow">
+      <Grid item xs={12} md={3} sm={12}>
+        <Card
+          className="flex flex-col h-full"
+          sx={{
+            position: "relative",
+            borderRadius: "16px",
+            overflow: "hidden",
+          }}
+        >
+          <CardContent className="flex-grow p-0" sx={{ position: "relative" }}>
             <img
-              src="catalog.jpg"
+              src={placeholder1}
               alt="Catálogo"
-              className="w-full rounded-lg mb-4"
+              className="w-full h-full object-cover"
+              style={{
+                borderRadius: "inherit",
+                position: "absolute",
+                top: 0,
+                left: 0,
+              }}
             />
-            <Button variant="contained" className="bg-white text-pink-500">
-              Catálogo
-            </Button>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
+                borderRadius: "inherit",
+              }}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 16,
+                right: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <LargeButton
+                text="Catálogo"
+                link="/catalogo"
+                textColor="black"
+                arrowColor="black"
+                backgroundColor="white"
+              />
+            </Box>
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={3} sm={12}>
         <Card className="flex flex-col h-full" sx={{ padding: 2 }}>
           <CardContent className="flex-grow flex justify-center items-center p-3">
             <Typography
@@ -121,10 +172,16 @@ const MainGrid: React.FC = () => {
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={6} sm={12}>
         <Card
           className="flex flex-col h-full"
-          sx={{ backgroundColor: lightpink, color: "white", padding: 2 }}
+          sx={{
+            backgroundColor: lightpink,
+            color: "white",
+            padding: 2,
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <CardContent className="flex-grow">
             <Typography
@@ -137,13 +194,26 @@ const MainGrid: React.FC = () => {
               Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
               ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
             </Typography>
-            <Button variant="contained" className="bg-white text-pink-500 mt-2">
-              Visitar
-            </Button>
           </CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "end",
+              justifyContent: "end",
+              marginTop: "auto",
+            }}
+          >
+            <LargeButton
+              text="Leer Blog"
+              link="/blog"
+              textColor="black"
+              arrowColor="black"
+              backgroundColor="white"
+            />
+          </Box>
         </Card>
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={4} sm={12}>
         <a
           href="https://www.instagram.com/xianna"
           target="_blank"
@@ -167,34 +237,20 @@ const MainGrid: React.FC = () => {
           </Card>
         </a>
       </Grid>
-      <Grid item xs={12} md={4}>
-        <Card
-          className="flex flex-col items-center h-full"
-          sx={{ backgroundColor: blue, color: "white", padding: 2 }}
-        >
-          <CardContent className="flex-grow flex flex-col items-center justify-center">
-            <Avatar
-              sx={{ width: 56, height: 56 }}
-              src="user.jpg"
-              alt="Nombre usuario"
-            />
-            <Typography
-              variant="body1"
-              className="mt-2"
-              sx={{ fontWeight: "bold", fontSize: "32px" }}
-            >
-              Nombre usuario
-            </Typography>
-            <Typography variant="body2" sx={{ fontSize: "24px" }}>
-              Opinión
-            </Typography>
-          </CardContent>
-        </Card>
+      <Grid item xs={12} md={4} sm={12}>
+        <CarouselCardTest />
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={4} sm={12}>
         <Card
-          className="flex flex-col items-center justify-center h-full"
-          sx={{ backgroundColor: pink, color: "white", padding: 1 }}
+          className="flex flex-col h-full"
+          sx={{
+            backgroundColor: pink,
+            color: "white",
+            padding: 2,
+            position: "relative",
+            borderRadius: "16px",
+            overflow: "hidden",
+          }}
         >
           <CardContent className="flex-grow flex items-center justify-center">
             <Typography
@@ -205,22 +261,19 @@ const MainGrid: React.FC = () => {
               Contáctanos
             </Typography>
           </CardContent>
-          <IconButton
+          <Box
             sx={{
-              color: "black",
-              backgroundColor: "white",
-              borderRadius: "50%",
-              width: 60,
-              height: 60,
-              "&:hover": {
-                backgroundColor: "white",
-                transform: "scale(1.1)",
-                transition: "transform 0.3s ease-in-out",
-              },
+              position: "absolute",
+              bottom: 16,
+              right: 16,
             }}
           >
-            <ArrowOutwardIcon />
-          </IconButton>
+            <SmallButton
+              backgroundColor="white"
+              arrowColor="black"
+              link="/profile"
+            />
+          </Box>
         </Card>
       </Grid>
     </Grid>
