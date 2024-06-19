@@ -10,7 +10,8 @@ const Footer: React.FC = () => {
         padding: 2,
         borderRadius: "20px",
         textAlign: "center",
-        marginTop: 5
+        marginTop: 5,
+        position: "sticky"
 
       }}
     >

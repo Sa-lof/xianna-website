@@ -9,6 +9,7 @@ interface LargeButtonProps {
   textColor?: string;
   arrowColor?: string;
   backgroundColor?: string;
+  onClick?: () => void;
 }
 
 const LargeButton: React.FC<LargeButtonProps> = ({
@@ -17,13 +18,14 @@ const LargeButton: React.FC<LargeButtonProps> = ({
   textColor = "black",
   arrowColor = "black",
   backgroundColor = "white",
+  onClick,
 }) => {
   const navigate = useNavigate();
 
   return (
     <Button
       variant="contained"
-      onClick={() => navigate(link)}
+      onClick= {onClick ? onClick : () => navigate(link)}
       sx={{
         display: "flex",
         alignItems: "center",

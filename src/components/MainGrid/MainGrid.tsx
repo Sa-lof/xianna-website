@@ -221,15 +221,19 @@ const MainGrid: React.FC = () => {
           className="no-underline"
         >
           <Card
-            className="flex-col items-center justify-center h-full cursor-pointer"
+            className="flex flex-col items-center justify-center h-full cursor-pointer"
             sx={{ backgroundColor: lightpink, color: "white", padding: 2 }}
           >
-            <CardContent className="flex-grow flex flex-col items-center justify-center">
+            <CardContent className="flex-grow flex items-center justify-center">
               <InstagramIcon sx={{ color: "white", fontSize: 80 }} />
               <Typography
                 variant="h6"
                 className="text-white mt-2"
-                sx={{ fontWeight: "bold", fontSize: "32px" }}
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "32px",
+                  textAlign: "center",
+                }}
               >
                 @xianna
               </Typography>
@@ -237,6 +241,7 @@ const MainGrid: React.FC = () => {
           </Card>
         </a>
       </Grid>
+
       <Grid item xs={12} md={4} sm={12}>
         <CarouselCardTest />
       </Grid>
@@ -271,7 +276,7 @@ const MainGrid: React.FC = () => {
             <SmallButton
               backgroundColor="white"
               arrowColor="black"
-              link="/profile"
+              link="/contacto"
             />
           </Box>
         </Card>
