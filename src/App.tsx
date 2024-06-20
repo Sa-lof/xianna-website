@@ -8,6 +8,7 @@ import Contact from "./routes/Contact";
 import BlogDetails from './routes/BlogDetail';
 import './App.css';
 import Catalog from './routes/Catalog';
+import CatalogDetail from './routes/CatalogDetail';
 
 const App: React.FC = () => {
   return (
@@ -17,7 +18,7 @@ const App: React.FC = () => {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:id" element={<BlogDetails />} />
         <Route path="/catalogo" element={<Catalog />} />
-        <Route path="/catalogo/:id" element={<Catalog />} />
+        <Route path="/catalogo/:id" element={<CatalogDetail />} />
         <Route path="/contacto" element={<Contact />} />
       </Routes>
     </Router>
