@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -28,6 +28,9 @@ import TableUsers from '../TableUsers/TableUsers';
 import Button from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import AddIcon from '@mui/icons-material/Add';
+import CatalogForm from '../CatalogForm/CatalogForm';
+import BlogForm from '../BlogForm/BlogForm';
+import CuestionarioForm from '../CuestionarioForm/CuestionarioForm';
 
 const drawerWidth = 240;
 
@@ -57,7 +60,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'flex-end',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
@@ -102,8 +104,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function MiniDrawer() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [content, setContent] = React.useState('Insights');
+  const [open, setOpen] = useState(false);
+  const [content, setContent] = useState('Insights');
+  const [showForm, setShowForm] = useState(false);
+  const [formType, setFormType] = useState('');
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -115,6 +119,15 @@ export default function MiniDrawer() {
 
   const handleMenuItemClick = (text: string) => {
     setContent(text);
+  };
+
+  const handleAddClick = (type: string) => {
+    setFormType(type);
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
   };
 
   const menuItems = [
@@ -158,7 +171,7 @@ export default function MiniDrawer() {
           {menuItems.map((item) => (
             <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
-                onClick={() => handleMenuItemClick(item.text)} // Manejar clics en los botones del menú
+                onClick={() => handleMenuItemClick(item.text)}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
@@ -182,144 +195,156 @@ export default function MiniDrawer() {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
         <DrawerHeader />
-        {content === 'Insights' && (
+        {showForm ? (
+          formType === 'Catálogo' ? (
+            <CatalogForm onClose={handleFormClose} />
+          ) : formType === 'Blogs' ? (
+            <BlogForm onClose={handleFormClose} />
+          ) : formType === 'Formulario' ? (
+            <CuestionarioForm onClose={handleFormClose} />
+          ) : null
+        ) : (
           <>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h4" component="h2" fontWeight="bold">
-              Insights
-            </Typography>
-            <Box>
-              <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }}>
-                Reporte
-              </Button>
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box
-              sx={{
-                backgroundColor: '#fff',
-                padding: 2,
-                borderRadius: 2,
-                boxShadow: 2,
-                textAlign: 'center',
-                minWidth: 300,
-                margin: 1,
-              }}
-            >
-              <Typography variant="h6" fontWeight="bold" color="#E61F93">
-                Usuarios
-              </Typography>
-              <Typography variant="h4" fontWeight="bold" color="#000">
-                00
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: '#fff',
-                padding: 2,
-                borderRadius: 2,
-                boxShadow: 2,
-                textAlign: 'center',
-                minWidth: 600,
-                margin: 1,
-              }}
-            >
-              <Typography variant="h6" fontWeight="bold" color="#E61F93">
-                Outfit más guardado
-              </Typography>
-              <Typography variant="h4" fontWeight="bold" color="#000">
-                Nombre outfit
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: '#fff',
-                padding: 2,
-                borderRadius: 2,
-                boxShadow: 2,
-                textAlign: 'center',
-                minWidth: 300,
-                margin: 1,
-              }}
-            >
-              <Typography variant="h6" fontWeight="bold" color="#E61F93">
-                Blog preferido
-              </Typography>
-              <Typography variant="h4" fontWeight="bold" color="#000">
-                Categoría
-              </Typography>
-            </Box>
-          </Box>
-        </>
-        )}
-        {content === 'Usuarios' && (
-          <>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h4" component="h2" fontWeight="bold">
-                  Usuarios
-              </Typography>
-              <Box sx={{ mt: { xs: 2, sm: 0 } }}>
-                  <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
+            {content === 'Insights' && (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h4" component="h2" fontWeight="bold">
+                    Insights
+                  </Typography>
+                  <Box>
+                    <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }}>
                       Reporte
-                  </Button>
-              </Box>
-          </Box>
-          <TableUsers />
-      </>
-        )}
-        {content === 'Catálogo' && (
-            <>
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h4" component="h2" fontWeight="bold">
-                        Catálogo
+                    </Button>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{
+                      backgroundColor: '#fff',
+                      padding: 2,
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      textAlign: 'center',
+                      minWidth: 300,
+                      margin: 1,
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="bold" color="#E61F93">
+                      Usuarios
                     </Typography>
-                    <Box sx={{ mt: { xs: 2, sm: 0 } }}>
-                        <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
-                            Reporte
-                        </Button>
-                        <Button variant="contained" color="secondary" startIcon={<AddIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }}>
-                            Agregar
-                        </Button>
-                    </Box>
+                    <Typography variant="h4" fontWeight="bold" color="#000">
+                      00
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      backgroundColor: '#fff',
+                      padding: 2,
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      textAlign: 'center',
+                      minWidth: 600,
+                      margin: 1,
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="bold" color="#E61F93">
+                      Outfit más guardado
+                    </Typography>
+                    <Typography variant="h4" fontWeight="bold" color="#000">
+                      Nombre outfit
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      backgroundColor: '#fff',
+                      padding: 2,
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      textAlign: 'center',
+                      minWidth: 300,
+                      margin: 1,
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="bold" color="#E61F93">
+                      Blog preferido
+                    </Typography>
+                    <Typography variant="h4" fontWeight="bold" color="#000">
+                      Categoría
+                    </Typography>
+                  </Box>
+                </Box>
+              </>
+            )}
+            {content === 'Usuarios' && (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h4" component="h2" fontWeight="bold">
+                    Usuarios
+                  </Typography>
+                  <Box sx={{ mt: { xs: 2, sm: 0 } }}>
+                    <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
+                      Reporte
+                    </Button>
+                  </Box>
+                </Box>
+                <TableUsers />
+              </>
+            )}
+            {content === 'Catálogo' && (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h4" component="h2" fontWeight="bold">
+                    Catálogo
+                  </Typography>
+                  <Box sx={{ mt: { xs: 2, sm: 0 } }}>
+                    <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
+                      Reporte
+                    </Button>
+                    <Button variant="contained" color="secondary" startIcon={<AddIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }} onClick={() => handleAddClick('Catálogo')}>
+                      Agregar
+                    </Button>
+                  </Box>
                 </Box>
                 <Table />
-            </>
-        )}
-        {content === 'Formulario' && (
-          <>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h4" component="h2" fontWeight="bold">
-                  Formulario
-              </Typography>
-              <Box sx={{ mt: { xs: 2, sm: 0 } }}>
-                  <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
-                      Reporte
-                  </Button>
-                  <Button variant="contained" color="secondary" startIcon={<AddIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }}>
-                      Agregar
-                  </Button>
-              </Box>
-          </Box>
-          <Accordion />
-      </>
-        )}
-        {content === 'Blogs' && (
-            <>
+              </>
+            )}
+            {content === 'Formulario' && (
+              <>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h4" component="h2" fontWeight="bold">
-                        Blogs
-                    </Typography>
-                    <Box sx={{ mt: { xs: 2, sm: 0 } }}>
-                        <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
-                            Reporte
-                        </Button>
-                        <Button variant="contained" color="secondary" startIcon={<AddIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }}>
-                            Agregar
-                        </Button>
-                    </Box>
+                  <Typography variant="h4" component="h2" fontWeight="bold">
+                    Formulario
+                  </Typography>
+                  <Box sx={{ mt: { xs: 2, sm: 0 } }}>
+                    <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
+                      Reporte
+                    </Button>
+                    <Button variant="contained" color="secondary" startIcon={<AddIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }} onClick={() => handleAddClick('Formulario')}>
+                      Agregar
+                    </Button>
+                  </Box>
+                </Box>
+                <Accordion />
+              </>
+            )}
+            {content === 'Blogs' && (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h4" component="h2" fontWeight="bold">
+                    Blogs
+                  </Typography>
+                  <Box sx={{ mt: { xs: 2, sm: 0 } }}>
+                    <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
+                      Reporte
+                    </Button>
+                    <Button variant="contained" color="secondary" startIcon={<AddIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }} onClick={() => handleAddClick('Blogs')}>
+                      Agregar
+                    </Button>
+                  </Box>
                 </Box>
                 <TableBlogs />
-            </>
+              </>
+            )}
+          </>
         )}
       </Box>
     </Box>

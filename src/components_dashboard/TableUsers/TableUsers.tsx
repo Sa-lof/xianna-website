@@ -8,7 +8,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
-import UserCard from '../UserCard/UserCard'; // Ajusta la ruta de importación según sea necesario
+import UserCard from '../UserCard/UserCard';
 
 interface Column {
   id: 'Imagen' | 'Nombre' | 'Estilo';
