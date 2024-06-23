@@ -24,6 +24,7 @@ import CreateIcon from '@mui/icons-material/Create';
 import Table from '../TableCatalogo/TableCatalogo';
 import TableBlogs from '../TableBlogs/TableBlogs';
 import Accordion from '../Accordion/Accordion';
+import TableUsers from '../TableUsers/TableUsers';
 import Button from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import AddIcon from '@mui/icons-material/Add';
@@ -182,14 +183,89 @@ export default function MiniDrawer() {
       <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
         <DrawerHeader />
         {content === 'Insights' && (
-          <Typography paragraph>
-            Contenido de Insights: Lorem ipsum dolor sit amet, consectetur adipiscing elit...
-          </Typography>
+          <>
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h4" component="h2" fontWeight="bold">
+              Insights
+            </Typography>
+            <Box>
+              <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff' }}>
+                Reporte
+              </Button>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box
+              sx={{
+                backgroundColor: '#fff',
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+                textAlign: 'center',
+                minWidth: 300,
+                margin: 1,
+              }}
+            >
+              <Typography variant="h6" fontWeight="bold" color="#E61F93">
+                Usuarios
+              </Typography>
+              <Typography variant="h4" fontWeight="bold" color="#000">
+                00
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                backgroundColor: '#fff',
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+                textAlign: 'center',
+                minWidth: 600,
+                margin: 1,
+              }}
+            >
+              <Typography variant="h6" fontWeight="bold" color="#E61F93">
+                Outfit más guardado
+              </Typography>
+              <Typography variant="h4" fontWeight="bold" color="#000">
+                Nombre outfit
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                backgroundColor: '#fff',
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+                textAlign: 'center',
+                minWidth: 300,
+                margin: 1,
+              }}
+            >
+              <Typography variant="h6" fontWeight="bold" color="#E61F93">
+                Blog preferido
+              </Typography>
+              <Typography variant="h4" fontWeight="bold" color="#000">
+                Categoría
+              </Typography>
+            </Box>
+          </Box>
+        </>
         )}
         {content === 'Usuarios' && (
-          <Typography paragraph>
-            Contenido de Usuarios: Pulvinar elementum integer enim neque volutpat ac tincidunt...
-          </Typography>
+          <>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h4" component="h2" fontWeight="bold">
+                  Usuarios
+              </Typography>
+              <Box sx={{ mt: { xs: 2, sm: 0 } }}>
+                  <Button variant="contained" color="secondary" startIcon={<ArrowDropDownIcon />} sx={{ backgroundColor: '#E61F93', color: '#fff', mr: 2 }}>
+                      Reporte
+                  </Button>
+              </Box>
+          </Box>
+          <TableUsers />
+      </>
         )}
         {content === 'Catálogo' && (
             <>

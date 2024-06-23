@@ -98,9 +98,9 @@ export default function StickyHeadTable() {
                     return (
                       <TableCell key={column.id} align={column.align}>
                         {column.id === 'Imagen' ? (
-                          <Box display="flex" alignItems="center">
+                          <Box display="flex" alignItems="center" justifyContent="center">
                             <Avatar alt={row.Nombre} src={typeof value === 'string' ? value : undefined} />
-                            <Box ml={2}>
+                            <Box ml={2} textAlign="center">
                               <div>{row.Nombre}</div>
                               <Chip label="Categoría" style={{ backgroundColor: '#F9A7B0', color: 'white' }} />
                             </Box>
@@ -120,7 +120,7 @@ export default function StickyHeadTable() {
                             </IconButton>
                           </Box>
                         ) : (
-                          value
+                          <Box textAlign="center">{value}</Box>
                         )}
                       </TableCell>
                     );
