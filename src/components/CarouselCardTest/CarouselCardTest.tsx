@@ -1,13 +1,10 @@
 import React from "react";
 import Slider from "react-slick";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Avatar,
-} from "@mui/material";
+import { Card, CardContent, Typography, Avatar, Box } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const testimonials = [
   {
@@ -27,7 +24,7 @@ const SampleNextArrow = (props: any) => {
   return (
     <ArrowForwardIosIcon
       className={className}
-      style={{ ...style, display: "block", color: "black" }}
+      style={{ ...style, display: "block", color: "white" }}
       onClick={onClick}
     />
   );
@@ -38,7 +35,7 @@ const SamplePrevArrow = (props: any) => {
   return (
     <ArrowBackIosNewIcon
       className={className}
-      style={{ ...style, display: "block", color: "black" }}
+      style={{ ...style, display: "block", color: "white" }}
       onClick={onClick}
     />
   );
@@ -55,29 +52,39 @@ const CarouselCardTest: React.FC = () => {
     prevArrow: <SamplePrevArrow />,
   };
 
+  const blue = "#00D1ED";
+
   return (
-    <Card className="flex flex-col items-center h-full" sx={{backgroundColor: "blue"}}>
-      <CardContent className="flex-grow">
+    <Card
+      className="flex flex-col h-full"
+      sx={{ backgroundColor: blue, color: "white", padding: 4 }}
+    >
+      <CardContent
+        className="flex-grow"
+        sx={{ padding: 2, justifyContent: "center", textAlign: "center" }}
+      >
         <Slider {...settings}>
           {testimonials.map((testimonial, index) => (
-            <div key={index} className="flex items-center justify-center">
+            <Box
+              key={index}
+              className="flex flex-col items-center justify-center"
+              sx={{ padding: 2 }}
+            >
               <Avatar
-                sx={{ width: 56, height: 56, marginRight: 2 }}
+                sx={{ width: 56, height: 56, marginBottom: 2 }}
                 src={testimonial.avatar}
                 alt={testimonial.name}
               />
-              <div>
-                <Typography
-                  variant="body1"
-                  sx={{ fontWeight: "bold", fontSize: "32px" }}
-                >
-                  {testimonial.name}
-                </Typography>
-                <Typography variant="body2" sx={{ fontSize: "24px" }}>
-                  {testimonial.opinion}
-                </Typography>
-              </div>
-            </div>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "bold", fontSize: "32px" }}
+              >
+                {testimonial.name}
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: "24px" }}>
+                {testimonial.opinion}
+              </Typography>
+            </Box>
           ))}
         </Slider>
       </CardContent>
