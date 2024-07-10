@@ -5,13 +5,15 @@ import BlogsTable from "../components_dashboard/TableBlogs_D/TableBlogs";
 import CuestionarioTable from "../components_dashboard/TableCuestionario_D/TableCuestionario";
 import UsersTable from "../components_dashboard/TableUsers_D/TableUsers";
 import Insights from "../components_dashboard/Insights_D/Insights";
-import { Box } from "@mui/material";
+import { Box, IconButton, Drawer, useMediaQuery } from "@mui/material";
+import MenuIcon from '@mui/icons-material/Menu';
 import '../../src/App.css';
 
 const Dashboard: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState<string>('insights');
-  const sidebarWidth = 250; // Ancho fijo de la SideBar
-  const sidebarHeight = '100vh'; // Alto fijo de la SideBar
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const isSmallScreen = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
+  const sidebarWidth = 250;
 
   const renderTable = () => {
     switch (selectedKey) {
@@ -31,14 +33,33 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <Box sx={{ width: `${sidebarWidth}px`, height: `${sidebarHeight}`, position: 'fixed' }}>
-        <SideBar selectedKey={selectedKey} onSelect={setSelectedKey} />
-      </Box>
+      {isSmallScreen ? (
+        <>
+          <IconButton
+            onClick={() => setDrawerOpen(true)}
+            sx={{ position: 'fixed', top: 16, left: 16 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Drawer
+            anchor="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            sx={{ '& .MuiDrawer-paper': { width: sidebarWidth } }}
+          >
+            <SideBar selectedKey={selectedKey} onSelect={(key) => { setSelectedKey(key); setDrawerOpen(false); }} />
+          </Drawer>
+        </>
+      ) : (
+        <Box sx={{ width: `${sidebarWidth}px`, height: '100vh', position: 'fixed' }}>
+          <SideBar selectedKey={selectedKey} onSelect={setSelectedKey} />
+        </Box>
+      )}
       <Box
         sx={{
           flexGrow: 1,
-          padding: { xs: 2, sm: 3, md: 3, lg: 4, xl: 4 },
-          marginLeft: `${sidebarWidth}px`,
+          padding: { xs: 4, sm: 3, md: 3, lg: 4, xl: 4 },
+          marginLeft: isSmallScreen ? 0 : `${sidebarWidth}px`,
           height: '100vh',
           overflowY: 'auto',
         }}

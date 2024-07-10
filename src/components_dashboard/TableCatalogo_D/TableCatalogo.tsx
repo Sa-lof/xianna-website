@@ -281,8 +281,8 @@ const CatalogoTable: React.FC = () => {
               <TableBody>
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                   <TableRow key={index}>
-                    <TableCell>
-                      <Avatar src={row.image} alt={row.name} sx={{ width: 56, height: 56 }} />
+                    <TableCell style={{ textAlign: 'center' }}>
+                      <Avatar src={row.image} alt={row.name} sx={{ width: 56, height: 56, margin: 'auto' }} />
                     </TableCell>
                     <TableCell style={{ textAlign: 'center' }}>{row.name}</TableCell>
                     <TableCell style={{ textAlign: 'center' }}>

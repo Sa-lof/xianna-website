@@ -19,8 +19,7 @@ const Sidebar: React.FC<{ selectedKey: string, onSelect: (key: string) => void }
         boxShadow: 3,
         padding: '20px',
         textAlign: 'center',
-        height: '100vh', 
-        position: 'fixed',
+        height: '100vh',
         overflowY: 'auto',
       }}
     >
