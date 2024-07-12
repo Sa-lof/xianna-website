@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, IconButton,
   TablePagination, Typography, Button, TextField, MenuItem, Grid
@@ -22,22 +22,35 @@ interface RowData {
   favorites: number;
 }
 
+interface Outfit {
+  nombre: string;
+  descripcion: string;
+  estilo: string;
+  ocasiones: string[];
+  imagenPrincipal: File | null;
+  imagenPrincipalNombre: string;
+  prendas: { imagen: File | null; imagenNombre: string; nombre: string; link: string }[];
+}
+
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [uploadFields, setUploadFields] = useState([0]);
-  const [outfit, setOutfit] = useState({
+  const [outfit, setOutfit] = useState<Outfit>({
     nombre: '',
     descripcion: '',
     estilo: '',
-    ocasiones: [] as string[], // Modificar a un array de strings
+    ocasiones: [],
     imagenPrincipal: null,
-    prendas: [{ imagen: null, nombre: '', link: '' }],
+    imagenPrincipalNombre: '',
+    prendas: [{ imagen: null, imagenNombre: '', nombre: '', link: '' }],
   });
   const [estilos, setEstilos] = useState<{ id_estilo: any; tipo: any }[]>([]);
   const [ocasiones, setOcasiones] = useState<{ id_ocasion: any; ocasion: any }[]>([]);
+  const fileInputRefPrincipal = useRef<HTMLInputElement>(null); // Referencia al input de archivo de imagen principal
+  const fileInputRefs = useRef<HTMLInputElement[]>([]); // Referencias a los inputs de archivo de prendas
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,7 +117,7 @@ const CatalogoTable: React.FC = () => {
     setUploadFields([...uploadFields, uploadFields.length]);
     setOutfit({
       ...outfit,
-      prendas: [...outfit.prendas, { imagen: null, nombre: '', link: '' }],
+      prendas: [...outfit.prendas, { imagen: null, imagenNombre: '', nombre: '', link: '' }],
     });
   };
 
@@ -130,6 +143,54 @@ const CatalogoTable: React.FC = () => {
       return prenda;
     });
     setOutfit({ ...outfit, prendas: newPrendas });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string, index: number = 0) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (field === 'imagenPrincipal') {
+        setOutfit({ ...outfit, imagenPrincipal: file, imagenPrincipalNombre: file.name });
+      } else {
+        const newPrendas = outfit.prendas.map((prenda, prendaIndex) => {
+          if (prendaIndex === index) {
+            return { ...prenda, imagen: file, imagenNombre: file.name };
+          }
+          return prenda;
+        });
+        setOutfit({ ...outfit, prendas: newPrendas });
+      }
+    }
+  };
+
+  const handleUploadImages = async (outfitId: number) => {
+    try {
+      // Upload the main image
+      if (outfit.imagenPrincipal) {
+        const mainImagePath = `uploads/${outfitId}/principal/${outfit.imagenPrincipalNombre}`;
+        const { error: principalError } = await supabase
+          .storage
+          .from('Prendas')
+          .upload(mainImagePath, outfit.imagenPrincipal);
+        if (principalError) throw principalError;
+      }
+
+      // Upload each garment image
+      for (let i = 0; i < outfit.prendas.length; i++) {
+        const prenda = outfit.prendas[i];
+        if (prenda.imagen) {
+          const prendaImagePath = `uploads/${outfitId}/prenda_${i + 1}/${prenda.imagenNombre}`;
+          const { error: prendaError } = await supabase
+            .storage
+            .from('Prendas')
+            .upload(prendaImagePath, prenda.imagen);
+          if (prendaError) throw prendaError;
+        }
+      }
+
+      alert('Imágenes subidas exitosamente');
+    } catch (error) {
+      console.error('Error al subir imágenes:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,13 +230,15 @@ const CatalogoTable: React.FC = () => {
         if (ocasionError) throw ocasionError;
       }
 
+      await handleUploadImages(newOutfitId);
+
       alert('Outfit guardado exitosamente');
     } catch (error) {
       console.error('Error al guardar el outfit:', error);
     }
   };
 
-  const UploadButton = () => (
+  const UploadButton = ({ onClick, fileName }: { onClick: () => void; fileName?: string }) => (
     <Box
       sx={{
         display: 'flex',
@@ -188,7 +251,9 @@ const CatalogoTable: React.FC = () => {
         height: '100px',
         boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
         margin: '16px 0',
+        cursor: 'pointer'
       }}
+      onClick={onClick}
     >
       <CloudUploadIcon sx={{ fontSize: 40, color: 'black' }} />
       <Button
@@ -201,7 +266,7 @@ const CatalogoTable: React.FC = () => {
           boxShadow: 'none',
         }}
       >
-        Subir
+        {fileName || 'Subir'}
       </Button>
     </Box>
   );
@@ -305,7 +370,13 @@ const CatalogoTable: React.FC = () => {
           <Typography variant="h6" fontWeight="bold">
             Imagen principal
           </Typography>
-          <UploadButton />
+          <input
+            type="file"
+            ref={fileInputRefPrincipal}
+            style={{ display: 'none' }}
+            onChange={(e) => handleFileChange(e, 'imagenPrincipal')}
+          />
+          <UploadButton onClick={() => fileInputRefPrincipal.current?.click()} fileName={outfit.imagenPrincipalNombre} />
           <Typography variant="h6" fontWeight="bold">
             Prendas
           </Typography>
@@ -313,7 +384,13 @@ const CatalogoTable: React.FC = () => {
             {uploadFields.map((field, index) => (
               <Grid container item xs={12} spacing={2} key={index} alignItems="center">
                 <Grid item xs={12} sm={4}>
-                  <UploadButton />
+                  <input
+                    type="file"
+                    ref={el => (fileInputRefs.current[index] = el as HTMLInputElement)}
+                    style={{ display: 'none' }}
+                    onChange={(e) => handleFileChange(e, 'prendaImagen', index)}
+                  />
+                  <UploadButton onClick={() => fileInputRefs.current[index]?.click()} fileName={outfit.prendas[index].imagenNombre} />
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <TextField
