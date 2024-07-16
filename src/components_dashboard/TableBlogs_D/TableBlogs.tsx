@@ -1,44 +1,56 @@
-import React, { useState } from 'react';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, IconButton, TablePagination, Typography, Button, TextField, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { getBlogs, updateBlog} from '../../services/blogservice'; // Ajusta la ruta según tu estructura de carpetas
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, IconButton, TablePagination, Typography, Button, TextField, MenuItem, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import StarIcon from '@mui/icons-material/Star';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
-const rows = [
-  {
-    image: 'https://images.pexels.com/photos/1055691/pexels-photo-1055691.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    name: 'Título del blog',
-    category: 'Categoría',
-    rating: 5,
-    persons: 100,
-    description: 'Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
-  },
-  {
-    image: 'https://example.com/image2.jpg',
-    name: 'Título del blog',
-    category: 'Categoría',
-    rating: 5,
-    persons: 100,
-    description: 'Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
-  },
-  {
-    image: 'https://example.com/image1.jpg',
-    name: 'Título del blog',
-    category: 'Categoría',
-    rating: 5,
-    persons: 100,
-    description: 'Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum',
-  },
-  // Add more rows as needed
-];
+interface Blog {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  contenido: string;
+  image: string;
+  name: string;
+  category: string;
+  rating: number;
+  persons: number;
+}
 
 const CatalogoTable: React.FC = () => {
+  const [rows, setRows] = useState<Blog[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [uploadFields, setUploadFields] = useState([0]);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentBlog, setCurrentBlog] = useState<Blog | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getBlogs();
+        const formattedData = data.map((blog: any) => ({
+          id: blog.id,
+          titulo: blog.titulo,
+          descripcion: blog.descripcion,
+          contenido: blog.contenido,
+          image: 'https://via.placeholder.com/150', // Reemplaza con la URL correcta de la imagen si está disponible en tu base de datos
+          name: blog.titulo,
+          category: 'Categoría', // Ajusta esto según tu estructura de datos
+          rating: 5, // Ajusta esto según tu estructura de datos
+          persons: 100 // Ajusta esto según tu estructura de datos
+        }));
+        setRows(formattedData);
+      } catch (error) {
+        console.error('There was an error fetching the data!', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -59,6 +71,39 @@ const CatalogoTable: React.FC = () => {
 
   const handleAddUploadField = () => {
     setUploadFields([...uploadFields, uploadFields.length]);
+  };
+
+  const handleEditClick = (blog: Blog) => {
+    setCurrentBlog(blog);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditDialogOpen(false);
+    setCurrentBlog(null);
+  };
+
+  const handleEditSave = async () => {
+    if (currentBlog) {
+      try {
+        await updateBlog(currentBlog.id, currentBlog);
+        setRows((prevRows) =>
+          prevRows.map((row) =>
+            row.id === currentBlog.id ? currentBlog : row
+          )
+        );
+        handleEditDialogClose();
+      } catch (error) {
+        console.error('There was an error updating the blog!', error);
+      }
+    }
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setCurrentBlog((prevBlog) =>
+      prevBlog ? { ...prevBlog, [name]: value } : null
+    );
   };
 
   const UploadButton = () => (
@@ -199,8 +244,8 @@ const CatalogoTable: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                  <TableRow key={index}>
+                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  <TableRow key={row.id}>
                     <TableCell>
                       <Box display="flex" alignItems="center">
                         <Avatar src={row.image} alt={row.name} sx={{ width: 56, height: 56, marginRight: '8px' }} />
@@ -219,10 +264,10 @@ const CatalogoTable: React.FC = () => {
                       {row.persons}
                     </TableCell>
                     <TableCell style={{ textAlign: 'center', whiteSpace: 'normal', wordWrap: 'break-word', width: '20%' }}>
-                      {row.description}
+                      {row.descripcion}
                     </TableCell>
                     <TableCell style={{ textAlign: 'center' }}>
-                      <IconButton>
+                      <IconButton onClick={() => handleEditClick(row)}>
                         <EditIcon />
                       </IconButton>
                       <IconButton>
@@ -243,6 +288,47 @@ const CatalogoTable: React.FC = () => {
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </TableContainer>
+
+          <Dialog open={editDialogOpen} onClose={handleEditDialogClose}>
+            <DialogTitle>Editar Blog</DialogTitle>
+            <DialogContent>
+              <TextField
+                label="Título"
+                name="titulo"
+                value={currentBlog?.titulo || ''}
+                onChange={handleInputChange}
+                fullWidth
+                sx={{ marginBottom: 2 }}
+              />
+              <TextField
+                label="Descripción"
+                name="descripcion"
+                value={currentBlog?.descripcion || ''}
+                onChange={handleInputChange}
+                fullWidth
+                multiline
+                rows={4}
+                sx={{ marginBottom: 2 }}
+              />
+              <TextField
+                label="Contenido"
+                name="contenido"
+                value={currentBlog?.contenido || ''}
+                onChange={handleInputChange}
+                fullWidth
+                multiline
+                rows={6}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleEditDialogClose} color="secondary">
+                Cancelar
+              </Button>
+              <Button onClick={handleEditSave} color="primary">
+                Guardar
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Box>
