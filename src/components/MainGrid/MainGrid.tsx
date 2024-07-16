@@ -80,7 +80,7 @@ const MainGrid: React.FC = () => {
             <SmallButton
               backgroundColor="white"
               arrowColor="black"
-              link="/profile"
+              link="/formulario"
             />
           </Box>
         </Card>

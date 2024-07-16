@@ -10,6 +10,7 @@ import CatalogDetail from "./routes/CatalogDetail";
 import Profile from "./routes/Profile";
 import Signup from "./routes/Signup";
 import MyOutfits from "./routes/MyOutfits";
+import Form from "./routes/Form";
 
 const App: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ const App: React.FC = () => {
           <Route path="/registro" element={<Signup />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/mis-outfits" element={<MyOutfits />} />
+          <Route path="/formulario" element={<Form />} />
         </Routes>
       </Router>
     </div>
