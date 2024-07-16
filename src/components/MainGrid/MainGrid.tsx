@@ -80,7 +80,7 @@ const MainGrid: React.FC = () => {
             <SmallButton
               backgroundColor="white"
               arrowColor="black"
-              link="/profile"
+              link="/formulario"
             />
           </Box>
         </Card>
@@ -100,7 +100,7 @@ const MainGrid: React.FC = () => {
           </CardContent>
           <LargeButton
             text="Regístrate"
-            link="/signup"
+            link="/registro"
             textColor="black"
             arrowColor="black"
             backgroundColor="white"

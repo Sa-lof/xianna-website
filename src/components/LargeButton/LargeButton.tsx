@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@mui/material";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useNavigate } from "react-router-dom";
+import { SxProps } from "@mui/system";
 
 interface LargeButtonProps {
   text: string;
@@ -10,6 +11,7 @@ interface LargeButtonProps {
   arrowColor?: string;
   backgroundColor?: string;
   onClick?: () => void;
+  sx?: SxProps; // Add the sx prop to the interface
 }
 
 const LargeButton: React.FC<LargeButtonProps> = ({
@@ -19,13 +21,14 @@ const LargeButton: React.FC<LargeButtonProps> = ({
   arrowColor = "black",
   backgroundColor = "white",
   onClick,
+  sx = {}, // Default value for sx
 }) => {
   const navigate = useNavigate();
 
   return (
     <Button
       variant="contained"
-      onClick= {onClick ? onClick : () => navigate(link)}
+      onClick={onClick ? onClick : () => navigate(link)}
       sx={{
         display: "flex",
         alignItems: "center",
@@ -44,6 +47,7 @@ const LargeButton: React.FC<LargeButtonProps> = ({
           transition: "transform 0.3s ease-in-out",
           boxShadow: "none",
         },
+        ...sx, // Apply additional styles from the sx prop
       }}
     >
       <span>{text}</span>

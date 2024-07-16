@@ -7,6 +7,10 @@ import BlogDetails from "./routes/BlogDetail";
 import "./App.css";
 import Catalog from "./routes/Catalog";
 import CatalogDetail from "./routes/CatalogDetail";
+import Profile from "./routes/Profile";
+import Signup from "./routes/Signup";
+import MyOutfits from "./routes/MyOutfits";
+import Form from "./routes/Form";
 import Dashboard from "./routes_dashboard/Dashboard";
 
 const App: React.FC = () => {
@@ -20,6 +24,10 @@ const App: React.FC = () => {
           <Route path="/catalogo" element={<Catalog />} />
           <Route path="/catalogo/:id" element={<CatalogDetail />} />
           <Route path="/contacto" element={<Contact />} />
+          <Route path="/registro" element={<Signup />} />
+          <Route path="/perfil" element={<Profile />} />
+          <Route path="/mis-outfits" element={<MyOutfits />} />
+          <Route path="/formulario" element={<Form />} />
           <Route path="/dashboard/home" element={<Dashboard />} />
         </Routes>
       </Router>

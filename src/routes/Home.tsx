@@ -12,7 +12,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 3000); // Same as the slide timeout
+    }, 500); // Same as the slide timeout
 
     return () => clearTimeout(timer);
   }, []);

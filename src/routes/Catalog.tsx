@@ -12,15 +12,20 @@ import {
   ListItemText,
   SelectChangeEvent,
   Slide,
+  Card,
+  CardActionArea,
+  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import StarIcon from "@mui/icons-material/Star";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
-import CatalogCard from "../components/CatalogCard/CatalogCard";
 import Footer from "../components/Footer/Footer";
 import placeholder from "../assets/placeholders/place1.jpg";
 
 const pink = "#E61F93";
+const yellow = "#FDE12D";
 
 const catalogData = [
   {
@@ -88,6 +93,7 @@ const Catalog: React.FC = () => {
   const [selectedEstilos, setSelectedEstilos] = useState<string[]>([]);
   const [selectedOcasiones, setSelectedOcasiones] = useState<string[]>([]);
   const [selectedCuerpos, setSelectedCuerpos] = useState<string[]>([]);
+  const [myOutfits, setMyOutfits] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -120,6 +126,14 @@ const Catalog: React.FC = () => {
 
   const handleCuerpoChange = (event: SelectChangeEvent<string[]>) => {
     setSelectedCuerpos(event.target.value as string[]);
+  };
+
+  const handleToggleOutfit = (id: string) => {
+    setMyOutfits((prevOutfits) =>
+      prevOutfits.includes(id)
+        ? prevOutfits.filter((outfitId) => outfitId !== id)
+        : [...prevOutfits, id]
+    );
   };
 
   const filteredCatalogData = catalogData.filter((item) => {
@@ -293,12 +307,69 @@ const Catalog: React.FC = () => {
           {catalogInView &&
             filteredCatalogData.map((item) => (
               <Grid item xs={12} sm={6} md={3} key={item.id}>
-                <CatalogCard
-                  id={item.id}
-                  image={item.image}
-                  title={item.title}
-                  link={item.link}
-                />
+                <Card
+                  sx={{
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <CardActionArea onClick={() => navigate(item.link)}>
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 10,
+                        left: 10,
+                        color: "white",
+                        borderRadius: 1,
+                        padding: "4px 8px",
+                        display: "flex",
+                        alignItems: "center",
+                        width: "calc(100% - 20px)", // Adjust to fit the padding
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: "bold",
+                          fontSize: "24px",
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                      <IconButton
+                        sx={{
+                          color: "white",
+                          borderRadius: "50%",
+                          padding: "4px",
+                        }}
+                      >
+                        <ArrowOutwardIcon sx={{ color: "white" }} />
+                      </IconButton>
+                    </Box>
+                  </CardActionArea>
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      color: myOutfits.includes(item.id) ? yellow : "white",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => handleToggleOutfit(item.id)}
+                  >
+                    <StarIcon />
+                  </IconButton>
+                </Card>
               </Grid>
             ))}
         </Grid>
