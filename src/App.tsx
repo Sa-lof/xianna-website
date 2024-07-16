@@ -11,6 +11,7 @@ import Profile from "./routes/Profile";
 import Signup from "./routes/Signup";
 import MyOutfits from "./routes/MyOutfits";
 import Form from "./routes/Form";
+import Dashboard from "./routes_dashboard/Dashboard";
 
 const App: React.FC = () => {
   return (
@@ -27,6 +28,7 @@ const App: React.FC = () => {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/mis-outfits" element={<MyOutfits />} />
           <Route path="/formulario" element={<Form />} />
+          <Route path="/dashboard/home" element={<Dashboard />} />
         </Routes>
       </Router>
     </div>
