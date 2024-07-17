@@ -1,109 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, IconButton,
-  TablePagination, Typography, Button, TextField, MenuItem, Grid
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Avatar, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { createClient } from '@supabase/supabase-js';
-import { fetchOutfits, fetchEstilos, fetchOutfitOcasiones, fetchOcasiones, fetchOutfitById } from '../../services/supabaseService';
-
-const SUPABASE_URL = 'https://fkweyjkmjgluvbaydsac.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrd2V5amttamdsdXZiYXlkc2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjA2NDk3MDQsImV4cCI6MjAzNjIyNTcwNH0.HX6g0Mc8tpnaq1iHkhmGKLEx4S17h96tMiIWKngKVOw';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-interface RowData {
-  id_outfit: number;
-  image: string;
-  name: string;
-  styles: string[];
-  occasions: string[];
-  favorites: number;
-}
-
-interface Prenda {
-  imagen: File | null;
-  imagenNombre: string;
-  nombre: string;
-  link: string;
-  imageUrl: string;
-}
+import getOutfits from '../../supabase/CatalogoServices/getOutfits';
+import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
+import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
+import { SelectChangeEvent } from '@mui/material/Select';
 
 interface Outfit {
-  id_outfit?: number;
+  id: number;
   nombre: string;
   descripcion: string;
   estilo: string;
+  id_estilo: number;
+  imagen: string;
   ocasiones: string[];
-  imagenPrincipal: File | null;
-  imagenPrincipalNombre: string;
-  prendas: Prenda[];
+}
+
+interface Style {
+  id: number;
+  tipo: string;
+  descripcion: string;
+}
+
+interface Occasion {
+  id: number;
+  ocasion: string;
 }
 
 const CatalogoTable: React.FC = () => {
-  const [rows, setRows] = useState<RowData[]>([]);
+  const [rows, setRows] = useState<Outfit[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [uploadFields, setUploadFields] = useState([0]);
-  const [outfit, setOutfit] = useState<Outfit>({
-    nombre: '',
-    descripcion: '',
-    estilo: '',
-    ocasiones: [],
-    imagenPrincipal: null,
-    imagenPrincipalNombre: '',
-    prendas: [{ imagen: null, imagenNombre: '', nombre: '', link: '', imageUrl: '' }],
-  });
-  const [estilos, setEstilos] = useState<{ id_estilo: any; tipo: any }[]>([]);
-  const [ocasiones, setOcasiones] = useState<{ id_ocasion: any; ocasion: any }[]>([]);
-  const fileInputRefPrincipal = useRef<HTMLInputElement>(null);
-  const fileInputRefs = useRef<HTMLInputElement[]>([]);
+  const [styles, setStyles] = useState<Style[]>([]);
+  const [occasions, setOccasions] = useState<Occasion[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const outfits = await fetchOutfits();
-        const estilos = await fetchEstilos();
-        const outfitOcasiones = await fetchOutfitOcasiones();
-        const ocasiones = await fetchOcasiones();
+      const data = await getOutfits();
+      setRows(data);
 
-        const estilosMap = estilos.reduce((acc: any, estilo: any) => {
-          acc[estilo.id_estilo] = estilo.tipo;
-          return acc;
-        }, {});
+      const fetchedStyles = await getStyles();
+      setStyles(fetchedStyles);
 
-        const ocasionesMap = ocasiones.reduce((acc: any, ocasion: any) => {
-          acc[ocasion.id_ocasion] = ocasion.ocasion;
-          return acc;
-        }, {});
-
-        const outfitOcasionesMap = outfitOcasiones.reduce((acc: any, item: any) => {
-          if (!acc[item.id_outfit]) {
-            acc[item.id_outfit] = [];
-          }
-          acc[item.id_outfit].push(ocasionesMap[item.id_ocasion]);
-          return acc;
-        }, {});
-
-        const formattedData = outfits.map((outfit: any) => ({
-          id_outfit: outfit.id_outfit,
-          image: outfit.imageUrl,
-          name: outfit.nombre,
-          styles: [estilosMap[outfit.id_estilo]],
-          occasions: outfitOcasionesMap[outfit.id_outfit] || [],
-          favorites: 100,
-        }));
-
-        setRows(formattedData);
-        setEstilos(estilos);
-        setOcasiones(ocasiones);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+      const fetchedOccasions = await getOccasions();
+      setOccasions(fetchedOccasions);
     };
+
     fetchData();
   }, []);
 
@@ -116,302 +61,54 @@ const CatalogoTable: React.FC = () => {
     setPage(0);
   };
 
-  const handleShowForm = () => {
+  const handleEditClick = (outfit: Outfit) => {
+    setSelectedOutfit(outfit);
     setShowForm(true);
   };
 
-  const handleHideForm = () => {
-    setShowForm(false);
-    setOutfit({
-      nombre: '',
-      descripcion: '',
-      estilo: '',
-      ocasiones: [],
-      imagenPrincipal: null,
-      imagenPrincipalNombre: '',
-      prendas: [{ imagen: null, imagenNombre: '', nombre: '', link: '', imageUrl: '' }],
-    });
-  };
-
-  const handleAddUploadField = () => {
-    setUploadFields([...uploadFields, uploadFields.length]);
-    setOutfit({
-      ...outfit,
-      prendas: [...outfit.prendas, { imagen: null, imagenNombre: '', nombre: '', link: '', imageUrl: '' }],
-    });
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setOutfit({ ...outfit, [name]: value });
-  };
-
-  const handleOcasionesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setOutfit({ ...outfit, ocasiones: typeof value === 'string' ? value.split(',') : value });
-  };
-
-  const handlePrendaChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    const newPrendas = outfit.prendas.map((prenda, prendaIndex) => {
-      if (prendaIndex === index) {
-        return { ...prenda, [name]: value };
-      }
-      return prenda;
-    });
-    setOutfit({ ...outfit, prendas: newPrendas });
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string, index: number = 0) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (field === 'imagenPrincipal') {
-        setOutfit({ ...outfit, imagenPrincipal: file, imagenPrincipalNombre: file.name });
-      } else {
-        const newPrendas = outfit.prendas.map((prenda, prendaIndex) => {
-          if (prendaIndex === index) {
-            return { ...prenda, imagen: file, imagenNombre: file.name };
-          }
-          return prenda;
-        });
-        setOutfit({ ...outfit, prendas: newPrendas });
-      }
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (selectedOutfit) {
+      const { name, value } = event.target;
+      setSelectedOutfit({ ...selectedOutfit, [name]: value });
     }
   };
 
-  const handleUploadImages = async (outfitId: number) => {
-    try {
-      if (outfit.imagenPrincipal) {
-        const mainImagePath = `uploads/${outfitId}/principal/${outfit.imagenPrincipalNombre}`;
-        const { error: principalError } = await supabase
-          .storage
-          .from('Prendas')
-          .upload(mainImagePath, outfit.imagenPrincipal);
-        if (principalError) throw principalError;
-      }
-      
-      for (let i = 0; i < outfit.prendas.length; i++) {
-        const prenda = outfit.prendas[i];
-        if (prenda.imagen) {
-          const prendaImagePath = `uploads/${outfitId}/prenda_${i + 1}/${prenda.imagenNombre}`;
-          const { error: prendaError } = await supabase
-            .storage
-            .from('Prendas')
-            .upload(prendaImagePath, prenda.imagen);
-          if (prendaError) throw prendaError;
-        }
-      }
-
-      alert('Imágenes subidas exitosamente');
-    } catch (error) {
-      console.error('Error al subir imágenes:', error);
+  const handleOccasionChange = (event: SelectChangeEvent<string[]>) => {
+    if (selectedOutfit) {
+      setSelectedOutfit({ ...selectedOutfit, ocasiones: event.target.value as string[] });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const { data: newOutfitData, error: newOutfitError } = await supabase
-        .from('outfits')
-        .insert([{
-          nombre: outfit.nombre,
-          descripcion: outfit.descripcion,
-          id_estilo: outfit.estilo,
-        }])
-        .select('id_outfit')
-        .single();
-      if (newOutfitError) throw newOutfitError;
+  const handleFormSubmit = async () => {
+    if (selectedOutfit) {
+      console.log('Updating outfit with the following data:', selectedOutfit);
+      const occasionIds = selectedOutfit.ocasiones.map((ocasion) => {
+        const occasionObject = occasions.find(o => o.ocasion === ocasion);
+        return occasionObject ? occasionObject.id : null;
+      }).filter(id => id !== null) as number[];
 
-      const newOutfitId = newOutfitData.id_outfit;
-
-      for (const prenda of outfit.prendas) {
-        const { error: prendaError } = await supabase
-          .from('prendas')
-          .insert([{
-            nombre: prenda.nombre,
-            link: prenda.link,
-            id_outfit: newOutfitId,
-          }]);
-        if (prendaError) throw prendaError;
-      }
-
-      for (const ocasion of outfit.ocasiones) {
-        const { error: ocasionError } = await supabase
-          .from('outfit_ocasion')
-          .insert([{
-            id_outfit: newOutfitId,
-            id_ocasion: ocasion,
-          }]);
-        if (ocasionError) throw ocasionError;
-      }
-
-      await handleUploadImages(newOutfitId);
-
-      alert('Outfit guardado exitosamente');
-    } catch (error) {
-      console.error('Error al guardar el outfit:', error);
+      await updateOutfit({
+        id: selectedOutfit.id,
+        nombre: selectedOutfit.nombre,
+        descripcion: selectedOutfit.descripcion,
+        id_estilo: selectedOutfit.id_estilo,
+        ocasiones: occasionIds,
+      });
+      setShowForm(false);
+      const data = await getOutfits();
+      setRows(data);
     }
   };
-
-  const handleDelete = async (id_outfit: number) => {
-    try {
-      console.log(`Deleting outfit with id: ${id_outfit}`);
-  
-      const { error: deleteOutfitOcasionError } = await supabase
-        .from('outfit_ocasion')
-        .delete()
-        .eq('id_outfit', id_outfit);
-  
-      if (deleteOutfitOcasionError) throw deleteOutfitOcasionError;
-  
-      const { error: deletePrendasError } = await supabase
-        .from('prendas')
-        .delete()
-        .eq('id_outfit', id_outfit);
-  
-      if (deletePrendasError) throw deletePrendasError;
-
-      const { error: deleteOutfitError } = await supabase
-        .from('outfits')
-        .delete()
-        .eq('id_outfit', id_outfit);
-  
-      if (deleteOutfitError) throw deleteOutfitError;
-  
-      const { data: listFilesData, error: listFilesError } = await supabase
-        .storage
-        .from('Prendas')
-        .list(`uploads/${id_outfit}`, { limit: 1000 });
-  
-      if (listFilesError) throw listFilesError;
-  
-      const filePaths = listFilesData.map(file => `uploads/${id_outfit}/${file.name}`);
-  
-      if (filePaths.length > 0) {
-        const { error: deleteFilesError } = await supabase
-          .storage
-          .from('Prendas')
-          .remove(filePaths);
-  
-        if (deleteFilesError) throw deleteFilesError;
-      }
-  
-      // Verificar y eliminar subcarpetas (ejemplo: prenda_1, prenda_2, principal)
-      const subfolders = ['prenda_1', 'prenda_2', 'prenda_3', 'prenda_4', 'principal'];
-      for (const subfolder of subfolders) {
-        const { data: subfolderFilesData, error: subfolderFilesError } = await supabase
-          .storage
-          .from('Prendas')
-          .list(`uploads/${id_outfit}/${subfolder}`, { limit: 1000 });
-  
-        if (subfolderFilesError) throw subfolderFilesError;
-  
-        const subfolderFilePaths = subfolderFilesData.map(file => `uploads/${id_outfit}/${subfolder}/${file.name}`);
-  
-        if (subfolderFilePaths.length > 0) {
-          const { error: deleteSubfolderFilesError } = await supabase
-            .storage
-            .from('Prendas')
-            .remove(subfolderFilePaths);
-  
-          if (deleteSubfolderFilesError) throw deleteSubfolderFilesError;
-        }
-      }
-  
-      const { error: deleteFolderError } = await supabase
-        .storage
-        .from('Prendas')
-        .remove([`uploads/${id_outfit}`]);
-  
-      if (deleteFolderError) throw deleteFolderError;
-  
-      setRows(rows.filter(row => row.id_outfit !== id_outfit));
-  
-      alert('Outfit eliminado exitosamente');
-    } catch (error) {
-      console.error('Error al eliminar el outfit:', error);
-    }
-  };
-
-  const handleEdit = async (id_outfit: number) => {
-    try {
-      const selectedOutfit = await fetchOutfitById(id_outfit);
-
-      if (selectedOutfit) {
-        setOutfit({
-          id_outfit: selectedOutfit.id_outfit,
-          nombre: selectedOutfit.nombre,
-          descripcion: selectedOutfit.descripcion,
-          estilo: selectedOutfit.id_estilo,
-          ocasiones: selectedOutfit.ocasiones,
-          imagenPrincipal: null,
-          imagenPrincipalNombre: selectedOutfit.imageUrl,
-          prendas: selectedOutfit.prendas.map((prenda: any) => ({
-            imagen: null,
-            imagenNombre: prenda.imageUrl,
-            nombre: prenda.nombre,
-            link: prenda.link,
-            imageUrl: prenda.imageUrl,
-          })),
-        });
-        setShowForm(true);
-      }
-    } catch (error) {
-      console.error('Error fetching outfit:', error);
-    }
-  };
-
-  const UploadButton = ({ onClick, fileName, imageUrl }: { onClick: () => void; fileName?: string, imageUrl?: string }) => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '1px solid #e0e0e0',
-        borderRadius: '24px',
-        width: '100%',
-        height: '100px',
-        boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-        margin: '16px 0',
-        cursor: 'pointer'
-      }}
-      onClick={onClick}
-    >
-      {imageUrl ? (
-        <Avatar src={imageUrl} alt="Uploaded image" sx={{ width: '100%', height: '100%' }} />
-      ) : (
-        <>
-          <CloudUploadIcon sx={{ fontSize: 40, color: 'black' }} />
-          <Button
-            variant="contained"
-            sx={{
-              marginTop: '8px',
-              backgroundColor: '#E61F93',
-              borderRadius: '20px',
-              textTransform: 'none',
-              boxShadow: 'none',
-            }}
-          >
-            {fileName || 'Subir'}
-          </Button>
-        </>
-      )}
-    </Box>
-  );
 
   return (
     <Box sx={{ padding: 2 }}>
       {showForm ? (
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Button onClick={() => setShowForm(false)} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
             Regresar
           </Button>
           <Typography variant="h4" fontWeight="bold">
-            Catálogo
+            Editar Outfit
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
@@ -420,8 +117,8 @@ const CatalogoTable: React.FC = () => {
                 variant="outlined"
                 fullWidth
                 name="nombre"
-                value={outfit.nombre}
-                onChange={handleChange}
+                value={selectedOutfit?.nombre || ''}
+                onChange={handleFormChange}
                 sx={{
                   borderRadius: '24px',
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -437,9 +134,9 @@ const CatalogoTable: React.FC = () => {
                 variant="outlined"
                 select
                 fullWidth
-                name="estilo"
-                value={outfit.estilo}
-                onChange={handleChange}
+                name="id_estilo"
+                value={selectedOutfit?.id_estilo || ''}
+                onChange={handleFormChange}
                 sx={{
                   borderRadius: '24px',
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -448,39 +145,36 @@ const CatalogoTable: React.FC = () => {
                   },
                 }}
               >
-                {estilos.map((estilo) => (
-                  <MenuItem key={estilo.id_estilo} value={estilo.id_estilo}>
-                    {estilo.tipo}
+                {styles.map((style) => (
+                  <MenuItem key={style.id} value={style.id}>
+                    {style.tipo}
                   </MenuItem>
                 ))}
               </TextField>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <TextField
-                label="Ocasión"
-                variant="outlined"
-                select
-                fullWidth
-                name="ocasion"
-                value={outfit.ocasiones}
-                onChange={handleOcasionesChange}
-                SelectProps={{
-                  multiple: true,
-                }}
-                sx={{
-                  borderRadius: '24px',
-                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '24px',
-                  },
-                }}
-              >
-                {ocasiones.map((ocasion) => (
-                  <MenuItem key={ocasion.id_ocasion} value={ocasion.id_ocasion}>
-                    {ocasion.ocasion}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Ocasión</InputLabel>
+                <Select
+                  multiple
+                  value={selectedOutfit?.ocasiones || []}
+                  onChange={handleOccasionChange}
+                  input={<OutlinedInput label="Ocasión" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {occasions.map((occasion) => (
+                    <MenuItem key={occasion.id} value={occasion.ocasion}>
+                      {occasion.ocasion}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
           <TextField
@@ -489,8 +183,8 @@ const CatalogoTable: React.FC = () => {
             multiline
             rows={4}
             name="descripcion"
-            value={outfit.descripcion}
-            onChange={handleChange}
+            value={selectedOutfit?.descripcion || ''}
+            onChange={handleFormChange}
             sx={{
               borderRadius: '24px',
               boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -499,74 +193,11 @@ const CatalogoTable: React.FC = () => {
               },
             }}
           />
-          <Typography variant="h6" fontWeight="bold">
-            Imagen principal
-          </Typography>
-          <input
-            type="file"
-            ref={fileInputRefPrincipal}
-            style={{ display: 'none' }}
-            onChange={(e) => handleFileChange(e, 'imagenPrincipal')}
-          />
-          <UploadButton onClick={() => fileInputRefPrincipal.current?.click()} fileName={outfit.imagenPrincipalNombre} imageUrl={outfit.imagenPrincipalNombre} />
-          <Typography variant="h6" fontWeight="bold">
-            Prendas
-          </Typography>
-          <Grid container spacing={2}>
-            {outfit.prendas.map((prenda, index) => (
-              <Grid container item xs={12} spacing={2} key={index} alignItems="center">
-                <Grid item xs={12} sm={4}>
-                  <input
-                    type="file"
-                    ref={el => (fileInputRefs.current[index] = el as HTMLInputElement)}
-                    style={{ display: 'none' }}
-                    onChange={(e) => handleFileChange(e, 'prendaImagen', index)}
-                  />
-                  <UploadButton onClick={() => fileInputRefs.current[index]?.click()} fileName={prenda.imagenNombre} imageUrl={prenda.imageUrl} />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="Nombre de la prenda"
-                    variant="outlined"
-                    fullWidth
-                    name="nombre"
-                    value={prenda.nombre}
-                    onChange={(e) => handlePrendaChange(index, e)}
-                    sx={{
-                      borderRadius: '24px',
-                      boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '24px',
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="Link"
-                    variant="outlined"
-                    fullWidth
-                    name="link"
-                    value={prenda.link}
-                    onChange={(e) => handlePrendaChange(index, e)}
-                    sx={{
-                      borderRadius: '24px',
-                      boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '24px',
-                      },
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            ))}
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
-              <IconButton onClick={handleAddUploadField} sx={{ fontSize: 40 }}>
-                <AddCircleIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-          <Button type="submit" variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', mt: 2 }}>
+          <Button
+            onClick={handleFormSubmit}
+            variant="contained"
+            sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', mt: 2 }}
+          >
             Guardar
           </Button>
         </Box>
@@ -580,7 +211,7 @@ const CatalogoTable: React.FC = () => {
               <Button variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
                 Reporte
               </Button>
-              <Button onClick={handleShowForm} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
+              <Button onClick={() => setShowForm(true)} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
                 Agregar
               </Button>
             </Box>
@@ -598,32 +229,30 @@ const CatalogoTable: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                  <TableRow key={index}>
+                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  <TableRow key={row.id}>
                     <TableCell style={{ textAlign: 'center' }}>
-                      <Avatar src={row.image} alt={row.name} sx={{ width: 56, height: 56, margin: 'auto' }} />
+                      <Avatar src={row.imagen} alt={row.nombre} sx={{ width: 56, height: 56, margin: 'auto' }} />
                     </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>{row.name}</TableCell>
+                    <TableCell style={{ textAlign: 'center' }}>{row.nombre}</TableCell>
                     <TableCell style={{ textAlign: 'center' }}>
-                      {row.styles.map((style, idx) => (
-                        <Box key={idx} sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 8px', display: 'inline-block', marginRight: '4px', color: 'white', fontWeight: 'bold' }}>
-                          {style}
-                        </Box>
-                      ))}
+                      <Box sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 8px', display: 'inline-block', color: 'white', fontWeight: 'bold' }}>
+                        {row.estilo}
+                      </Box>
                     </TableCell>
                     <TableCell style={{ textAlign: 'center' }}>
-                      {row.occasions.map((occasion, idx) => (
+                      {row.ocasiones.map((ocasion, idx) => (
                         <Box key={idx} sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 4px', marginBottom: '4px', color: 'white', fontWeight: 'bold' }}>
-                          {occasion}
+                          {ocasion}
                         </Box>
                       ))}
                     </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>{row.favorites}</TableCell>
+                    <TableCell style={{ textAlign: 'center' }}>100</TableCell>
                     <TableCell style={{ textAlign: 'center' }}>
-                      <IconButton onClick={() => handleEdit(row.id_outfit)}>
+                      <IconButton onClick={() => handleEditClick(row)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton onClick={() => handleDelete(row.id_outfit)}>
+                      <IconButton>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -648,4 +277,3 @@ const CatalogoTable: React.FC = () => {
 };
 
 export default CatalogoTable;
-  
