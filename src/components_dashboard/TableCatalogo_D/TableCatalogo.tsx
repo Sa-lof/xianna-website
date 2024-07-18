@@ -192,13 +192,26 @@ const CatalogoTable: React.FC = () => {
         for (let i = 0; i < prendas.length; i++) {
           const prenda = prendas[i];
           const prendaFile = selectedPrendaFiles[i];
-          if (prendaFile) {
-            const prendaImageUrl = await uploadImage(prendaFile, 'prenda', selectedOutfit.id, prenda.id);
-            if (prendaImageUrl) {
-              await updatePrendas([{ ...prenda, imagen: prendaImageUrl }]);
+  
+          if (prenda.id === 0) {
+            // Crear nueva prenda
+            const newPrendaId = await createPrenda({ nombre: prenda.nombre, link: prenda.link, id_outfit: selectedOutfit.id });
+            if (newPrendaId && prendaFile) {
+              const prendaImageUrl = await uploadImage(prendaFile, 'prenda', selectedOutfit.id, newPrendaId);
+              if (prendaImageUrl) {
+                await updatePrendas([{ id: newPrendaId, nombre: prenda.nombre, link: prenda.link, id_outfit: selectedOutfit.id, imagen: prendaImageUrl }]);
+              }
             }
           } else {
-            await updatePrendas([prenda]);
+            // Actualizar prenda existente
+            if (prendaFile) {
+              const prendaImageUrl = await uploadImage(prendaFile, 'prenda', selectedOutfit.id, prenda.id);
+              if (prendaImageUrl) {
+                await updatePrendas([{ ...prenda, imagen: prendaImageUrl }]);
+              }
+            } else {
+              await updatePrendas([prenda]);
+            }
           }
         }
   
@@ -217,7 +230,8 @@ const CatalogoTable: React.FC = () => {
       const data = await getOutfits();
       setRows(data);
     }
-  };  
+  };
+  
 
   return (
     <Box sx={{ padding: 2 }}>
