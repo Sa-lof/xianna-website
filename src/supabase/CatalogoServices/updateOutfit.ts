@@ -6,16 +6,17 @@ interface UpdateOutfitData {
   descripcion?: string;
   id_estilo?: number;
   ocasiones?: number[];
+  imagen?: string; // Agregamos la propiedad imagen
 }
 
 const updateOutfit = async (outfitData: UpdateOutfitData): Promise<void> => {
-  const { id, nombre, descripcion, id_estilo, ocasiones } = outfitData;
+  const { id, nombre, descripcion, id_estilo, ocasiones, imagen } = outfitData;
 
   try {
     // Actualizar los campos básicos del outfit
     const { error: outfitError } = await supabase
       .from('outfits')
-      .update({ nombre, descripcion, id_estilo })
+      .update({ nombre, descripcion, id_estilo, imagen }) // Incluimos imagen en la actualización
       .eq('id', id);
 
     if (outfitError) {
@@ -24,7 +25,6 @@ const updateOutfit = async (outfitData: UpdateOutfitData): Promise<void> => {
 
     // Actualizar las ocasiones
     if (ocasiones) {
-      console.log('Updating occasions for outfit id:', id, 'with occasions:', ocasiones);
       // Primero, eliminamos todas las ocasiones actuales para este outfit
       const { error: deleteError } = await supabase
         .from('outfit_ocasion')

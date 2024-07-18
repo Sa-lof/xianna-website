@@ -8,6 +8,7 @@ import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStyl
 import { getPrendasByOutfitId } from '../../supabase/CatalogoServices/getPrendasByOutfitId';
 import { updatePrendas } from '../../supabase/CatalogoServices/updatePrendas';
 import { uploadImage } from '../../supabase/CatalogoServices/updateImage';
+import createOutfit from '../../supabase/CatalogoServices/createOutfit';
 import { SelectChangeEvent } from '@mui/material/Select';
 
 interface Outfit {
@@ -48,6 +49,7 @@ const CatalogoTable: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [styles, setStyles] = useState<Style[]>([]);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // Nueva variable de estado
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,6 +82,21 @@ const CatalogoTable: React.FC = () => {
     setShowForm(true);
   };
 
+  const handleAddClick = () => {
+    setSelectedOutfit({
+      id: 0, // Id provisional para nuevo outfit
+      nombre: '',
+      descripcion: '',
+      estilo: '',
+      id_estilo: 0,
+      imagen: '',
+      ocasiones: [],
+    });
+    setPrendas([]);
+    setShowForm(true);
+    setSelectedFile(null); // Resetear el archivo seleccionado al agregar un nuevo outfit
+  };
+
   const handleFormChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (selectedOutfit) {
       const { name, value } = event.target;
@@ -93,24 +110,15 @@ const CatalogoTable: React.FC = () => {
     setPrendas(updatedPrendas);
   };
 
-  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>, type: 'outfit' | 'prenda', index?: number) => {
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>, type: 'outfit' | 'prenda', index?: number) => {
     if (!event.target.files || event.target.files.length === 0) return;
 
     const file = event.target.files[0];
-    if (type === 'outfit' && selectedOutfit) {
-      const imageUrl = await uploadImage(file, type, selectedOutfit.id);
-
-      if (imageUrl) {
-        setSelectedOutfit({ ...selectedOutfit, imagen: imageUrl });
-      }
-    } else if (type === 'prenda' && index !== undefined && prendas[index]) {
-      const prendaId = prendas[index].id;
-      const imageUrl = await uploadImage(file, type, prendas[index].id_outfit, prendaId);
-
-      if (imageUrl) {
-        const updatedPrendas = prendas.map((prenda, i) => (i === index ? { ...prenda, imagen: imageUrl } : prenda));
-        setPrendas(updatedPrendas);
-      }
+    if (type === 'outfit') {
+      setSelectedFile(file); // Guardar el archivo seleccionado en el estado
+    } else if (type === 'prenda' && index !== undefined) {
+      const updatedPrendas = prendas.map((prenda, i) => (i === index ? { ...prenda, imagen: URL.createObjectURL(file) } : prenda));
+      setPrendas(updatedPrendas);
     }
   };
 
@@ -127,15 +135,47 @@ const CatalogoTable: React.FC = () => {
         return occasionObject ? occasionObject.id : null;
       }).filter(id => id !== null) as number[];
 
-      await updateOutfit({
-        id: selectedOutfit.id,
-        nombre: selectedOutfit.nombre,
-        descripcion: selectedOutfit.descripcion,
-        id_estilo: selectedOutfit.id_estilo,
-        ocasiones: occasionIds,
-      });
+      if (selectedOutfit.id === 0) {
+        // Crear nuevo outfit
+        const newOutfitId = await createOutfit({
+          nombre: selectedOutfit.nombre,
+          descripcion: selectedOutfit.descripcion,
+          id_estilo: selectedOutfit.id_estilo,
+          ocasiones: occasionIds,
+        });
 
-      await updatePrendas(prendas);
+        if (newOutfitId && selectedFile) {
+          const imageUrl = await uploadImage(selectedFile, 'outfit', newOutfitId); // Subir el archivo seleccionado
+
+          if (imageUrl) {
+            await updateOutfit({
+              id: newOutfitId,
+              imagen: imageUrl,
+            });
+          }
+        }
+      } else {
+        // Actualizar outfit existente
+        await updateOutfit({
+          id: selectedOutfit.id,
+          nombre: selectedOutfit.nombre,
+          descripcion: selectedOutfit.descripcion,
+          id_estilo: selectedOutfit.id_estilo,
+          ocasiones: occasionIds,
+        });
+        await updatePrendas(prendas);
+
+        if (selectedFile) {
+          const imageUrl = await uploadImage(selectedFile, 'outfit', selectedOutfit.id); // Subir el archivo seleccionado
+
+          if (imageUrl) {
+            await updateOutfit({
+              id: selectedOutfit.id,
+              imagen: imageUrl,
+            });
+          }
+        }
+      }
 
       setShowForm(false);
       const data = await getOutfits();
@@ -151,7 +191,7 @@ const CatalogoTable: React.FC = () => {
             Regresar
           </Button>
           <Typography variant="h4" fontWeight="bold">
-            Editar Outfit
+            {selectedOutfit?.id === 0 ? 'Agregar Outfit' : 'Editar Outfit'}
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
@@ -302,7 +342,7 @@ const CatalogoTable: React.FC = () => {
               <Button variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
                 Reporte
               </Button>
-              <Button onClick={() => setShowForm(true)} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
+              <Button onClick={handleAddClick} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
                 Agregar
               </Button>
             </Box>
