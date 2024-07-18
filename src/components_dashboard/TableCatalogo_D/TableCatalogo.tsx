@@ -11,6 +11,7 @@ import createPrenda from '../../supabase/CatalogoServices/createPrenda'; // Impo
 import { uploadImage } from '../../supabase/CatalogoServices/updateImage';
 import createOutfit from '../../supabase/CatalogoServices/createOutfit';
 import { SelectChangeEvent } from '@mui/material/Select';
+import deleteOutfit from '../../supabase/CatalogoServices/deleteOutfit';
 
 interface Outfit {
   id: number;
@@ -231,6 +232,17 @@ const CatalogoTable: React.FC = () => {
       setRows(data);
     }
   };
+
+  const handleDeleteClick = async (outfitId: number) => {
+    try {
+      await deleteOutfit(outfitId);
+      const data = await getOutfits();
+      setRows(data);
+    } catch (error) {
+      console.error('Error deleting outfit:', error);
+    }
+  };
+  
   
 
   return (
@@ -437,9 +449,9 @@ const CatalogoTable: React.FC = () => {
                       <IconButton onClick={() => handleEditClick(row)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton>
-                        <DeleteIcon />
-                      </IconButton>
+                      <IconButton onClick={() => handleDeleteClick(row.id)}>
+  <DeleteIcon />
+</IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
