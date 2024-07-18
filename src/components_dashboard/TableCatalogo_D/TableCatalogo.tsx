@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Avatar, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import getOutfits from '../../supabase/CatalogoServices/getOutfits';
 import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
 import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
+import { getPrendasByOutfitId } from '../../supabase/CatalogoServices/getPrendasByOutfitId'; // Import the new services
+import { updatePrendas } from '../../supabase/CatalogoServices/updatePrendas';
 import { SelectChangeEvent } from '@mui/material/Select';
 
 interface Outfit {
@@ -15,6 +17,13 @@ interface Outfit {
   id_estilo: number;
   imagen: string;
   ocasiones: string[];
+}
+
+interface Prenda {
+  id: number;
+  nombre: string;
+  link: string;
+  id_outfit: number;
 }
 
 interface Style {
@@ -33,6 +42,7 @@ const CatalogoTable: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
+  const [prendas, setPrendas] = useState<Prenda[]>([]); // State to hold the prendas
   const [showForm, setShowForm] = useState(false);
   const [styles, setStyles] = useState<Style[]>([]);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
@@ -61,16 +71,24 @@ const CatalogoTable: React.FC = () => {
     setPage(0);
   };
 
-  const handleEditClick = (outfit: Outfit) => {
+  const handleEditClick = async (outfit: Outfit) => {
     setSelectedOutfit(outfit);
+    const prendasData = await getPrendasByOutfitId(outfit.id);
+    setPrendas(prendasData);
     setShowForm(true);
   };
 
-  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (selectedOutfit) {
       const { name, value } = event.target;
       setSelectedOutfit({ ...selectedOutfit, [name]: value });
     }
+  };
+
+  const handlePrendaChange = (index: number, event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    const updatedPrendas = prendas.map((prenda, i) => (i === index ? { ...prenda, [name]: value } : prenda));
+    setPrendas(updatedPrendas);
   };
 
   const handleOccasionChange = (event: SelectChangeEvent<string[]>) => {
@@ -94,6 +112,9 @@ const CatalogoTable: React.FC = () => {
         id_estilo: selectedOutfit.id_estilo,
         ocasiones: occasionIds,
       });
+
+      await updatePrendas(prendas); // Update the prendas as well
+
       setShowForm(false);
       const data = await getOutfits();
       setRows(data);
@@ -193,6 +214,40 @@ const CatalogoTable: React.FC = () => {
               },
             }}
           />
+          {prendas.map((prenda, index) => (
+            <Box key={prenda.id} sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Nombre de la prenda"
+                variant="outlined"
+                fullWidth
+                name="nombre"
+                value={prenda.nombre}
+                onChange={(e) => handlePrendaChange(index, e)}
+                sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+              <TextField
+                label="Link de la prenda"
+                variant="outlined"
+                fullWidth
+                name="link"
+                value={prenda.link}
+                onChange={(e) => handlePrendaChange(index, e)}
+                sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+            </Box>
+          ))}
           <Button
             onClick={handleFormSubmit}
             variant="contained"

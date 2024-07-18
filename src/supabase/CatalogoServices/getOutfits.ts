@@ -40,7 +40,7 @@ const getOutfits = async (): Promise<Outfit[]> => {
 
         const imageUrl = files.length > 0
           ? supabase.storage.from('Outfits').getPublicUrl(`uploads/${outfit.id}/imagen_principal/${files[0].name}`).data.publicUrl
-          : 'https://via.placeholder.com/150';
+          : 'https://via.placeholder.com/150'; // Default image if none found
 
         const ocasiones = outfit.outfit_ocasion.map((o: any) => o.ocasion.ocasion);
 
