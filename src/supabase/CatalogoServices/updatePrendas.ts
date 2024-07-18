@@ -5,15 +5,16 @@ interface Prenda {
   nombre: string;
   link: string;
   id_outfit: number;
+  imagen?: string;
 }
 
 export const updatePrendas = async (prendas: Prenda[]): Promise<void> => {
   try {
     for (const prenda of prendas) {
-      const { id, nombre, link } = prenda;
+      const { id, nombre, link, imagen } = prenda;
       const { error } = await supabase
         .from('prendas')
-        .update({ nombre, link })
+        .update({ nombre, link, imagen }) // Asegúrate de actualizar la imagen también
         .eq('id', id);
 
       if (error) {

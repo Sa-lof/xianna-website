@@ -145,7 +145,7 @@ const CatalogoTable: React.FC = () => {
         const occasionObject = occasions.find(o => o.ocasion === ocasion);
         return occasionObject ? occasionObject.id : null;
       }).filter(id => id !== null) as number[];
-
+  
       if (selectedOutfit.id === 0) {
         // Crear nuevo outfit
         const newOutfitId = await createOutfit({
@@ -154,7 +154,7 @@ const CatalogoTable: React.FC = () => {
           id_estilo: selectedOutfit.id_estilo,
           ocasiones: occasionIds,
         });
-
+  
         if (newOutfitId) {
           if (selectedFile) {
             const imageUrl = await uploadImage(selectedFile, 'outfit', newOutfitId);
@@ -165,7 +165,7 @@ const CatalogoTable: React.FC = () => {
               });
             }
           }
-
+  
           // Crear las prendas
           for (let i = 0; i < prendas.length; i++) {
             const prenda = prendas[i];
@@ -174,7 +174,7 @@ const CatalogoTable: React.FC = () => {
             if (newPrendaId && prendaFile) {
               const prendaImageUrl = await uploadImage(prendaFile, 'prenda', newOutfitId, newPrendaId);
               if (prendaImageUrl) {
-                await updatePrendas([{ id: newPrendaId, nombre: prenda.nombre, link: prenda.link, id_outfit: newOutfitId }]);
+                await updatePrendas([{ id: newPrendaId, nombre: prenda.nombre, link: prenda.link, id_outfit: newOutfitId, imagen: prendaImageUrl }]);
               }
             }
           }
@@ -188,8 +188,20 @@ const CatalogoTable: React.FC = () => {
           id_estilo: selectedOutfit.id_estilo,
           ocasiones: occasionIds,
         });
-        await updatePrendas(prendas);
-
+  
+        for (let i = 0; i < prendas.length; i++) {
+          const prenda = prendas[i];
+          const prendaFile = selectedPrendaFiles[i];
+          if (prendaFile) {
+            const prendaImageUrl = await uploadImage(prendaFile, 'prenda', selectedOutfit.id, prenda.id);
+            if (prendaImageUrl) {
+              await updatePrendas([{ ...prenda, imagen: prendaImageUrl }]);
+            }
+          } else {
+            await updatePrendas([prenda]);
+          }
+        }
+  
         if (selectedFile) {
           const imageUrl = await uploadImage(selectedFile, 'outfit', selectedOutfit.id);
           if (imageUrl) {
@@ -200,12 +212,12 @@ const CatalogoTable: React.FC = () => {
           }
         }
       }
-
+  
       setShowForm(false);
       const data = await getOutfits();
       setRows(data);
     }
-  };
+  };  
 
   return (
     <Box sx={{ padding: 2 }}>

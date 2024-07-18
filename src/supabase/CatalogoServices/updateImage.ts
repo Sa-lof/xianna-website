@@ -10,16 +10,16 @@ export const uploadImage = async (file: File, type: 'outfit' | 'prenda', id_outf
       path = `uploads/${id_outfit}/prenda_${id_prenda}/${file.name}`;
     }
 
-    // Lista de archivos existentes en el directorio
-    const { data: files, error: listError } = await supabase.storage.from('Outfits').list(path.split('/').slice(0, -1).join('/'));
+    // Elimina archivos existentes en el directorio
+    const dirPath = path.split('/').slice(0, -1).join('/');
+    const { data: files, error: listError } = await supabase.storage.from('Outfits').list(dirPath);
 
     if (listError) {
       throw listError;
     }
 
-    // Elimina archivos existentes
     if (files && files.length > 0) {
-      const deletePromises = files.map(file => supabase.storage.from('Outfits').remove([`${path.split('/').slice(0, -1).join('/')}/${file.name}`]));
+      const deletePromises = files.map(file => supabase.storage.from('Outfits').remove([`${dirPath}/${file.name}`]));
       await Promise.all(deletePromises);
     }
 
