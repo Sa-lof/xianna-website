@@ -7,6 +7,7 @@ import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
 import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
 import { getPrendasByOutfitId } from '../../supabase/CatalogoServices/getPrendasByOutfitId';
 import { updatePrendas } from '../../supabase/CatalogoServices/updatePrendas';
+import createPrenda from '../../supabase/CatalogoServices/createPrenda'; // Importa createPrenda
 import { uploadImage } from '../../supabase/CatalogoServices/updateImage';
 import createOutfit from '../../supabase/CatalogoServices/createOutfit';
 import { SelectChangeEvent } from '@mui/material/Select';
@@ -25,8 +26,8 @@ interface Prenda {
   id: number;
   nombre: string;
   link: string;
-  imagen: string;
   id_outfit: number;
+  imagen?: string;
 }
 
 interface Style {
@@ -49,7 +50,8 @@ const CatalogoTable: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [styles, setStyles] = useState<Style[]>([]);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // Nueva variable de estado
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedPrendaFiles, setSelectedPrendaFiles] = useState<(File | null)[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,6 +81,7 @@ const CatalogoTable: React.FC = () => {
     setSelectedOutfit(outfit);
     const prendasData = await getPrendasByOutfitId(outfit.id);
     setPrendas(prendasData);
+    setSelectedPrendaFiles(prendasData.map(() => null)); // Inicializar la lista de archivos de prendas con valores null
     setShowForm(true);
   };
 
@@ -92,9 +95,10 @@ const CatalogoTable: React.FC = () => {
       imagen: '',
       ocasiones: [],
     });
-    setPrendas([]);
-    setShowForm(true);
+    setPrendas([{ id: 0, nombre: '', link: '', id_outfit: 0 }]); // Inicializar con una prenda vacía
     setSelectedFile(null); // Resetear el archivo seleccionado al agregar un nuevo outfit
+    setSelectedPrendaFiles([null]); // Inicializar con un archivo de prenda null
+    setShowForm(true);
   };
 
   const handleFormChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -117,6 +121,8 @@ const CatalogoTable: React.FC = () => {
     if (type === 'outfit') {
       setSelectedFile(file); // Guardar el archivo seleccionado en el estado
     } else if (type === 'prenda' && index !== undefined) {
+      const updatedPrendaFiles = selectedPrendaFiles.map((prendaFile, i) => (i === index ? file : prendaFile));
+      setSelectedPrendaFiles(updatedPrendaFiles);
       const updatedPrendas = prendas.map((prenda, i) => (i === index ? { ...prenda, imagen: URL.createObjectURL(file) } : prenda));
       setPrendas(updatedPrendas);
     }
@@ -126,6 +132,11 @@ const CatalogoTable: React.FC = () => {
     if (selectedOutfit) {
       setSelectedOutfit({ ...selectedOutfit, ocasiones: event.target.value as string[] });
     }
+  };
+
+  const addPrenda = () => {
+    setPrendas([...prendas, { id: 0, nombre: '', link: '', id_outfit: 0 }]);
+    setSelectedPrendaFiles([...selectedPrendaFiles, null]);
   };
 
   const handleFormSubmit = async () => {
@@ -144,14 +155,28 @@ const CatalogoTable: React.FC = () => {
           ocasiones: occasionIds,
         });
 
-        if (newOutfitId && selectedFile) {
-          const imageUrl = await uploadImage(selectedFile, 'outfit', newOutfitId); // Subir el archivo seleccionado
+        if (newOutfitId) {
+          if (selectedFile) {
+            const imageUrl = await uploadImage(selectedFile, 'outfit', newOutfitId);
+            if (imageUrl) {
+              await updateOutfit({
+                id: newOutfitId,
+                imagen: imageUrl,
+              });
+            }
+          }
 
-          if (imageUrl) {
-            await updateOutfit({
-              id: newOutfitId,
-              imagen: imageUrl,
-            });
+          // Crear las prendas
+          for (let i = 0; i < prendas.length; i++) {
+            const prenda = prendas[i];
+            const prendaFile = selectedPrendaFiles[i];
+            const newPrendaId = await createPrenda({ nombre: prenda.nombre, link: prenda.link, id_outfit: newOutfitId });
+            if (newPrendaId && prendaFile) {
+              const prendaImageUrl = await uploadImage(prendaFile, 'prenda', newOutfitId, newPrendaId);
+              if (prendaImageUrl) {
+                await updatePrendas([{ id: newPrendaId, nombre: prenda.nombre, link: prenda.link, id_outfit: newOutfitId }]);
+              }
+            }
           }
         }
       } else {
@@ -166,8 +191,7 @@ const CatalogoTable: React.FC = () => {
         await updatePrendas(prendas);
 
         if (selectedFile) {
-          const imageUrl = await uploadImage(selectedFile, 'outfit', selectedOutfit.id); // Subir el archivo seleccionado
-
+          const imageUrl = await uploadImage(selectedFile, 'outfit', selectedOutfit.id);
           if (imageUrl) {
             await updateOutfit({
               id: selectedOutfit.id,
@@ -283,8 +307,9 @@ const CatalogoTable: React.FC = () => {
               <Avatar src={selectedOutfit.imagen} alt={selectedOutfit.nombre} sx={{ width: 100, height: 100 }} />
             )}
           </Box>
+          <Typography variant="h6" sx={{ mt: 2 }}>Prendas</Typography>
           {prendas.map((prenda, index) => (
-            <Box key={prenda.id} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
               <TextField
                 label="Nombre de la prenda"
                 variant="outlined"
@@ -324,6 +349,9 @@ const CatalogoTable: React.FC = () => {
               </Box>
             </Box>
           ))}
+          <Button onClick={addPrenda} variant="outlined" sx={{ mt: 2 }}>
+            Agregar Prenda
+          </Button>
           <Button
             onClick={handleFormSubmit}
             variant="contained"
