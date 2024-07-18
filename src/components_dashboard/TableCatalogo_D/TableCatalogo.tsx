@@ -1,12 +1,13 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, Avatar, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput } from '@mui/material';
+import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import getOutfits from '../../supabase/CatalogoServices/getOutfits';
 import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
 import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
-import { getPrendasByOutfitId } from '../../supabase/CatalogoServices/getPrendasByOutfitId'; // Import the new services
+import { getPrendasByOutfitId } from '../../supabase/CatalogoServices/getPrendasByOutfitId';
 import { updatePrendas } from '../../supabase/CatalogoServices/updatePrendas';
+import { uploadImage } from '../../supabase/CatalogoServices/updateImage';
 import { SelectChangeEvent } from '@mui/material/Select';
 
 interface Outfit {
@@ -23,6 +24,7 @@ interface Prenda {
   id: number;
   nombre: string;
   link: string;
+  imagen: string;
   id_outfit: number;
 }
 
@@ -42,7 +44,7 @@ const CatalogoTable: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
-  const [prendas, setPrendas] = useState<Prenda[]>([]); // State to hold the prendas
+  const [prendas, setPrendas] = useState<Prenda[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [styles, setStyles] = useState<Style[]>([]);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
@@ -91,6 +93,27 @@ const CatalogoTable: React.FC = () => {
     setPrendas(updatedPrendas);
   };
 
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>, type: 'outfit' | 'prenda', index?: number) => {
+    if (!event.target.files || event.target.files.length === 0) return;
+
+    const file = event.target.files[0];
+    if (type === 'outfit' && selectedOutfit) {
+      const imageUrl = await uploadImage(file, type, selectedOutfit.id);
+
+      if (imageUrl) {
+        setSelectedOutfit({ ...selectedOutfit, imagen: imageUrl });
+      }
+    } else if (type === 'prenda' && index !== undefined && prendas[index]) {
+      const prendaId = prendas[index].id;
+      const imageUrl = await uploadImage(file, type, prendas[index].id_outfit, prendaId);
+
+      if (imageUrl) {
+        const updatedPrendas = prendas.map((prenda, i) => (i === index ? { ...prenda, imagen: imageUrl } : prenda));
+        setPrendas(updatedPrendas);
+      }
+    }
+  };
+
   const handleOccasionChange = (event: SelectChangeEvent<string[]>) => {
     if (selectedOutfit) {
       setSelectedOutfit({ ...selectedOutfit, ocasiones: event.target.value as string[] });
@@ -99,7 +122,6 @@ const CatalogoTable: React.FC = () => {
 
   const handleFormSubmit = async () => {
     if (selectedOutfit) {
-      console.log('Updating outfit with the following data:', selectedOutfit);
       const occasionIds = selectedOutfit.ocasiones.map((ocasion) => {
         const occasionObject = occasions.find(o => o.ocasion === ocasion);
         return occasionObject ? occasionObject.id : null;
@@ -113,7 +135,7 @@ const CatalogoTable: React.FC = () => {
         ocasiones: occasionIds,
       });
 
-      await updatePrendas(prendas); // Update the prendas as well
+      await updatePrendas(prendas);
 
       setShowForm(false);
       const data = await getOutfits();
@@ -214,8 +236,15 @@ const CatalogoTable: React.FC = () => {
               },
             }}
           />
+          <Box>
+            <Typography variant="h6">Imagen Principal del Outfit</Typography>
+            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'outfit')} />
+            {selectedOutfit?.imagen && (
+              <Avatar src={selectedOutfit.imagen} alt={selectedOutfit.nombre} sx={{ width: 100, height: 100 }} />
+            )}
+          </Box>
           {prendas.map((prenda, index) => (
-            <Box key={prenda.id} sx={{ display: 'flex', gap: 2 }}>
+            <Box key={prenda.id} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
                 label="Nombre de la prenda"
                 variant="outlined"
@@ -246,6 +275,13 @@ const CatalogoTable: React.FC = () => {
                   },
                 }}
               />
+              <Box>
+                <Typography variant="h6">Imagen de la Prenda</Typography>
+                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'prenda', index)} />
+                {prenda.imagen && (
+                  <Avatar src={prenda.imagen} alt={prenda.nombre} sx={{ width: 100, height: 100 }} />
+                )}
+              </Box>
             </Box>
           ))}
           <Button
