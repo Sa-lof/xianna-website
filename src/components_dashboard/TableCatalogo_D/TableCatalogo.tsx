@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput } from '@mui/material';
+import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import getOutfits from '../../supabase/CatalogoServices/getOutfits';
@@ -319,7 +319,13 @@ const CatalogoTable: React.FC = () => {
               </TextField>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <FormControl fullWidth variant="outlined">
+              <FormControl fullWidth variant="outlined" sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}>
                 <InputLabel>Ocasión</InputLabel>
                 <Select
                   multiple
@@ -343,74 +349,124 @@ const CatalogoTable: React.FC = () => {
               </FormControl>
             </Grid>
           </Grid>
-          <TextField
-            label="Descripción del outfit"
-            variant="outlined"
-            multiline
-            rows={4}
-            name="descripcion"
-            value={selectedOutfit?.descripcion || ''}
-            onChange={handleFormChange}
+          <Grid container spacing={2}>
+  <Grid item xs={12} sm={12} md={8}>
+    <TextField
+      label="Descripción del outfit"
+      variant="outlined"
+      multiline
+      rows={10}
+      name="descripcion"
+      value={selectedOutfit?.descripcion || ''}
+      onChange={handleFormChange}
+      sx={{
+        width:'100%',
+        borderRadius: '24px',
+        boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '24px',
+        },
+      }}
+    />
+  </Grid>
+  <Grid item xs={12} sm={12} md={4}>
+    <Box>
+      <Typography variant="h6">Imagen Principal del Outfit</Typography>
+      <Card sx={{ width: '100%', height: '180px', borderRadius: '16px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', overflow: 'hidden'}}>
+        <CardMedia
+          component="img"
+          height="100%"
+          image={selectedOutfit?.imagen || 'https://via.placeholder.com/150'}
+          alt="Outfit image"
+          sx={{ objectFit: 'cover', height: '100%' }}
+        />
+      </Card>
+      <Button
+        variant="contained"
+        component="label"
+        sx={{ marginTop: 2, backgroundColor: '#E61F93', borderRadius: '24px' }}
+      >
+        Subir
+        <input
+          type="file"
+          hidden
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, 'outfit')}
+        />
+      </Button>
+    </Box>
+  </Grid>
+</Grid>
+<Typography variant="h6" sx={{ mt: 2 }}>Prendas</Typography>
+{prendas.map((prenda, index) => (
+  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleImageUpload(e, 'prenda', index)}
+        style={{ display: 'none' }}
+        id={`upload-button-${index}`}
+      />
+      <label htmlFor={`upload-button-${index}`}>
+        {prenda.imagen ? (
+          <Avatar src={prenda.imagen} alt={prenda.nombre} sx={{ width: 100, height: 100, borderRadius: '12px', cursor: 'pointer' }} />
+        ) : (
+          <IconButton
+            component="span"
             sx={{
               borderRadius: '24px',
               boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '24px',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
               },
             }}
-          />
-          <Box>
-            <Typography variant="h6">Imagen Principal del Outfit</Typography>
-            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'outfit')} />
-            {selectedOutfit?.imagen && (
-              <Avatar src={selectedOutfit.imagen} alt={selectedOutfit.nombre} sx={{ width: 100, height: 100 }} />
-            )}
-          </Box>
-          <Typography variant="h6" sx={{ mt: 2 }}>Prendas</Typography>
-          {prendas.map((prenda, index) => (
-            <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-              <TextField
-                label="Nombre de la prenda"
-                variant="outlined"
-                fullWidth
-                name="nombre"
-                value={prenda.nombre}
-                onChange={(e) => handlePrendaChange(index, e)}
-                sx={{
-                  borderRadius: '24px',
-                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '24px',
-                  },
-                }}
-              />
-              <TextField
-                label="Link de la prenda"
-                variant="outlined"
-                fullWidth
-                name="link"
-                value={prenda.link}
-                onChange={(e) => handlePrendaChange(index, e)}
-                sx={{
-                  borderRadius: '24px',
-                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '24px',
-                  },
-                }}
-              />
-              <Box>
-                <Typography variant="h6">Imagen de la Prenda</Typography>
-                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'prenda', index)} />
-                {prenda.imagen && (
-                  <Avatar src={prenda.imagen} alt={prenda.nombre} sx={{ width: 100, height: 100 }} />
-                )}
-              </Box>
-              <IconButton onClick={() => handleDeletePrenda(index)} color="secondary">
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          ))}
+          >
+            <Typography variant="button" sx={{ color: 'white', backgroundColor: 'pink', padding: '8px 16px', borderRadius: '24px' }}>
+              Subir
+            </Typography>
+          </IconButton>
+        )}
+      </label>
+    </Box>
+    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <TextField
+        label="Nombre de la prenda"
+        variant="outlined"
+        fullWidth
+        name="nombre"
+        value={prenda.nombre}
+        onChange={(e) => handlePrendaChange(index, e)}
+        sx={{
+          borderRadius: '24px',
+          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '24px',
+          },
+        }}
+      />
+      <TextField
+        label="Link de la prenda"
+        variant="outlined"
+        fullWidth
+        name="link"
+        value={prenda.link}
+        onChange={(e) => handlePrendaChange(index, e)}
+        sx={{
+          borderRadius: '24px',
+          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '24px',
+          },
+        }}
+      />
+    </Box>
+    <IconButton onClick={() => handleDeletePrenda(index)} color="secondary" sx={{ alignSelf: 'flex-start' }}>
+      <DeleteIcon />
+    </IconButton>
+  </Box>
+))}
+
           <Button onClick={addPrenda} variant="outlined" sx={{ mt: 2 }}>
             Agregar Prenda
           </Button>
