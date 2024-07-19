@@ -1,42 +1,48 @@
-import React, { useState } from 'react';
-import { Box, Typography, Paper, Grid, Accordion, AccordionSummary, AccordionDetails, Avatar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, TextField, MenuItem } from '@mui/material';
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, Grid, IconButton, Button, TextField, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import getQuestionsWithAnswers from '../../supabase/CuestionarioServices/getQuestionsWithAnswers';
+import updateQuestionWithAnswers from '../../supabase/CuestionarioServices/updateQuestionWithAnswers';
+import getStyles from '../../supabase/CuestionarioServices/getStyles';
 
-const questions = [
-  {
-    id: '01',
-    question: '¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?',
-    answers: [
-      { id: 'a', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-      { id: 'b', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-      { id: 'c', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-    ],
-  },
-  {
-    id: '02',
-    question: '¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?',
-    answers: [
-      { id: 'a', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-      { id: 'b', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-      { id: 'c', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-    ],
-  },
-  {
-    id: '03',
-    question: '¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?',
-    answers: [
-      { id: 'a', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-      { id: 'b', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-      { id: 'c', text: 'Opción de respuesta', type: 'Tipo de estilo' },
-    ],
-  },
-];
+interface Answer {
+  id: number;
+  respuesta: string;
+  identificador: string;
+  id_estilo: number;
+  id_pregunta: number;
+}
+
+interface Question {
+  id: number;
+  pregunta: string;
+  answers: Answer[];
+}
+
+interface Estilo {
+  id: number;
+  tipo: string;
+  descripcion: string;
+}
 
 const QuestionAnswerAccordion: React.FC = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [styles, setStyles] = useState<Estilo[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const questionsData = await getQuestionsWithAnswers();
+      setQuestions(questionsData);
+      const stylesData = await getStyles();
+      setStyles(stylesData);
+    };
+    fetchData();
+  }, []);
 
   const handleShowForm = () => {
     setShowForm(true);
@@ -44,6 +50,31 @@ const QuestionAnswerAccordion: React.FC = () => {
 
   const handleHideForm = () => {
     setShowForm(false);
+    setEditingQuestion(null);
+  };
+
+  const handleEditClick = (question: Question) => {
+    setEditingQuestion(question);
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (editingQuestion) {
+      await updateQuestionWithAnswers(editingQuestion);
+      setShowForm(false);
+      setEditingQuestion(null);
+      const data = await getQuestionsWithAnswers();
+      setQuestions(data);
+    }
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number, field: string) => {
+    if (editingQuestion) {
+      const updatedAnswers = editingQuestion.answers.map((answer, idx) => (
+        idx === index ? { ...answer, [field]: e.target.value } : answer
+      ));
+      setEditingQuestion({ ...editingQuestion, answers: updatedAnswers });
+    }
   };
 
   return (
@@ -54,12 +85,14 @@ const QuestionAnswerAccordion: React.FC = () => {
             Regresar
           </Button>
           <Typography variant="h4" fontWeight="bold">
-            Formulario
+            {editingQuestion ? 'Editar Pregunta' : 'Agregar Pregunta'}
           </Typography>
           <TextField
             label="Pregunta"
             variant="outlined"
             fullWidth
+            value={editingQuestion?.pregunta || ''}
+            onChange={(e) => setEditingQuestion(editingQuestion ? { ...editingQuestion, pregunta: e.target.value } : null)}
             sx={{
               borderRadius: '24px',
               boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -72,14 +105,16 @@ const QuestionAnswerAccordion: React.FC = () => {
             Respuestas
           </Typography>
           <Grid container spacing={2}>
-            {[1, 2, 3].map((i) => (
-              <React.Fragment key={i}>
+            {editingQuestion?.answers.map((answer, index) => (
+              <React.Fragment key={index}>
                 <Grid item xs={12} sm={4}>
                   <TextField
                     label="Identificador"
                     variant="outlined"
                     fullWidth
                     select
+                    value={answer.identificador}
+                    onChange={(e) => handleInputChange(e, index, 'identificador')}
                     sx={{
                       borderRadius: '24px',
                       boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -88,7 +123,9 @@ const QuestionAnswerAccordion: React.FC = () => {
                       },
                     }}
                   >
-                    <MenuItem value={`id${i}`}>Identificador {i}</MenuItem>
+                    <MenuItem value="a">Identificador A</MenuItem>
+                    <MenuItem value="b">Identificador B</MenuItem>
+                    <MenuItem value="c">Identificador C</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -96,6 +133,8 @@ const QuestionAnswerAccordion: React.FC = () => {
                     label="Respuesta"
                     variant="outlined"
                     fullWidth
+                    value={answer.respuesta}
+                    onChange={(e) => handleInputChange(e, index, 'respuesta')}
                     sx={{
                       borderRadius: '24px',
                       boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -110,6 +149,9 @@ const QuestionAnswerAccordion: React.FC = () => {
                     label="Tipo de estilo"
                     variant="outlined"
                     fullWidth
+                    select
+                    value={answer.id_estilo}
+                    onChange={(e) => handleInputChange(e, index, 'id_estilo')}
                     sx={{
                       borderRadius: '24px',
                       boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
@@ -117,12 +159,18 @@ const QuestionAnswerAccordion: React.FC = () => {
                         borderRadius: '24px',
                       },
                     }}
-                  />
+                  >
+                    {styles.map((style) => (
+                      <MenuItem key={style.id} value={style.id}>
+                        {style.tipo}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
               </React.Fragment>
             ))}
           </Grid>
-          <Button variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)' }}>
+          <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)' }}>
             Guardar
           </Button>
         </Box>
@@ -154,14 +202,11 @@ const QuestionAnswerAccordion: React.FC = () => {
                   </Grid>
                   <Grid item xs>
                     <Typography>
-                      {question.id}{question.question}
+                      {question.id} {question.pregunta}
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <IconButton>
-                      <VisibilityIcon />
-                    </IconButton>
-                    <IconButton>
+                    <IconButton onClick={() => handleEditClick(question)}>
                       <EditIcon />
                     </IconButton>
                     <IconButton>
@@ -183,9 +228,9 @@ const QuestionAnswerAccordion: React.FC = () => {
                     <TableBody>
                       {question.answers.map((answer, idx) => (
                         <TableRow key={idx}>
-                          <TableCell>{answer.id}</TableCell>
-                          <TableCell>{answer.text}</TableCell>
-                          <TableCell>{answer.type}</TableCell>
+                          <TableCell>{answer.identificador}</TableCell>
+                          <TableCell>{answer.respuesta}</TableCell>
+                          <TableCell>{answer.id_estilo}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
