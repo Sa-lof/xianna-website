@@ -7,6 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import getQuestionsWithAnswers from '../../supabase/CuestionarioServices/getQuestionsWithAnswers';
 import updateQuestionWithAnswers from '../../supabase/CuestionarioServices/updateQuestionWithAnswers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
+import deleteAnswer from '../../supabase/CuestionarioServices/deleteAnswer';
 
 interface Answer {
   id: number;
@@ -33,6 +34,7 @@ const QuestionAnswerAccordion: React.FC = () => {
   const [styles, setStyles] = useState<Estilo[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [deletedAnswers, setDeletedAnswers] = useState<Answer[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +53,7 @@ const QuestionAnswerAccordion: React.FC = () => {
   const handleHideForm = () => {
     setShowForm(false);
     setEditingQuestion(null);
+    setDeletedAnswers([]);
   };
 
   const handleEditClick = (question: Question) => {
@@ -60,9 +63,10 @@ const QuestionAnswerAccordion: React.FC = () => {
 
   const handleSave = async () => {
     if (editingQuestion) {
-      await updateQuestionWithAnswers(editingQuestion);
+      await updateQuestionWithAnswers(editingQuestion, deletedAnswers);
       setShowForm(false);
       setEditingQuestion(null);
+      setDeletedAnswers([]);
       const data = await getQuestionsWithAnswers();
       setQuestions(data);
     }
@@ -73,6 +77,30 @@ const QuestionAnswerAccordion: React.FC = () => {
       const updatedAnswers = editingQuestion.answers.map((answer, idx) => (
         idx === index ? { ...answer, [field]: e.target.value } : answer
       ));
+      setEditingQuestion({ ...editingQuestion, answers: updatedAnswers });
+    }
+  };
+
+  const handleAddAnswer = () => {
+    if (editingQuestion) {
+      const newAnswer: Answer = {
+        id: 0, // 0 indicates that this is a new answer
+        respuesta: '',
+        identificador: '',
+        id_estilo: 0,
+        id_pregunta: editingQuestion.id
+      };
+      setEditingQuestion({ ...editingQuestion, answers: [...editingQuestion.answers, newAnswer] });
+    }
+  };
+
+  const handleDeleteAnswer = (index: number) => {
+    if (editingQuestion) {
+      const answerToDelete = editingQuestion.answers[index];
+      if (answerToDelete.id !== 0) {
+        setDeletedAnswers([...deletedAnswers, answerToDelete]);
+      }
+      const updatedAnswers = editingQuestion.answers.filter((_, idx) => idx !== index);
       setEditingQuestion({ ...editingQuestion, answers: updatedAnswers });
     }
   };
@@ -144,7 +172,7 @@ const QuestionAnswerAccordion: React.FC = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={3}>
                   <TextField
                     label="Tipo de estilo"
                     variant="outlined"
@@ -167,10 +195,18 @@ const QuestionAnswerAccordion: React.FC = () => {
                     ))}
                   </TextField>
                 </Grid>
+                <Grid item xs={12} sm={1}>
+                  <IconButton onClick={() => handleDeleteAnswer(index)} sx={{ marginTop: 1 }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Grid>
               </React.Fragment>
             ))}
           </Grid>
-          <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)' }}>
+          <Button onClick={handleAddAnswer} variant="outlined" sx={{ borderRadius: '24px', marginTop: 2 }}>
+            Agregar Respuesta
+          </Button>
+          <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', marginTop: 2 }}>
             Guardar
           </Button>
         </Box>
