@@ -7,11 +7,12 @@ import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
 import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
 import { getPrendasByOutfitId } from '../../supabase/CatalogoServices/getPrendasByOutfitId';
 import { updatePrendas } from '../../supabase/CatalogoServices/updatePrendas';
-import createPrenda from '../../supabase/CatalogoServices/createPrenda'; // Importa createPrenda
+import createPrenda from '../../supabase/CatalogoServices/createPrenda';
 import { uploadImage } from '../../supabase/CatalogoServices/updateImage';
 import createOutfit from '../../supabase/CatalogoServices/createOutfit';
 import { SelectChangeEvent } from '@mui/material/Select';
 import deleteOutfit from '../../supabase/CatalogoServices/deleteOutfit';
+import deletePrenda from '../../supabase/CatalogoServices/deletePrenda';
 
 interface Outfit {
   id: number;
@@ -48,11 +49,13 @@ const CatalogoTable: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
   const [prendas, setPrendas] = useState<Prenda[]>([]);
+  const [initialPrendas, setInitialPrendas] = useState<Prenda[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [styles, setStyles] = useState<Style[]>([]);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPrendaFiles, setSelectedPrendaFiles] = useState<(File | null)[]>([]);
+  const [prendasToDelete, setPrendasToDelete] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,13 +85,14 @@ const CatalogoTable: React.FC = () => {
     setSelectedOutfit(outfit);
     const prendasData = await getPrendasByOutfitId(outfit.id);
     setPrendas(prendasData);
-    setSelectedPrendaFiles(prendasData.map(() => null)); // Inicializar la lista de archivos de prendas con valores null
+    setInitialPrendas(prendasData); // Guardar prendas originales
+    setSelectedPrendaFiles(prendasData.map(() => null));
     setShowForm(true);
   };
 
   const handleAddClick = () => {
     setSelectedOutfit({
-      id: 0, // Id provisional para nuevo outfit
+      id: 0,
       nombre: '',
       descripcion: '',
       estilo: '',
@@ -96,9 +100,9 @@ const CatalogoTable: React.FC = () => {
       imagen: '',
       ocasiones: [],
     });
-    setPrendas([{ id: 0, nombre: '', link: '', id_outfit: 0 }]); // Inicializar con una prenda vacía
-    setSelectedFile(null); // Resetear el archivo seleccionado al agregar un nuevo outfit
-    setSelectedPrendaFiles([null]); // Inicializar con un archivo de prenda null
+    setPrendas([{ id: 0, nombre: '', link: '', id_outfit: 0 }]);
+    setSelectedFile(null);
+    setSelectedPrendaFiles([null]);
     setShowForm(true);
   };
 
@@ -120,7 +124,7 @@ const CatalogoTable: React.FC = () => {
 
     const file = event.target.files[0];
     if (type === 'outfit') {
-      setSelectedFile(file); // Guardar el archivo seleccionado en el estado
+      setSelectedFile(file);
     } else if (type === 'prenda' && index !== undefined) {
       const updatedPrendaFiles = selectedPrendaFiles.map((prendaFile, i) => (i === index ? file : prendaFile));
       setSelectedPrendaFiles(updatedPrendaFiles);
@@ -140,22 +144,32 @@ const CatalogoTable: React.FC = () => {
     setSelectedPrendaFiles([...selectedPrendaFiles, null]);
   };
 
+  const handleDeletePrenda = (index: number) => {
+    const prendaToDelete = prendas[index];
+    if (prendaToDelete.id !== 0) {
+      setPrendasToDelete([...prendasToDelete, prendaToDelete.id]);
+    }
+    const updatedPrendas = prendas.filter((_, i) => i !== index);
+    setPrendas(updatedPrendas);
+    const updatedPrendaFiles = selectedPrendaFiles.filter((_, i) => i !== index);
+    setSelectedPrendaFiles(updatedPrendaFiles);
+  };
+
   const handleFormSubmit = async () => {
     if (selectedOutfit) {
       const occasionIds = selectedOutfit.ocasiones.map((ocasion) => {
         const occasionObject = occasions.find(o => o.ocasion === ocasion);
         return occasionObject ? occasionObject.id : null;
       }).filter(id => id !== null) as number[];
-  
+
       if (selectedOutfit.id === 0) {
-        // Crear nuevo outfit
         const newOutfitId = await createOutfit({
           nombre: selectedOutfit.nombre,
           descripcion: selectedOutfit.descripcion,
           id_estilo: selectedOutfit.id_estilo,
           ocasiones: occasionIds,
         });
-  
+
         if (newOutfitId) {
           if (selectedFile) {
             const imageUrl = await uploadImage(selectedFile, 'outfit', newOutfitId);
@@ -166,8 +180,7 @@ const CatalogoTable: React.FC = () => {
               });
             }
           }
-  
-          // Crear las prendas
+
           for (let i = 0; i < prendas.length; i++) {
             const prenda = prendas[i];
             const prendaFile = selectedPrendaFiles[i];
@@ -181,7 +194,6 @@ const CatalogoTable: React.FC = () => {
           }
         }
       } else {
-        // Actualizar outfit existente
         await updateOutfit({
           id: selectedOutfit.id,
           nombre: selectedOutfit.nombre,
@@ -189,13 +201,12 @@ const CatalogoTable: React.FC = () => {
           id_estilo: selectedOutfit.id_estilo,
           ocasiones: occasionIds,
         });
-  
+
         for (let i = 0; i < prendas.length; i++) {
           const prenda = prendas[i];
           const prendaFile = selectedPrendaFiles[i];
-  
+
           if (prenda.id === 0) {
-            // Crear nueva prenda
             const newPrendaId = await createPrenda({ nombre: prenda.nombre, link: prenda.link, id_outfit: selectedOutfit.id });
             if (newPrendaId && prendaFile) {
               const prendaImageUrl = await uploadImage(prendaFile, 'prenda', selectedOutfit.id, newPrendaId);
@@ -204,7 +215,6 @@ const CatalogoTable: React.FC = () => {
               }
             }
           } else {
-            // Actualizar prenda existente
             if (prendaFile) {
               const prendaImageUrl = await uploadImage(prendaFile, 'prenda', selectedOutfit.id, prenda.id);
               if (prendaImageUrl) {
@@ -215,7 +225,7 @@ const CatalogoTable: React.FC = () => {
             }
           }
         }
-  
+
         if (selectedFile) {
           const imageUrl = await uploadImage(selectedFile, 'outfit', selectedOutfit.id);
           if (imageUrl) {
@@ -225,12 +235,25 @@ const CatalogoTable: React.FC = () => {
             });
           }
         }
+
+        for (const prendaId of prendasToDelete) {
+          await deletePrenda(prendaId, selectedOutfit.id);
+        }
       }
-  
+
       setShowForm(false);
       const data = await getOutfits();
       setRows(data);
     }
+  };
+
+  const handleCancelClick = () => {
+    setPrendas(initialPrendas); // Restaurar prendas originales
+    setSelectedOutfit(null);
+    setPrendasToDelete([]);
+    setSelectedFile(null);
+    setSelectedPrendaFiles([]);
+    setShowForm(false);
   };
 
   const handleDeleteClick = async (outfitId: number) => {
@@ -242,14 +265,12 @@ const CatalogoTable: React.FC = () => {
       console.error('Error deleting outfit:', error);
     }
   };
-  
-  
 
   return (
     <Box sx={{ padding: 2 }}>
       {showForm ? (
         <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button onClick={() => setShowForm(false)} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+          <Button onClick={handleCancelClick} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
             Regresar
           </Button>
           <Typography variant="h4" fontWeight="bold">
@@ -385,6 +406,9 @@ const CatalogoTable: React.FC = () => {
                   <Avatar src={prenda.imagen} alt={prenda.nombre} sx={{ width: 100, height: 100 }} />
                 )}
               </Box>
+              <IconButton onClick={() => handleDeletePrenda(index)} color="secondary">
+                <DeleteIcon />
+              </IconButton>
             </Box>
           ))}
           <Button onClick={addPrenda} variant="outlined" sx={{ mt: 2 }}>
@@ -450,8 +474,8 @@ const CatalogoTable: React.FC = () => {
                         <EditIcon />
                       </IconButton>
                       <IconButton onClick={() => handleDeleteClick(row.id)}>
-  <DeleteIcon />
-</IconButton>
+                        <DeleteIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
