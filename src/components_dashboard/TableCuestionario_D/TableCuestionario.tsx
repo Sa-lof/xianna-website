@@ -6,6 +6,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import getQuestionsWithAnswers from '../../supabase/CuestionarioServices/getQuestionsWithAnswers';
 import updateQuestionWithAnswers from '../../supabase/CuestionarioServices/updateQuestionWithAnswers';
+import createQuestionWithAnswers from '../../supabase/CuestionarioServices/createQuestionWithAnswers';
+import deleteQuestionWithAnswers from '../../supabase/CuestionarioServices/deleteQuestionWithAnswers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import deleteAnswer from '../../supabase/CuestionarioServices/deleteAnswer';
 
@@ -47,6 +49,11 @@ const QuestionAnswerAccordion: React.FC = () => {
   }, []);
 
   const handleShowForm = () => {
+    setEditingQuestion({
+      id: 0, // 0 indicates that this is a new question
+      pregunta: '',
+      answers: []
+    });
     setShowForm(true);
   };
 
@@ -63,13 +70,23 @@ const QuestionAnswerAccordion: React.FC = () => {
 
   const handleSave = async () => {
     if (editingQuestion) {
-      await updateQuestionWithAnswers(editingQuestion, deletedAnswers);
+      if (editingQuestion.id === 0) {
+        await createQuestionWithAnswers(editingQuestion);
+      } else {
+        await updateQuestionWithAnswers(editingQuestion, deletedAnswers);
+      }
       setShowForm(false);
       setEditingQuestion(null);
       setDeletedAnswers([]);
       const data = await getQuestionsWithAnswers();
       setQuestions(data);
     }
+  };
+
+  const handleDelete = async (questionId: number) => {
+    await deleteQuestionWithAnswers(questionId);
+    const data = await getQuestionsWithAnswers();
+    setQuestions(data);
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number, field: string) => {
@@ -113,7 +130,7 @@ const QuestionAnswerAccordion: React.FC = () => {
             Regresar
           </Button>
           <Typography variant="h4" fontWeight="bold">
-            {editingQuestion ? 'Editar Pregunta' : 'Agregar Pregunta'}
+            {editingQuestion?.id === 0 ? 'Agregar Pregunta' : 'Editar Pregunta'}
           </Typography>
           <TextField
             label="Pregunta"
@@ -245,7 +262,7 @@ const QuestionAnswerAccordion: React.FC = () => {
                     <IconButton onClick={() => handleEditClick(question)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton>
+                    <IconButton onClick={() => handleDelete(question.id)}>
                       <DeleteIcon />
                     </IconButton>
                   </Grid>
