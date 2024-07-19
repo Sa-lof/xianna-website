@@ -200,41 +200,44 @@ const CatalogoTable: React.FC = () => {
   };
 
   const UploadButton: React.FC<{ index: number }> = ({ index }) => (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '1px solid #e0e0e0',
-        borderRadius: '24px',
-        width: '150px',
-        height: '100px',
-        boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-        margin: '16px',
-      }}
-    >
-      <CloudUploadIcon sx={{ fontSize: 40, color: 'black' }} />
-      <Button
-        variant="contained"
-        component="label"
+    !imageFiles[index]?.file ? (
+      <Box
         sx={{
-          marginTop: '8px',
-          backgroundColor: '#E61F93',
-          borderRadius: '20px',
-          textTransform: 'none',
-          boxShadow: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #e0e0e0',
+          borderRadius: '24px',
+          width: '150px',
+          height: '100px',
+          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+          margin: '16px',
         }}
       >
-        Subir
-        <input
-          type="file"
-          hidden
-          onChange={(e) => handleFileChange(e, index)}
-        />
-      </Button>
-    </Box>
+        <CloudUploadIcon sx={{ fontSize: 40, color: 'black' }} />
+        <Button
+          variant="contained"
+          component="label"
+          sx={{
+            marginTop: '8px',
+            backgroundColor: '#E61F93',
+            borderRadius: '20px',
+            textTransform: 'none',
+            boxShadow: 'none',
+          }}
+        >
+          Subir
+          <input
+            type="file"
+            hidden
+            onChange={(e) => handleFileChange(e, index)}
+          />
+        </Button>
+      </Box>
+    ) : null
   );
+  
 
   return (
     <Box sx={{ padding: 2 }}>

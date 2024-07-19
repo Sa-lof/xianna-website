@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';  // Importa el icono de agregar
 import getOutfits from '../../supabase/CatalogoServices/getOutfits';
 import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
 import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
@@ -125,6 +126,9 @@ const CatalogoTable: React.FC = () => {
     const file = event.target.files[0];
     if (type === 'outfit') {
       setSelectedFile(file);
+      if (selectedOutfit) {
+        setSelectedOutfit({ ...selectedOutfit, imagen: URL.createObjectURL(file) });
+      }
     } else if (type === 'prenda' && index !== undefined) {
       const updatedPrendaFiles = selectedPrendaFiles.map((prendaFile, i) => (i === index ? file : prendaFile));
       setSelectedPrendaFiles(updatedPrendaFiles);
@@ -350,54 +354,66 @@ const CatalogoTable: React.FC = () => {
             </Grid>
           </Grid>
           <Grid container spacing={2}>
-  <Grid item xs={12} sm={12} md={8}>
-    <TextField
-      label="Descripción del outfit"
-      variant="outlined"
-      multiline
-      rows={10}
-      name="descripcion"
-      value={selectedOutfit?.descripcion || ''}
-      onChange={handleFormChange}
-      sx={{
-        width:'100%',
-        borderRadius: '24px',
-        boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-        '& .MuiOutlinedInput-root': {
-          borderRadius: '24px',
-        },
-      }}
-    />
-  </Grid>
-  <Grid item xs={12} sm={12} md={4}>
-    <Box>
-      <Typography variant="h6">Imagen Principal del Outfit</Typography>
-      <Card sx={{ width: '100%', height: '180px', borderRadius: '16px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', overflow: 'hidden'}}>
-        <CardMedia
-          component="img"
-          height="100%"
-          image={selectedOutfit?.imagen || 'https://via.placeholder.com/150'}
-          alt="Outfit image"
-          sx={{ objectFit: 'cover', height: '100%' }}
-        />
-      </Card>
-      <Button
-        variant="contained"
-        component="label"
-        sx={{ marginTop: 2, backgroundColor: '#E61F93', borderRadius: '24px' }}
-      >
-        Subir
-        <input
-          type="file"
-          hidden
-          accept="image/*"
-          onChange={(e) => handleImageUpload(e, 'outfit')}
-        />
-      </Button>
-    </Box>
-  </Grid>
-</Grid>
-<Typography variant="h6" sx={{ mt: 2 }}>Prendas</Typography>
+            <Grid item xs={12} sm={12} md={8}>
+              <TextField
+                label="Descripción del outfit"
+                variant="outlined"
+                multiline
+                rows={10}
+                name="descripcion"
+                value={selectedOutfit?.descripcion || ''}
+                onChange={handleFormChange}
+                sx={{
+                  width: '100%',
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={4}>
+              <Box>
+                <Typography variant="h6">Imagen Principal</Typography>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'outfit')}
+                  style={{ display: 'none' }}
+                  id="main-outfit-upload"
+                />
+                <label htmlFor="main-outfit-upload">
+                  <Card sx={{ width: '100%', height: '230px', borderRadius: '16px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', overflow: 'hidden', cursor: 'pointer' }}>
+                    <CardMedia
+                      component="img"
+                      height="100%"
+                      image={selectedOutfit?.imagen || 'https://t4.ftcdn.net/jpg/01/64/16/59/360_F_164165971_ELxPPwdwHYEhg4vZ3F4Ej7OmZVzqq4Ov.jpg'}
+                      alt="Outfit image"
+                      sx={{ objectFit: 'cover', height: '100%' }}
+                    />
+                  </Card>
+                </label>
+              </Box>
+            </Grid>
+          </Grid>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
+  <Typography variant="h6">Prendas</Typography>
+  <IconButton onClick={addPrenda} sx={{ 
+    mt: 2, 
+    backgroundColor: '#E61F93', 
+    color: 'white', 
+    width: 38, 
+    height: 38, 
+    borderRadius: '50%', 
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    } 
+  }}>
+    <AddIcon />
+  </IconButton>
+</Box>
+
 {prendas.map((prenda, index) => (
   <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -409,24 +425,11 @@ const CatalogoTable: React.FC = () => {
         id={`upload-button-${index}`}
       />
       <label htmlFor={`upload-button-${index}`}>
-        {prenda.imagen ? (
-          <Avatar src={prenda.imagen} alt={prenda.nombre} sx={{ width: 100, height: 100, borderRadius: '12px', cursor: 'pointer' }} />
-        ) : (
-          <IconButton
-            component="span"
-            sx={{
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-              },
-            }}
-          >
-            <Typography variant="button" sx={{ color: 'white', backgroundColor: 'pink', padding: '8px 16px', borderRadius: '24px' }}>
-              Subir
-            </Typography>
-          </IconButton>
-        )}
+        <Avatar 
+          src={prenda.imagen || 'https://t4.ftcdn.net/jpg/01/64/16/59/360_F_164165971_ELxPPwdwHYEhg4vZ3F4Ej7OmZVzqq4Ov.jpg'} 
+          alt={prenda.nombre} 
+          sx={{ width: 100, height: 100, borderRadius: '12px', cursor: 'pointer' }} 
+        />
       </label>
     </Box>
     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -461,15 +464,13 @@ const CatalogoTable: React.FC = () => {
         }}
       />
     </Box>
-    <IconButton onClick={() => handleDeletePrenda(index)} color="secondary" sx={{ alignSelf: 'flex-start' }}>
+    <IconButton onClick={() => handleDeletePrenda(index)} sx={{ alignSelf: 'center', color:'#E61F93'}}>
       <DeleteIcon />
     </IconButton>
   </Box>
 ))}
 
-          <Button onClick={addPrenda} variant="outlined" sx={{ mt: 2 }}>
-            Agregar Prenda
-          </Button>
+
           <Button
             onClick={handleFormSubmit}
             variant="contained"
@@ -509,7 +510,16 @@ const CatalogoTable: React.FC = () => {
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row.id}>
                     <TableCell style={{ textAlign: 'center' }}>
-                      <Avatar src={row.imagen} alt={row.nombre} sx={{ width: 56, height: 56, margin: 'auto' }} />
+                    <Avatar 
+          src={row.imagen} 
+          alt={row.nombre} 
+          sx={{ 
+            width: 56, 
+            height: 56, 
+            margin: 'auto', 
+            borderRadius: '5px' // Cambiado para hacer las imágenes más cuadradas
+          }} 
+        />
                     </TableCell>
                     <TableCell style={{ textAlign: 'center' }}>{row.nombre}</TableCell>
                     <TableCell style={{ textAlign: 'center' }}>
