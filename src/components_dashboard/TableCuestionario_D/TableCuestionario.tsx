@@ -3,13 +3,14 @@ import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Table, 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import getQuestionsWithAnswers from '../../supabase/CuestionarioServices/getQuestionsWithAnswers';
 import updateQuestionWithAnswers from '../../supabase/CuestionarioServices/updateQuestionWithAnswers';
 import createQuestionWithAnswers from '../../supabase/CuestionarioServices/createQuestionWithAnswers';
 import deleteQuestionWithAnswers from '../../supabase/CuestionarioServices/deleteQuestionWithAnswers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import deleteAnswer from '../../supabase/CuestionarioServices/deleteAnswer';
+import AddIcon from '@mui/icons-material/Add';
 
 interface Answer {
   id: number;
@@ -146,9 +147,24 @@ const QuestionAnswerAccordion: React.FC = () => {
               },
             }}
           />
-          <Typography variant="h6" fontWeight="bold">
-            Respuestas
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+            <Typography variant="h6" fontWeight="bold">
+              Respuestas
+            </Typography>
+            <IconButton onClick={handleAddAnswer} sx={{ 
+    mt: 2, 
+    backgroundColor: '#E61F93', 
+    color: 'white', 
+    width: 38, 
+    height: 38, 
+    borderRadius: '50%', 
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    } 
+  }}>
+    <AddIcon />
+  </IconButton>
+          </Box>
           <Grid container spacing={2}>
             {editingQuestion?.answers.map((answer, index) => (
               <React.Fragment key={index}>
@@ -213,16 +229,23 @@ const QuestionAnswerAccordion: React.FC = () => {
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={1}>
-                  <IconButton onClick={() => handleDeleteAnswer(index)} sx={{ marginTop: 1 }}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <IconButton onClick={() => handleDeleteAnswer(index)} sx={{ 
+    mt: 2,  
+    color: '#E61F93', 
+    width: 38, 
+    height: 38, 
+    borderRadius: '50%', 
+    '&:hover': {
+      backgroundColor: 'white',
+    } 
+  }}>
+    <DeleteIcon />
+  </IconButton>
+                  
                 </Grid>
               </React.Fragment>
             ))}
           </Grid>
-          <Button onClick={handleAddAnswer} variant="outlined" sx={{ borderRadius: '24px', marginTop: 2 }}>
-            Agregar Respuesta
-          </Button>
           <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', marginTop: 2 }}>
             Guardar
           </Button>
@@ -251,11 +274,11 @@ const QuestionAnswerAccordion: React.FC = () => {
               >
                 <Grid container alignItems="center" spacing={2}>
                   <Grid item>
-                    <Avatar sx={{ bgcolor: '#FDD835', fontWeight: 'bold' }}>{question.id}</Avatar>
+                    <Avatar sx={{ bgcolor: '#FDD835', fontWeight: 'bold' }}>{index + 1}</Avatar>
                   </Grid>
                   <Grid item xs>
                     <Typography>
-                      {question.id} {question.pregunta}
+                      {index + 1} {question.pregunta}
                     </Typography>
                   </Grid>
                   <Grid item>
