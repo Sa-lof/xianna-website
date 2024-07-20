@@ -3,34 +3,13 @@ import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Table, 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import getQuestionsWithAnswers from '../../supabase/CuestionarioServices/getQuestionsWithAnswers';
 import updateQuestionWithAnswers from '../../supabase/CuestionarioServices/updateQuestionWithAnswers';
 import createQuestionWithAnswers from '../../supabase/CuestionarioServices/createQuestionWithAnswers';
 import deleteQuestionWithAnswers from '../../supabase/CuestionarioServices/deleteQuestionWithAnswers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
-import deleteAnswer from '../../supabase/CuestionarioServices/deleteAnswer';
 import AddIcon from '@mui/icons-material/Add';
-
-interface Answer {
-  id: number;
-  respuesta: string;
-  identificador: string;
-  id_estilo: number;
-  id_pregunta: number;
-}
-
-interface Question {
-  id: number;
-  pregunta: string;
-  answers: Answer[];
-}
-
-interface Estilo {
-  id: number;
-  tipo: string;
-  descripcion: string;
-}
+import { Answer, Question, Estilo} from "../../supabase/CuestionarioServices/types";
 
 const QuestionAnswerAccordion: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -51,7 +30,7 @@ const QuestionAnswerAccordion: React.FC = () => {
 
   const handleShowForm = () => {
     setEditingQuestion({
-      id: 0, // 0 indicates that this is a new question
+      id: 0,
       pregunta: '',
       answers: []
     });
@@ -102,7 +81,7 @@ const QuestionAnswerAccordion: React.FC = () => {
   const handleAddAnswer = () => {
     if (editingQuestion) {
       const newAnswer: Answer = {
-        id: 0, // 0 indicates that this is a new answer
+        id: 0,
         respuesta: '',
         identificador: '',
         id_estilo: 0,

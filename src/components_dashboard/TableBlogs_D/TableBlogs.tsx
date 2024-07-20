@@ -15,27 +15,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import StarIcon from '@mui/icons-material/Star';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AddIcon from '@mui/icons-material/Add';
-
-interface Blog {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  contenido: string;
-  image: string;
-  name: string;
-  category: string;
-  rating: number;
-  persons: number;
-  id_categoria: number;
-  images: string[];
-}
-
-interface ImageFileWithPreview {
-  file: File;
-  preview: string;
-}
+import { Blog, ImageFileWithPreview } from "../../supabase/BlogServices/types";
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Blog[]>([]);

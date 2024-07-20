@@ -2,7 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';  // Importa el icono de agregar
+import AddIcon from '@mui/icons-material/Add';
 import getOutfits from '../../supabase/CatalogoServices/getOutfits';
 import updateOutfit from '../../supabase/CatalogoServices/updateOutfit';
 import { getStyles, getOccasions } from '../../supabase/CatalogoServices/getStylesAndOccasions';
@@ -14,35 +14,7 @@ import createOutfit from '../../supabase/CatalogoServices/createOutfit';
 import { SelectChangeEvent } from '@mui/material/Select';
 import deleteOutfit from '../../supabase/CatalogoServices/deleteOutfit';
 import deletePrenda from '../../supabase/CatalogoServices/deletePrenda';
-
-interface Outfit {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estilo: string;
-  id_estilo: number;
-  imagen: string;
-  ocasiones: string[];
-}
-
-interface Prenda {
-  id: number;
-  nombre: string;
-  link: string;
-  id_outfit: number;
-  imagen?: string;
-}
-
-interface Style {
-  id: number;
-  tipo: string;
-  descripcion: string;
-}
-
-interface Occasion {
-  id: number;
-  ocasion: string;
-}
+import { Outfit, Prenda, Style, Occasion } from "../../supabase/CatalogoServices/types";
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Outfit[]>([]);
@@ -86,7 +58,7 @@ const CatalogoTable: React.FC = () => {
     setSelectedOutfit(outfit);
     const prendasData = await getPrendasByOutfitId(outfit.id);
     setPrendas(prendasData);
-    setInitialPrendas(prendasData); // Guardar prendas originales
+    setInitialPrendas(prendasData);
     setSelectedPrendaFiles(prendasData.map(() => null));
     setShowForm(true);
   };
@@ -252,7 +224,7 @@ const CatalogoTable: React.FC = () => {
   };
 
   const handleCancelClick = () => {
-    setPrendas(initialPrendas); // Restaurar prendas originales
+    setPrendas(initialPrendas);
     setSelectedOutfit(null);
     setPrendasToDelete([]);
     setSelectedFile(null);
@@ -517,7 +489,7 @@ const CatalogoTable: React.FC = () => {
             width: 56, 
             height: 56, 
             margin: 'auto', 
-            borderRadius: '5px' // Cambiado para hacer las imágenes más cuadradas
+            borderRadius: '5px'
           }} 
         />
                     </TableCell>
