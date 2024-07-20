@@ -29,7 +29,7 @@ const CatalogoTable: React.FC = () => {
   const [currentBlog, setCurrentBlog] = useState<Partial<Blog> | null>(null);
   const [imageFiles, setImageFiles] = useState<ImageFileWithPreview[]>([]);
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
-  const [categorias, setCategorias] = useState<{ id: number, categoria: string }[]>([]); // State for categories
+  const [categorias, setCategorias] = useState<{ id: number, categoria: string }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,7 +44,7 @@ const CatalogoTable: React.FC = () => {
           images: []
         }));
         setRows(formattedData);
-        setCategorias(categoriasData); // Set categories
+        setCategorias(categoriasData);
       } catch (error) {
         console.error('There was an error fetching the data!', error);
       }
@@ -146,7 +146,20 @@ const CatalogoTable: React.FC = () => {
     }
   };
 
+  const validateForm = () => {
+    if (!currentBlog) return false;
+    if (!currentBlog.titulo || !currentBlog.id_categoria || !currentBlog.descripcion || !currentBlog.contenido) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSave = async () => {
+    if (!validateForm()) {
+      alert('Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
     if (currentBlog) {
       try {
         let updatedImages = [...currentBlog.images!];
@@ -190,7 +203,7 @@ const CatalogoTable: React.FC = () => {
           }
         }
         handleHideForm();
-        fetchBlogs();  // Update the list of blogs after saving
+        fetchBlogs();
       } catch (error) {
         console.error('There was an error saving the blog!', error);
       }

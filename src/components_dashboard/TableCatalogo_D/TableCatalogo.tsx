@@ -30,6 +30,7 @@ const CatalogoTable: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPrendaFiles, setSelectedPrendaFiles] = useState<(File | null)[]>([]);
   const [prendasToDelete, setPrendasToDelete] = useState<number[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,6 +62,7 @@ const CatalogoTable: React.FC = () => {
     setPrendas(prendasData);
     setInitialPrendas(prendasData);
     setSelectedPrendaFiles(prendasData.map(() => null));
+    setSelectedCategories(outfit.ocasiones);
     setShowForm(true);
   };
 
@@ -74,9 +76,10 @@ const CatalogoTable: React.FC = () => {
       imagen: '',
       ocasiones: [],
     });
-    setPrendas([{ id: 0, nombre: '', link: '', id_outfit: 0 }]);
+    setPrendas([]);
     setSelectedFile(null);
-    setSelectedPrendaFiles([null]);
+    setSelectedPrendaFiles([]);
+    setSelectedCategories([]);
     setShowForm(true);
   };
 
@@ -111,8 +114,12 @@ const CatalogoTable: React.FC = () => {
   };
 
   const handleOccasionChange = (event: SelectChangeEvent<string[]>) => {
-    if (selectedOutfit) {
-      setSelectedOutfit({ ...selectedOutfit, ocasiones: event.target.value as string[] });
+    const value = event.target.value as string[];
+    if (value.length <= 4) {
+      setSelectedCategories(value);
+      if (selectedOutfit) {
+        setSelectedOutfit({ ...selectedOutfit, ocasiones: value });
+      }
     }
   };
 
@@ -132,7 +139,27 @@ const CatalogoTable: React.FC = () => {
     setSelectedPrendaFiles(updatedPrendaFiles);
   };
 
+  const validateForm = () => {
+    if (!selectedOutfit) return false;
+    if (!selectedOutfit.nombre || !selectedOutfit.id_estilo || !selectedOutfit.descripcion || selectedOutfit.ocasiones.length === 0) {
+      return false;
+    }
+
+    for (const prenda of prendas) {
+      if (!prenda.nombre || !prenda.link) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleFormSubmit = async () => {
+    if (!validateForm()) {
+      alert('Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
     if (selectedOutfit) {
       const occasionIds = selectedOutfit.ocasiones.map((ocasion) => {
         const occasionObject = occasions.find(o => o.ocasion === ocasion);
@@ -230,6 +257,7 @@ const CatalogoTable: React.FC = () => {
     setPrendasToDelete([]);
     setSelectedFile(null);
     setSelectedPrendaFiles([]);
+    setSelectedCategories([]);
     setShowForm(false);
   };
 
@@ -338,7 +366,7 @@ const CatalogoTable: React.FC = () => {
                 <InputLabel>Ocasión</InputLabel>
                 <Select
                   multiple
-                  value={selectedOutfit?.ocasiones || []}
+                  value={selectedCategories}
                   onChange={handleOccasionChange}
                   input={<OutlinedInput label="Ocasión" />}
                   renderValue={(selected) => (
@@ -403,79 +431,76 @@ const CatalogoTable: React.FC = () => {
             </Grid>
           </Grid>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
-  <Typography variant="h6">Prendas</Typography>
-  <IconButton onClick={addPrenda} sx={{ 
-    mt: 2, 
-    backgroundColor: '#E61F93', 
-    color: 'white', 
-    width: 38, 
-    height: 38, 
-    borderRadius: '50%', 
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    } 
-  }}>
-    <AddIcon />
-  </IconButton>
-</Box>
-
-{prendas.map((prenda, index) => (
-  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleImageUpload(e, 'prenda', index)}
-        style={{ display: 'none' }}
-        id={`upload-button-${index}`}
-      />
-      <label htmlFor={`upload-button-${index}`}>
-        <Avatar 
-          src={prenda.imagen || 'https://t4.ftcdn.net/jpg/01/64/16/59/360_F_164165971_ELxPPwdwHYEhg4vZ3F4Ej7OmZVzqq4Ov.jpg'} 
-          alt={prenda.nombre} 
-          sx={{ width: 100, height: 100, borderRadius: '12px', cursor: 'pointer' }} 
-        />
-      </label>
-    </Box>
-    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <TextField
-        label="Nombre de la prenda"
-        variant="outlined"
-        fullWidth
-        name="nombre"
-        value={prenda.nombre}
-        onChange={(e) => handlePrendaChange(index, e)}
-        sx={{
-          borderRadius: '24px',
-          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '24px',
-          },
-        }}
-      />
-      <TextField
-        label="Link de la prenda"
-        variant="outlined"
-        fullWidth
-        name="link"
-        value={prenda.link}
-        onChange={(e) => handlePrendaChange(index, e)}
-        sx={{
-          borderRadius: '24px',
-          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '24px',
-          },
-        }}
-      />
-    </Box>
-    <IconButton onClick={() => handleDeletePrenda(index)} sx={{ alignSelf: 'center', color:'#E61F93'}}>
-      <DeleteIcon />
-    </IconButton>
-  </Box>
-))}
-
-
+            <Typography variant="h6">Prendas</Typography>
+            <IconButton onClick={addPrenda} sx={{ 
+              mt: 2, 
+              backgroundColor: '#E61F93', 
+              color: 'white', 
+              width: 38, 
+              height: 38, 
+              borderRadius: '50%', 
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              } 
+            }}>
+              <AddIcon />
+            </IconButton>
+          </Box>
+          {prendas.length > 0 && prendas.map((prenda, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'prenda', index)}
+                  style={{ display: 'none' }}
+                  id={`upload-button-${index}`}
+                />
+                <label htmlFor={`upload-button-${index}`}>
+                  <Avatar 
+                    src={prenda.imagen || 'https://t4.ftcdn.net/jpg/01/64/16/59/360_F_164165971_ELxPPwdwHYEhg4vZ3F4Ej7OmZVzqq4Ov.jpg'} 
+                    alt={prenda.nombre} 
+                    sx={{ width: 100, height: 100, borderRadius: '12px', cursor: 'pointer' }} 
+                  />
+                </label>
+              </Box>
+              <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  label="Nombre de la prenda"
+                  variant="outlined"
+                  fullWidth
+                  name="nombre"
+                  value={prenda.nombre}
+                  onChange={(e) => handlePrendaChange(index, e)}
+                  sx={{
+                    borderRadius: '24px',
+                    boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '24px',
+                    },
+                  }}
+                />
+                <TextField
+                  label="Link de la prenda"
+                  variant="outlined"
+                  fullWidth
+                  name="link"
+                  value={prenda.link}
+                  onChange={(e) => handlePrendaChange(index, e)}
+                  sx={{
+                    borderRadius: '24px',
+                    boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '24px',
+                    },
+                  }}
+                />
+              </Box>
+              <IconButton onClick={() => handleDeletePrenda(index)} sx={{ alignSelf: 'center', color:'#E61F93'}}>
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ))}
           <Button
             onClick={handleFormSubmit}
             variant="contained"
@@ -491,7 +516,7 @@ const CatalogoTable: React.FC = () => {
               Catálogo
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+              <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
                 Reporte
               </Button>
               <Button onClick={handleAddClick} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
@@ -515,16 +540,16 @@ const CatalogoTable: React.FC = () => {
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row.id}>
                     <TableCell style={{ textAlign: 'center' }}>
-                    <Avatar 
-          src={row.imagen} 
-          alt={row.nombre} 
-          sx={{ 
-            width: 56, 
-            height: 56, 
-            margin: 'auto', 
-            borderRadius: '5px'
-          }} 
-        />
+                      <Avatar 
+                        src={row.imagen} 
+                        alt={row.nombre} 
+                        sx={{ 
+                          width: 56, 
+                          height: 56, 
+                          margin: 'auto', 
+                          borderRadius: '5px'
+                        }} 
+                      />
                     </TableCell>
                     <TableCell style={{ textAlign: 'center' }}>{row.nombre}</TableCell>
                     <TableCell style={{ textAlign: 'center' }}>

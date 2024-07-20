@@ -49,7 +49,23 @@ const QuestionAnswerAccordion: React.FC = () => {
     setShowForm(true);
   };
 
+  const validateForm = () => {
+    if (!editingQuestion || !editingQuestion.pregunta) {
+      alert('Por favor, completa el campo de la pregunta.');
+      return false;
+    }
+    for (const answer of editingQuestion.answers) {
+      if (!answer.identificador || !answer.respuesta || !answer.id_estilo) {
+        alert('Por favor, completa todos los campos de las respuestas.');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSave = async () => {
+    if (!validateForm()) return;
+
     if (editingQuestion) {
       if (editingQuestion.id === 0) {
         await createQuestionWithAnswers(editingQuestion);
