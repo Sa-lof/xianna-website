@@ -15,6 +15,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import deleteOutfit from '../../supabase/CatalogoServices/deleteOutfit';
 import deletePrenda from '../../supabase/CatalogoServices/deletePrenda';
 import { Outfit, Prenda, Style, Occasion } from "../../supabase/CatalogoServices/types";
+import * as XLSX from 'xlsx';
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Outfit[]>([]);
@@ -242,6 +243,38 @@ const CatalogoTable: React.FC = () => {
     }
   };
 
+  const handleDownloadExcel = async () => {
+    const categoryMap = styles.reduce((acc, style) => {
+      acc[style.id] = style.tipo;
+      return acc;
+    }, {} as { [key: number]: string });
+
+    const outfitsWithPrendas = await Promise.all(rows.map(async (row) => {
+      const prendas = await getPrendasByOutfitId(row.id);
+      return {
+        ...row,
+        prendas,
+        estilo: categoryMap[row.id_estilo] || row.id_estilo
+      };
+    }));
+
+    const worksheetData = outfitsWithPrendas.flatMap((row) => {
+      return row.prendas.map((prenda, index) => ({
+        Nombre: index === 0 ? row.nombre : '',
+        Estilo: index === 0 ? row.estilo : '',
+        Ocasiones: index === 0 ? row.ocasiones.join(', ') : '',
+        Descripcion: index === 0 ? row.descripcion : '',
+        Prenda: prenda.nombre,
+        Link: prenda.link,
+      }));
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Outfits");
+    XLSX.writeFile(workbook, "outfits_report.xlsx");
+  };
+
   return (
     <Box sx={{ padding: 2 }}>
       {showForm ? (
@@ -458,7 +491,7 @@ const CatalogoTable: React.FC = () => {
               Catálogo
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
                 Reporte
               </Button>
               <Button onClick={handleAddClick} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>

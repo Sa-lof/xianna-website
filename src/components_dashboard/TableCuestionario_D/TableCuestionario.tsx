@@ -9,7 +9,8 @@ import createQuestionWithAnswers from '../../supabase/CuestionarioServices/creat
 import deleteQuestionWithAnswers from '../../supabase/CuestionarioServices/deleteQuestionWithAnswers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import AddIcon from '@mui/icons-material/Add';
-import { Answer, Question, Estilo} from "../../supabase/CuestionarioServices/types";
+import { Answer, Question, Estilo } from "../../supabase/CuestionarioServices/types";
+import * as XLSX from 'xlsx';
 
 const QuestionAnswerAccordion: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -102,6 +103,43 @@ const QuestionAnswerAccordion: React.FC = () => {
     }
   };
 
+  const handleDownloadExcel = () => {
+    const styleMap = styles.reduce((acc, style) => {
+      acc[style.id] = style.tipo;
+      return acc;
+    }, {} as { [key: number]: string });
+
+    const data: any[][] = [["Pregunta", "Identificador", "Respuesta", "Estilo"]];
+    questions.forEach((question) => {
+      const questionRows = question.answers.map((answer, index) => [
+        index === 0 ? question.pregunta : "", // Only the first row should contain the question
+        answer.identificador,
+        answer.respuesta,
+        styleMap[answer.id_estilo] || answer.id_estilo
+      ]);
+      data.push(...questionRows);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+    // Merge cells for questions with multiple answers
+    let rowIndex = 1;
+    questions.forEach((question) => {
+      if (question.answers.length > 1) {
+        worksheet['!merges'] = worksheet['!merges'] || [];
+        worksheet['!merges'].push({
+          s: { r: rowIndex, c: 0 },
+          e: { r: rowIndex + question.answers.length - 1, c: 0 }
+        });
+      }
+      rowIndex += question.answers.length;
+    });
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Preguntas y Respuestas");
+    XLSX.writeFile(workbook, "questions_report.xlsx");
+  };
+
   return (
     <Box sx={{ padding: 2 }}>
       {showForm ? (
@@ -131,18 +169,18 @@ const QuestionAnswerAccordion: React.FC = () => {
               Respuestas
             </Typography>
             <IconButton onClick={handleAddAnswer} sx={{ 
-    mt: 2, 
-    backgroundColor: '#E61F93', 
-    color: 'white', 
-    width: 38, 
-    height: 38, 
-    borderRadius: '50%', 
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    } 
-  }}>
-    <AddIcon />
-  </IconButton>
+              mt: 2, 
+              backgroundColor: '#E61F93', 
+              color: 'white', 
+              width: 38, 
+              height: 38, 
+              borderRadius: '50%', 
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              } 
+            }}>
+              <AddIcon />
+            </IconButton>
           </Box>
           <Grid container spacing={2}>
             {editingQuestion?.answers.map((answer, index) => (
@@ -209,18 +247,17 @@ const QuestionAnswerAccordion: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={1}>
                   <IconButton onClick={() => handleDeleteAnswer(index)} sx={{ 
-    mt: 2,  
-    color: '#E61F93', 
-    width: 38, 
-    height: 38, 
-    borderRadius: '50%', 
-    '&:hover': {
-      backgroundColor: 'white',
-    } 
-  }}>
-    <DeleteIcon />
-  </IconButton>
-                  
+                    mt: 2,  
+                    color: '#E61F93', 
+                    width: 38, 
+                    height: 38, 
+                    borderRadius: '50%', 
+                    '&:hover': {
+                      backgroundColor: 'white',
+                    } 
+                  }}>
+                    <DeleteIcon />
+                  </IconButton>
                 </Grid>
               </React.Fragment>
             ))}
@@ -236,7 +273,7 @@ const QuestionAnswerAccordion: React.FC = () => {
               Formulario
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+              <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
                 Reporte
               </Button>
               <Button onClick={handleShowForm} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
@@ -285,7 +322,7 @@ const QuestionAnswerAccordion: React.FC = () => {
                         <TableRow key={idx}>
                           <TableCell>{answer.identificador}</TableCell>
                           <TableCell>{answer.respuesta}</TableCell>
-                          <TableCell>{answer.id_estilo}</TableCell>
+                          <TableCell>{styles.find(style => style.id === answer.id_estilo)?.tipo || answer.id_estilo}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

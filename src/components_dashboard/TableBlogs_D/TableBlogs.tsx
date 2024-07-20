@@ -1,12 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import getBlogs from '../../supabase/BlogServices/getBlogs';
-import getBlogImages from '../../supabase/BlogServices/getBlogImages';
-import updateBlog from '../../supabase/BlogServices/updateBlog';
-import createBlog from '../../supabase/BlogServices/createBlog';
-import deleteBlogImage from '../../supabase/BlogServices/deleteBlogImage';
-import postBlogImages from '../../supabase/BlogServices/postBlogImages';
-import deleteBlog from '../../supabase/BlogServices/deleteBlog';
-import deleteBlogFolder from '../../supabase/BlogServices/deleteBlogFolder';
 import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Avatar, IconButton, TablePagination, Typography, Button, TextField, MenuItem,
@@ -17,6 +9,16 @@ import StarIcon from '@mui/icons-material/Star';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AddIcon from '@mui/icons-material/Add';
 import { Blog, ImageFileWithPreview } from "../../supabase/BlogServices/types";
+import getBlogs from '../../supabase/BlogServices/getBlogs';
+import getBlogImages from '../../supabase/BlogServices/getBlogImages';
+import updateBlog from '../../supabase/BlogServices/updateBlog';
+import createBlog from '../../supabase/BlogServices/createBlog';
+import deleteBlogImage from '../../supabase/BlogServices/deleteBlogImage';
+import postBlogImages from '../../supabase/BlogServices/postBlogImages';
+import deleteBlog from '../../supabase/BlogServices/deleteBlog';
+import deleteBlogFolder from '../../supabase/BlogServices/deleteBlogFolder';
+import getCategorias from '../../supabase/BlogServices/getCategorias';
+import * as XLSX from 'xlsx';
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Blog[]>([]);
@@ -27,12 +29,13 @@ const CatalogoTable: React.FC = () => {
   const [currentBlog, setCurrentBlog] = useState<Partial<Blog> | null>(null);
   const [imageFiles, setImageFiles] = useState<ImageFileWithPreview[]>([]);
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
+  const [categorias, setCategorias] = useState<{ id: number, categoria: string }[]>([]); // State for categories
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getBlogs();
-        const formattedData = data.map((blog) => ({
+        const [blogs, categoriasData] = await Promise.all([getBlogs(), getCategorias()]);
+        const formattedData = blogs.map((blog) => ({
           ...blog,
           name: blog.titulo,
           category: blog.categoria,
@@ -41,6 +44,7 @@ const CatalogoTable: React.FC = () => {
           images: []
         }));
         setRows(formattedData);
+        setCategorias(categoriasData); // Set categories
       } catch (error) {
         console.error('There was an error fetching the data!', error);
       }
@@ -239,6 +243,25 @@ const CatalogoTable: React.FC = () => {
     ) : null
   );
 
+  const handleDownloadExcel = () => {
+    const categoryMap = categorias.reduce((acc, category) => {
+      acc[category.id] = category.categoria;
+      return acc;
+    }, {} as { [key: number]: string });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows.map((row) => ({
+      Titulo: row.titulo,
+      Categoria: categoryMap[row.id_categoria] || row.id_categoria,
+      Descripcion: row.descripcion,
+      Contenido: row.contenido,
+      Calificacion: row.rating,
+      Personas: row.persons
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Blogs");
+    XLSX.writeFile(workbook, "blogs_report.xlsx");
+  };
+
   return (
     <Box sx={{ padding: 2 }}>
       {showForm ? (
@@ -281,8 +304,9 @@ const CatalogoTable: React.FC = () => {
               },
             }}
           >
-            <MenuItem value={1}>Ropa</MenuItem>
-            <MenuItem value={2}>Eventos</MenuItem>
+            {categorias.map((categoria) => (
+              <MenuItem key={categoria.id} value={categoria.id}>{categoria.categoria}</MenuItem>
+            ))}
           </TextField>
           <TextField
             label="Descripción"
@@ -372,7 +396,7 @@ const CatalogoTable: React.FC = () => {
               Blogs
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
                 Reporte
               </Button>
               <Button onClick={() => handleShowForm()} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
