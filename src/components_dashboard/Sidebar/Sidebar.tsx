@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Avatar, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { Box, Avatar, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const menuItems = [
   { text: 'insights', key: 'insights' },
@@ -57,6 +58,22 @@ const Sidebar: React.FC<{ selectedKey: string, onSelect: (key: string) => void }
           </ListItem>
         ))}
       </List>
+      <Box sx={{ marginTop: 'auto', padding: '20px 0' }}>
+        <Button
+          onClick={() => alert('Cerrar sesión')}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: 'black',
+            textTransform: 'none',
+            margin: '10px auto'
+          }}
+        >
+          <LogoutIcon sx={{ marginRight: '10px' }} />
+          Cerrar sesión
+        </Button>
+      </Box>
     </Box>
   );
 };
