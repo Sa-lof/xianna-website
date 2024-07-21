@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card, Button, MenuItem, Select, FormControl, InputLabel, OutlinedInput, Checkbox, ListItemText, SelectChangeEvent } from '@mui/material';
+import { Box, Typography, Grid, Card, Button, MenuItem, Select, FormControl, InputLabel, OutlinedInput, SelectChangeEvent, Checkbox, ListItemText } from '@mui/material';
 import getUsers from '../../supabase/UsersServices/getUsers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import getFavorites from '../../supabase/InsightServices/getFavorites';
 import getOutfits from '../../supabase/InsightServices/getOutfits';
+import getBlogs from '../../supabase/BlogServices/getBlogs';
+import getBlogRatings from '../../supabase/InsightServices/getBlogRatings';
+import getCategorias from '../../supabase/InsightServices/getCategorias';
 import StyleChart from '../StyleChart_D/StyleChart';
+import BlogChart from '../BlogChart_D/BlogChart';
 import Chart from 'react-apexcharts';
-import { Style } from '../../supabase/CatalogoServices/types'
+import { Style } from '../../supabase/CatalogoServices/types';
 
 interface User {
   id: number;
@@ -34,6 +38,27 @@ interface Outfit {
   id_estilo: number;
 }
 
+interface Blog {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  contenido: string;
+  id_categoria: number;
+  categoria: string;
+  image: string;
+}
+
+interface BlogRating {
+  id: number;
+  blog: number;
+  calificacion: number;
+}
+
+interface Categoria {
+  id: number;
+  categoria: string;
+}
+
 interface ChartData {
   categories: string[];
   series: {
@@ -47,9 +72,15 @@ const Insights: React.FC = () => {
   const [styles, setStyles] = useState<Style[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogRatings, setBlogRatings] = useState<BlogRating[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [selectedCategoria, setSelectedCategoria] = useState<string>('Todos');
   const [chartData, setChartData] = useState<ChartData>({ categories: [], series: [] });
   const [favoritesChartData, setFavoritesChartData] = useState<{ name: string, data: { x: string, y: number }[] }[]>([]);
+  const [blogRatingsChartData, setBlogRatingsChartData] = useState<ChartData>({ categories: [], series: [] });
   const [mostSavedOutfit, setMostSavedOutfit] = useState<string>('');
+  const [mostRatedCategory, setMostRatedCategory] = useState<string>('');
   const [ageRanges, setAgeRanges] = useState<string[]>(['0-100']);
   const [selectedStyles, setSelectedStyles] = useState<string[]>(['Todos']);
 
@@ -59,10 +90,17 @@ const Insights: React.FC = () => {
       const stylesData = await getStyles();
       const favoritesData = await getFavorites();
       const outfitsData = await getOutfits();
+      const blogsData = await getBlogs();
+      const blogRatingsData = await getBlogRatings();
+      const categoriasData = await getCategorias();
+
       setUsers(usersData);
       setStyles(stylesData);
       setFavorites(favoritesData);
       setOutfits(outfitsData);
+      setBlogs(blogsData);
+      setBlogRatings(blogRatingsData);
+      setCategorias(categoriasData);
     };
 
     fetchData();
@@ -114,6 +152,33 @@ const Insights: React.FC = () => {
     }
   }, [favorites, outfits]);
 
+  useEffect(() => {
+    if (blogs.length > 0 && blogRatings.length > 0) {
+      const filteredBlogs = selectedCategoria === 'Todos' ? blogs : blogs.filter(blog => blog.categoria === selectedCategoria);
+      const blogRatingCounts = filteredBlogs.map(blog => ({
+        titulo: blog.titulo,
+        avgRating: blogRatings.filter(rating => rating.blog === blog.id).reduce((acc, curr) => acc + curr.calificacion, 0) / blogRatings.filter(rating => rating.blog === blog.id).length,
+      }));
+
+      setBlogRatingsChartData({
+        categories: blogRatingCounts.map(item => item.titulo),
+        series: [{
+          name: 'Calificación promedio',
+          data: blogRatingCounts.map(item => item.avgRating),
+        }],
+      });
+
+      const categoryRatingCounts = categorias.map(categoria => ({
+        categoria: categoria.categoria,
+        ratingCount: blogRatingCounts.filter(blog => blogs.find(b => b.titulo === blog.titulo)?.categoria === categoria.categoria)
+                                     .reduce((acc, blog) => acc + blog.avgRating, 0),
+      }));
+
+      const mostRated = categoryRatingCounts.reduce((prev, current) => (prev.ratingCount > current.ratingCount) ? prev : current, categoryRatingCounts[0]);
+      setMostRatedCategory(mostRated.categoria);
+    }
+  }, [blogs, blogRatings, categorias, selectedCategoria]);
+
   const handleAgeRangeChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
     setAgeRanges(typeof value === 'string' ? value.split(',') : value);
@@ -127,6 +192,10 @@ const Insights: React.FC = () => {
     } else {
       setSelectedStyles(selected);
     }
+  };
+
+  const handleCategoriaChange = (event: SelectChangeEvent<string>) => {
+    setSelectedCategoria(event.target.value);
   };
 
   const treemapChartOptions = {
@@ -164,7 +233,7 @@ const Insights: React.FC = () => {
         <Grid item xs={12} sm={4}>
           <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px' }}>
             <Typography variant="h6" fontWeight="bold">Blog preferido</Typography>
-            <Typography variant="body1">Categoría</Typography>
+            <Typography variant="body1">{mostRatedCategory}</Typography>
           </Card>
         </Grid>
         <Grid item xs={12} sm={12} md={6}>
@@ -182,6 +251,14 @@ const Insights: React.FC = () => {
             <Typography variant="h5" fontWeight="bold">Gráfica de Favoritos</Typography>
             <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height={350} />
           </Card>
+        </Grid>
+        <Grid item xs={12} sm={12} md={12}>
+          <BlogChart
+            data={blogRatingsChartData}
+            selectedCategoria={selectedCategoria}
+            categorias={categorias}
+            handleCategoriaChange={handleCategoriaChange}
+          />
         </Grid>
       </Grid>
     </Box>
