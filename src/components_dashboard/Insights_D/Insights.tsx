@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card, Button, MenuItem, Select, FormControl, InputLabel, OutlinedInput, SelectChangeEvent, Checkbox, ListItemText } from '@mui/material';
+import { Box, Typography, Grid, Card, Button, SelectChangeEvent } from '@mui/material';
 import getUsers from '../../supabase/UsersServices/getUsers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import getFavorites from '../../supabase/InsightServices/getFavorites';
@@ -203,7 +203,7 @@ const Insights: React.FC = () => {
       type: 'treemap' as const,
     },
     title: {
-      text: 'Número de veces guardado por Outfit'
+      text: 'Usuarios que guardaron el outfit'
     }
   };
 
@@ -248,7 +248,7 @@ const Insights: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={12} md={6}>
           <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
-            <Typography variant="h5" fontWeight="bold">Gráfica de Favoritos</Typography>
+            <Typography variant="h5" fontWeight="bold">Outfits favoritos</Typography>
             <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height={350} />
           </Card>
         </Grid>

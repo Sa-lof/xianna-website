@@ -82,7 +82,7 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, ageRanges, selectedStyles
           </Select>
         </FormControl>
       </Box>
-      <Typography variant="h5" fontWeight="bold">Gráfica</Typography>
+      <Typography variant="h5" fontWeight="bold">Usuarios por estilo</Typography>
       <Chart
         options={{
           chart: {
@@ -90,10 +90,6 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, ageRanges, selectedStyles
           },
           xaxis: {
             categories: data.categories,
-          },
-          title: {
-            text: 'Usuarios por Estilo',
-            align: 'center',
           },
         }}
         series={data.series}
