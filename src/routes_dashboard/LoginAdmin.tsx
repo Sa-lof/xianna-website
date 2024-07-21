@@ -4,22 +4,61 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import supabase from '../supabaseClient';
+import { Box, Snackbar, Alert } from '@mui/material';
 
-const defaultTheme = createTheme();
+const theme = createTheme({
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& fieldset': {
+            borderColor: '#E61F93',
+          },
+          '&:hover fieldset': {
+            borderColor: '#E61F93',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: '#E61F93',
+          },
+        },
+        input: {
+          '&::placeholder': {
+            color: '#E61F93',
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#E61F93',
+          '&.Mui-focused': {
+            color: '#E61F93',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: '#E61F93',
+          },
+        },
+      },
+    },
+  },
+});
 
 export default function SignIn() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [open, setOpen] = React.useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,31 +70,62 @@ export default function SignIn() {
 
     if (error) {
       setErrorMessage('Error signing in: ' + error.message);
+      setOpen(true);
     } else {
       if (signInData.user?.email === 'xiannaoficial@gmail.com') {
+        localStorage.setItem('user', JSON.stringify(signInData.user));
         navigate('/dashboard/home');
       } else {
         setErrorMessage('No tienes permisos de administrador.');
+        setOpen(true);
       }
     }
   };
 
+  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+    <ThemeProvider theme={theme}>
+      <Grid container component="main" sx={{ height: '100vh' }}>
         <CssBaseline />
-        <Box
+        <Grid
+          item
+          xs={12}
+          sm={4}
+          md={6}
           sx={{
-            marginTop: 8,
             display: 'flex',
-            flexDirection: 'column',
+            justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component="h1" variant="h4" sx={{ fontWeight: 'bold' }}>
+            ¡BIENVENIDO!
+          </Typography>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          md={6}
+          component={Container}
+          maxWidth="xs"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'white',
+            borderRadius: 2,
+            padding: 4,
+          }}
+        >
+          <Typography component="h1" variant="h5" sx={{ color: '#E61F93', marginBottom: 2 }}>
             Inicio de sesión
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -64,53 +134,88 @@ export default function SignIn() {
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Correo"
               name="email"
               autoComplete="email"
               autoFocus
+              sx={{
+                '& .MuiInputBase-input': { backgroundColor: 'white', borderRadius: '20px' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderRadius: '20px',
+                    borderColor: '#E61F93',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#E61F93',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#E61F93',
+                  },
+                },
+              }}
             />
             <TextField
               margin="normal"
               required
               fullWidth
               name="password"
-              label="Password"
+              label="Contraseña"
               type="password"
               id="password"
               autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              sx={{
+                '& .MuiInputBase-input': { backgroundColor: 'white', borderRadius: '20px' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderRadius: '20px',
+                    borderColor: '#E61F93',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#E61F93',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#E61F93',
+                  },
+                },
+              }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ 
+                mt: 3, 
+                mb: 2, 
+                backgroundColor: '#E61F93', 
+                color: 'white', 
+                borderRadius: '20px',
+                '&:hover': {
+                  backgroundColor: 'black',
+                },
+              }}
             >
-              Sign In
+              Iniciar sesión
             </Button>
-            {errorMessage && (
-              <Typography color="error" variant="body2" sx={{ mt: 2 }}>
-                {errorMessage}
-              </Typography>
-            )}
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
+            <Grid container justifyContent="center">
               <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
+                <Typography variant="body2" color="black">
+                  ¿Olvidaste tu contraseña?
+                </Typography>
               </Grid>
             </Grid>
           </Box>
-        </Box>
-      </Container>
+        </Grid>
+      </Grid>
+      <Snackbar 
+        open={open} 
+        autoHideDuration={6000} 
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

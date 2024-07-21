@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import SideBar from "../components_dashboard/Sidebar/Sidebar";
 import CatalogoTable from "../components_dashboard/TableCatalogo_D/TableCatalogo";
 import BlogsTable from "../components_dashboard/TableBlogs_D/TableBlogs";
@@ -10,10 +11,18 @@ import MenuIcon from '@mui/icons-material/Menu';
 import '../../src/App.css';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedKey, setSelectedKey] = useState<string>('insights');
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const isSmallScreen = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
   const sidebarWidth = 250;
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      navigate('/dashboard/login');
+    }
+  }, [navigate]);
 
   const renderTable = () => {
     switch (selectedKey) {
