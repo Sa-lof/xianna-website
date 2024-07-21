@@ -128,7 +128,7 @@ const QuestionAnswerAccordion: React.FC = () => {
     const data: any[][] = [["Pregunta", "Identificador", "Respuesta", "Estilo"]];
     questions.forEach((question) => {
       const questionRows = question.answers.map((answer, index) => [
-        index === 0 ? question.pregunta : "", // Only the first row should contain the question
+        index === 0 ? question.pregunta : "",
         answer.identificador,
         answer.respuesta,
         styleMap[answer.id_estilo] || answer.id_estilo
@@ -138,7 +138,6 @@ const QuestionAnswerAccordion: React.FC = () => {
 
     const worksheet = XLSX.utils.aoa_to_sheet(data);
 
-    // Merge cells for questions with multiple answers
     let rowIndex = 1;
     questions.forEach((question) => {
       if (question.answers.length > 1) {
