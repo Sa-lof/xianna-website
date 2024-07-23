@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import Question from "../components/Question/Question";
 import LargeButton from "../components/LargeButton/LargeButton";
+import UserDataForm from "../components/UserDataForm/UserDataForm";
 
 const pink = "#E61F93";
 
@@ -43,9 +44,10 @@ const questions = [
 const Form: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [userData, setUserData] = useState<any>(null);
 
   const questionsPerPage = 3;
-  const totalSteps = Math.ceil(questions.length / questionsPerPage);
+  const totalSteps = Math.ceil(questions.length / questionsPerPage) + 1;
 
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
@@ -62,8 +64,14 @@ const Form: React.FC = () => {
     }
   };
 
+  const handleUserDataSubmit = (data: any) => {
+    setUserData(data);
+    setCurrentStep(1); // Move to the first set of questions
+    console.log(userData);
+  };
+
   const getQuestionsForCurrentStep = () => {
-    const startIndex = currentStep * questionsPerPage;
+    const startIndex = (currentStep - 1) * questionsPerPage;
     const endIndex = startIndex + questionsPerPage;
     return questions.slice(startIndex, endIndex);
   };
@@ -118,44 +126,50 @@ const Form: React.FC = () => {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={12} md={5} lg={6}>
-            {getQuestionsForCurrentStep().map((q, index) => (
-              <Question
-                key={index}
-                color={q.color}
-                question={q.question}
-                questionNumber={currentStep * questionsPerPage + index + 1}
-                responses={q.responses}
-              />
-            ))}
-            <Box
-              sx={{
-                textAlign: "center",
-                mt: 4,
-                justifyContent: "space-between",
-                display: "flex",
-              }}
-            >
-              {currentStep > 0 && (
-                <LargeButton
-                  text="Atrás"
-                  link="#"
-                  textColor="white"
-                  arrowColor="white"
-                  backgroundColor={pink}
-                  onClick={handleBack}
-                  sx={{ mt: 4 }} // Additional styles if needed
-                />
-              )}
-              <LargeButton
-                text={currentStep < totalSteps - 1 ? "Siguiente" : "Enviar"}
-                link="#"
-                textColor="white"
-                arrowColor="white"
-                backgroundColor={pink}
-                onClick={handleNext}
-                sx={{ mt: 4 }} // Additional styles if needed
-              />
-            </Box>
+            {currentStep === 0 ? (
+              <UserDataForm onSubmit={handleUserDataSubmit} />
+            ) : (
+              <>
+                {getQuestionsForCurrentStep().map((q, index) => (
+                  <Question
+                    key={index}
+                    color={q.color}
+                    question={q.question}
+                    questionNumber={(currentStep - 1) * questionsPerPage + index + 1}
+                    responses={q.responses}
+                  />
+                ))}
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    mt: 4,
+                    justifyContent: "space-between",
+                    display: "flex",
+                  }}
+                >
+                  {currentStep > 1 && (
+                    <LargeButton
+                      text="Atrás"
+                      link="#"
+                      textColor="white"
+                      arrowColor="white"
+                      backgroundColor={pink}
+                      onClick={handleBack}
+                      sx={{ mt: 4 }} // Additional styles if needed
+                    />
+                  )}
+                  <LargeButton
+                    text={currentStep < totalSteps - 1 ? "Siguiente" : "Enviar"}
+                    link="#"
+                    textColor="white"
+                    arrowColor="white"
+                    backgroundColor={pink}
+                    onClick={handleNext}
+                    sx={{ mt: 4 }} // Additional styles if needed
+                  />
+                </Box>
+              </>
+            )}
           </Grid>
         </Grid>
       </Box>

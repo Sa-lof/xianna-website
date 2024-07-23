@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Grid,
@@ -14,6 +14,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
+import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -21,6 +22,12 @@ const lightpink = "#FFD3E2";
 const userDummyData = {
   name: "Nombre",
   email: "Correo electrónico",
+  sex: "Male",
+  age: "25",
+  profession: "Profesión",
+  bodyType: "Atlético",
+  size: "M",
+  country: "País",
   styleType: "Tipo estilo del usuario",
   colors: ["#001f3f", "#ffffff", "#808080", "#808000"],
   outfits: [
@@ -51,7 +58,21 @@ const userDummyData = {
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const user = userDummyData;
+  const [user, setUser] = useState(userDummyData);
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleSave = (updatedUser: any) => {
+    setUser(updatedUser);
+    handleModalClose();
+  };
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
@@ -145,7 +166,7 @@ const Profile: React.FC = () => {
                       backgroundColor: lightpink,
                     },
                   }}
-                  onClick={() => navigate("/edit-profile")}
+                  onClick={handleModalOpen}
                 >
                   <EditIcon sx={{ color: "white" }} />
                 </IconButton>
@@ -311,6 +332,12 @@ const Profile: React.FC = () => {
             </Grid>
           </Grid>
           <Footer />
+          <EditProfileModal
+            open={isModalOpen}
+            handleClose={handleModalClose}
+            user={user}
+            handleSave={handleSave}
+          />
         </Box>
       </Fade>
     </Slide>

@@ -25,9 +25,10 @@ const Home: React.FC = () => {
     <Slide direction="down" in={!loading} mountOnEnter unmountOnExit timeout={2000}>
       <Box
         sx={{
-          paddingBottom: 10, // Responsive padding
+          paddingBottom: 4, // Responsive padding
           paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
           paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          paddingTop: 8,
         }}
       >
         <Box
@@ -35,7 +36,7 @@ const Home: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: "100vh", // Full viewport height
+
           }}
         >
           <MainGrid />

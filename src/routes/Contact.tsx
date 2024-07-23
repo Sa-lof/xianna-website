@@ -93,7 +93,7 @@ const Contacto: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
-            marginBottom: 10,
+            marginBottom: 4,
           }}
         >
           <Grid container spacing={4} sx={{ maxWidth: 1200 }}>
@@ -133,14 +133,15 @@ const Contacto: React.FC = () => {
                       fullWidth
                       label="Nombre"
                       InputLabelProps={{
-                        style: { color: pink, fontWeight: "bold" },
+                        style: { color: pink },
                       }}
                       sx={{
                         backgroundColor: "white",
-                        borderRadius: 1,
+                        borderRadius: 5,
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
                             borderColor: "white",
+                            borderRadius: 5,
                           },
                           "&:hover fieldset": {
                             borderColor: lightpink,
@@ -156,14 +157,15 @@ const Contacto: React.FC = () => {
                       fullWidth
                       label="Correo electrónico"
                       InputLabelProps={{
-                        style: { color: pink, fontWeight: "bold" },
+                        style: { color: pink },
                       }}
                       sx={{
                         backgroundColor: "white",
-                        borderRadius: 1,
+                        borderRadius: 5,
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
                             borderColor: "white",
+                            borderRadius: 5,
                           },
                           "&:hover fieldset": {
                             borderColor: lightpink,
@@ -181,14 +183,15 @@ const Contacto: React.FC = () => {
                       rows={4}
                       label="Mensaje"
                       InputLabelProps={{
-                        style: { color: pink, fontWeight: "bold" },
+                        style: { color: pink },
                       }}
                       sx={{
                         backgroundColor: "white",
-                        borderRadius: 1,
+                        borderRadius: 5,
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
                             borderColor: "white",
+                            borderRadius: 5,
                           },
                           "&:hover fieldset": {
                             borderColor: lightpink,
@@ -202,8 +205,8 @@ const Contacto: React.FC = () => {
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                       <LargeButton
                         backgroundColor="white"
-                        arrowColor={lightpink}
-                        textColor={lightpink}
+                        arrowColor={pink}
+                        textColor={pink}
                         link="/send"
                         text="Enviar"
                       />
