@@ -2,16 +2,16 @@ import supabase from '../../supabaseClient';
 
 const deleteOutfit = async (outfitId: number): Promise<void> => {
   try {
-    // Función para eliminar archivos y carpetas de forma recursiva
+    // Function to delete files and folders recursively
     const deleteFolderRecursive = async (path: string) => {
-      console.log(`Eliminando contenido de la carpeta: ${path}`);
+      console.log(`Deleting folder contents: ${path}`);
       const { data: files, error: listFilesError } = await supabase
         .storage
         .from('Outfits')
         .list(path, { limit: 100 });
 
       if (listFilesError) {
-        console.error('Error al listar archivos:', listFilesError);
+        console.error('Error listing files:', listFilesError);
         throw listFilesError;
       }
 
@@ -19,30 +19,41 @@ const deleteOutfit = async (outfitId: number): Promise<void> => {
         const deleteFilesPromises = files.map(file => {
           const filePath = `${path}/${file.name}`;
           if (file.metadata) {
-            console.log(`Entrando a la carpeta: ${filePath}`);
+            console.log(`Entering folder: ${filePath}`);
             return deleteFolderRecursive(filePath);
           } else {
-            console.log(`Eliminando archivo: ${filePath}`);
+            console.log(`Deleting file: ${filePath}`);
             return supabase.storage.from('Outfits').remove([filePath]);
           }
         });
         await Promise.all(deleteFilesPromises);
       }
 
-      // Intentar eliminar la carpeta si está vacía
+      // Attempt to delete the folder if it is empty
       const { error: removeFolderError } = await supabase
         .storage
         .from('Outfits')
         .remove([path]);
 
       if (removeFolderError) {
-        console.error('Error al eliminar la carpeta:', removeFolderError);
+        console.error('Error deleting folder:', removeFolderError);
       } else {
-        console.log(`Carpeta eliminada: ${path}`);
+        console.log(`Folder deleted: ${path}`);
       }
     };
 
-    // Eliminar archivos y carpetas de la carpeta principal del outfit
+    // Delete the outfit from favoritos first
+    const { error: deleteFavoritosError } = await supabase
+      .from('favoritos')
+      .delete()
+      .eq('outfit', outfitId);
+
+    if (deleteFavoritosError) {
+      console.error('Error deleting favoritos:', deleteFavoritosError);
+      throw deleteFavoritosError;
+    }
+
+    // Delete files and folders from the main outfit folder
     await deleteFolderRecursive(`uploads/${outfitId}/imagen_principal`);
     const { data: prendas, error: listPrendasError } = await supabase
       .from('prendas')
@@ -50,7 +61,7 @@ const deleteOutfit = async (outfitId: number): Promise<void> => {
       .eq('id_outfit', outfitId);
 
     if (listPrendasError) {
-      console.error('Error al listar prendas:', listPrendasError);
+      console.error('Error listing prendas:', listPrendasError);
       throw listPrendasError;
     }
 
@@ -61,36 +72,35 @@ const deleteOutfit = async (outfitId: number): Promise<void> => {
     }
     await deleteFolderRecursive(`uploads/${outfitId}`);
 
-    // Eliminar registros de prendas de la base de datos
+    // Delete prenda records from the database
     const { error: deletePrendasError } = await supabase
       .from('prendas')
       .delete()
       .eq('id_outfit', outfitId);
 
     if (deletePrendasError) {
-      console.error('Error al eliminar prendas:', deletePrendasError);
+      console.error('Error deleting prendas:', deletePrendasError);
       throw deletePrendasError;
     }
 
-    // Eliminar registros de ocasiones asociadas
+    // Delete associated occasions
     const { error: deleteOcasionesError } = await supabase
       .from('outfit_ocasion')
       .delete()
       .eq('id_outfit', outfitId);
 
     if (deleteOcasionesError) {
-      console.error('Error al eliminar ocasiones:', deleteOcasionesError);
+      console.error('Error deleting occasions:', deleteOcasionesError);
       throw deleteOcasionesError;
     }
 
-    // Eliminar el outfit de la base de datos
     const { error: deleteOutfitError } = await supabase
       .from('outfits')
       .delete()
       .eq('id', outfitId);
 
     if (deleteOutfitError) {
-      console.error('Error al eliminar el outfit:', deleteOutfitError);
+      console.error('Error deleting outfit:', deleteOutfitError);
       throw deleteOutfitError;
     }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia, Snackbar, Alert } from '@mui/material';
+import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -35,6 +35,8 @@ const CatalogoTable: React.FC = () => {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'warning'>('success');
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedOutfitId, setSelectedOutfitId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -273,20 +275,32 @@ const CatalogoTable: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleDeleteClick = async (outfitId: number) => {
-    try {
-      await deleteOutfit(outfitId);
-      const data = await getOutfits();
-      setRows(data);
-      setToastMessage('Outfit eliminado con éxito.');
-      setToastSeverity('success');
-      setToastOpen(true);
-    } catch (error) {
-      console.error('Error deleting outfit:', error);
-      setToastMessage('Hubo un error al eliminar el outfit.');
-      setToastSeverity('error');
-      setToastOpen(true);
+  const handleOpenConfirmDialog = (outfitId: number) => {
+    setSelectedOutfitId(outfitId);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedOutfitId !== null) {
+      try {
+        await deleteOutfit(selectedOutfitId);
+        const data = await getOutfits();
+        setRows(data);
+        setToastMessage('Outfit eliminado con éxito.');
+        setToastSeverity('success');
+        setToastOpen(true);
+      } catch (error) {
+        console.error('Error deleting outfit:', error);
+        setToastMessage('Hubo un error al eliminar el outfit.');
+        setToastSeverity('error');
+        setToastOpen(true);
+      }
     }
+    setConfirmDialogOpen(false);
   };
 
   const handleDownloadExcel = async () => {
@@ -591,7 +605,7 @@ const CatalogoTable: React.FC = () => {
                       <IconButton onClick={() => handleEditClick(row)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton onClick={() => handleDeleteClick(row.id)}>
+                      <IconButton onClick={() => handleOpenConfirmDialog(row.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -621,6 +635,26 @@ const CatalogoTable: React.FC = () => {
           {toastMessage}
         </Alert>
       </Snackbar>
+
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCloseConfirmDialog}
+      >
+        <DialogTitle>Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar este outfit?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirmDelete} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
