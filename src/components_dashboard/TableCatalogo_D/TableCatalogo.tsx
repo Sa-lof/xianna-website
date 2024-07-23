@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia } from '@mui/material';
+import { Box, Button, TextField, MenuItem, Grid, Typography, IconButton, Avatar, TableContainer, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Select, InputLabel, FormControl, Chip, OutlinedInput, Card, CardMedia, Snackbar, Alert } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -31,6 +31,10 @@ const CatalogoTable: React.FC = () => {
   const [selectedPrendaFiles, setSelectedPrendaFiles] = useState<(File | null)[]>([]);
   const [prendasToDelete, setPrendasToDelete] = useState<number[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'warning'>('success');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,7 +160,9 @@ const CatalogoTable: React.FC = () => {
 
   const handleFormSubmit = async () => {
     if (!validateForm()) {
-      alert('Por favor, completa todos los campos obligatorios.');
+      setToastMessage('Por favor, completa todos los campos obligatorios.');
+      setToastSeverity('warning');
+      setToastOpen(true);
       return;
     }
 
@@ -197,6 +203,9 @@ const CatalogoTable: React.FC = () => {
             }
           }
         }
+        setToastMessage('Outfit creado con éxito.');
+        setToastSeverity('success');
+        setToastOpen(true);
       } else {
         await updateOutfit({
           id: selectedOutfit.id,
@@ -243,6 +252,9 @@ const CatalogoTable: React.FC = () => {
         for (const prendaId of prendasToDelete) {
           await deletePrenda(prendaId, selectedOutfit.id);
         }
+        setToastMessage('Outfit actualizado con éxito.');
+        setToastSeverity('success');
+        setToastOpen(true);
       }
 
       setShowForm(false);
@@ -266,8 +278,14 @@ const CatalogoTable: React.FC = () => {
       await deleteOutfit(outfitId);
       const data = await getOutfits();
       setRows(data);
+      setToastMessage('Outfit eliminado con éxito.');
+      setToastSeverity('success');
+      setToastOpen(true);
     } catch (error) {
       console.error('Error deleting outfit:', error);
+      setToastMessage('Hubo un error al eliminar el outfit.');
+      setToastSeverity('error');
+      setToastOpen(true);
     }
   };
 
@@ -301,6 +319,10 @@ const CatalogoTable: React.FC = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Outfits");
     XLSX.writeFile(workbook, "outfits_report.xlsx");
+  };
+
+  const handleCloseToast = () => {
+    setToastOpen(false);
   };
 
   return (
@@ -589,6 +611,16 @@ const CatalogoTable: React.FC = () => {
           </TableContainer>
         </>
       )}
+      <Snackbar 
+        open={toastOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseToast} 
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Avatar, IconButton, TablePagination, Typography, Button, TextField, MenuItem,
-  Snackbar, Alert
+  Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -33,6 +33,9 @@ const CatalogoTable: React.FC = () => {
   const [categorias, setCategorias] = useState<{ id: number, categoria: string }[]>([]);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'warning'>('success');
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedBlogId, setSelectedBlogId] = useState<number | null>(null);
 
   const fetchBlogs = async () => {
     try {
@@ -127,18 +130,23 @@ const CatalogoTable: React.FC = () => {
     }
   };
 
-  const handleDeleteBlog = async (blogId: number) => {
-    const success = await deleteBlog(blogId);
-    const folderDeleted = await deleteBlogFolder(blogId);
+  const handleDeleteBlog = async () => {
+    if (selectedBlogId !== null) {
+      const success = await deleteBlog(selectedBlogId);
+      const folderDeleted = await deleteBlogFolder(selectedBlogId);
   
-    if (success && folderDeleted) {
-      setRows((prevRows) => prevRows.filter((row) => row.id !== blogId));
-      setToastMessage('Blog borrado con éxito.');
-    } else {
-      setToastMessage('Hubo un error al eliminar el blog o sus calificaciones.');
-      console.error('There was an error deleting the blog or its folder!');
+      if (success && folderDeleted) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== selectedBlogId));
+        setToastMessage('Blog borrado con éxito.');
+        setToastSeverity('success');
+      } else {
+        setToastMessage('Hubo un error al eliminar el blog o sus calificaciones.');
+        setToastSeverity('error');
+        console.error('There was an error deleting the blog or its folder!');
+      }
+      setToastOpen(true);
     }
-    setToastOpen(true);
+    setConfirmDialogOpen(false);
   };
 
   const validateForm = () => {
@@ -152,6 +160,7 @@ const CatalogoTable: React.FC = () => {
   const handleSave = async () => {
     if (!validateForm()) {
       setToastMessage('Por favor, completa todos los campos.');
+      setToastSeverity('warning');
       setToastOpen(true);
       return;
     }
@@ -176,6 +185,9 @@ const CatalogoTable: React.FC = () => {
               row.id === currentBlog.id ? { ...currentBlog, images: updatedImages } as Blog : row
             )
           );
+          setToastMessage('Blog actualizado con éxito.');
+          setToastSeverity('success');
+          setToastOpen(true);
         } else {
           const newBlog = await createBlog({
             titulo: currentBlog.titulo!,
@@ -196,11 +208,17 @@ const CatalogoTable: React.FC = () => {
               images: newBlog.images
             };
             setRows((prevRows) => [...prevRows, formattedNewBlog]);
+            setToastMessage('Blog creado con éxito.');
+            setToastSeverity('success');
+            setToastOpen(true);
           }
         }
         handleHideForm();
         fetchBlogs();
       } catch (error) {
+        setToastMessage('Hubo un error al guardar el blog.');
+        setToastSeverity('error');
+        setToastOpen(true);
         console.error('There was an error saving the blog!', error);
       }
     }
@@ -234,6 +252,15 @@ const CatalogoTable: React.FC = () => {
 
   const handleCloseToast = () => {
     setToastOpen(false);
+  };
+
+  const handleOpenConfirmDialog = (blogId: number) => {
+    setSelectedBlogId(blogId);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmDialogOpen(false);
   };
 
   const UploadButton: React.FC<{ index: number }> = ({ index }) => (
@@ -476,7 +503,7 @@ const CatalogoTable: React.FC = () => {
                       <IconButton onClick={() => handleShowForm(row)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton onClick={() => handleDeleteBlog(row.id)}>
+                      <IconButton onClick={() => handleOpenConfirmDialog(row.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -502,10 +529,30 @@ const CatalogoTable: React.FC = () => {
         onClose={handleCloseToast} 
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert onClose={handleCloseToast} severity="warning" sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
           {toastMessage}
         </Alert>
       </Snackbar>
+
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCloseConfirmDialog}
+      >
+        <DialogTitle>Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar este blog?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteBlog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
