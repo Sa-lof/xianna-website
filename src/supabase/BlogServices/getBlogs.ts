@@ -8,20 +8,25 @@ interface Blog {
   id_categoria: number;
   categoria: string;
   image: string;
+  name: string;
+  category: string;
+  rating: number;
+  persons: number;
+  images: string[];
 }
 
 const getBlogs = async (): Promise<Blog[]> => {
   try {
     const { data, error } = await supabase
       .from('blogs')
-      .select(`
-        id,
-        titulo,
-        descripcion,
-        contenido,
-        id_categoria,
-        categoria_blog ( categoria )
-      `);
+      .select(
+        `id,
+         titulo,
+         descripcion,
+         contenido,
+         id_categoria,
+         categoria_blog ( categoria )`
+      );
 
     if (error) {
       throw error;
@@ -40,7 +45,20 @@ const getBlogs = async (): Promise<Blog[]> => {
 
         const imageUrl = files.length > 0
           ? supabase.storage.from('Blogs').getPublicUrl(`uploads/${blog.id}/${files[0].name}`).data.publicUrl
-          : 'https://via.placeholder.com/150'; // Default image if none found
+          : 'https://via.placeholder.com/150';
+
+        const { data: ratingsData, error: ratingsError } = await supabase
+          .from('blogs_calificados')
+          .select('calificacion')
+          .eq('blog', blog.id);
+
+        if (ratingsError) {
+          throw ratingsError;
+        }
+
+        const ratings = ratingsData.map((rating: any) => rating.calificacion);
+        const totalRatings = ratings.length;
+        const averageRating = totalRatings ? (ratings.reduce((a, b) => a + b, 0) / totalRatings).toFixed(1) : '0.0';
 
         return {
           id: blog.id,
@@ -50,6 +68,11 @@ const getBlogs = async (): Promise<Blog[]> => {
           id_categoria: blog.id_categoria,
           categoria: blog.categoria_blog.categoria,
           image: imageUrl,
+          name: blog.titulo,
+          category: blog.categoria_blog.categoria,
+          rating: parseFloat(averageRating),
+          persons: totalRatings,
+          images: files.map((file: any) => supabase.storage.from('Blogs').getPublicUrl(`uploads/${blog.id}/${file.name}`).data.publicUrl)
         };
       })
     );

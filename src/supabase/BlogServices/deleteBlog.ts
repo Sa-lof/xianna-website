@@ -1,21 +1,29 @@
 import supabase from '../../supabaseClient';
 
-const deleteBlog = async (id: number): Promise<boolean> => {
-  try {
-    const { error } = await supabase
-      .from('blogs')
-      .delete()
-      .eq('id', id);
+const deleteBlog = async (blogId: number) => {
+  // Eliminar las calificaciones asociadas al blog primero
+  const { error: ratingError } = await supabase
+    .from('blogs_calificados')
+    .delete()
+    .eq('blog', blogId);
 
-    if (error) {
-      throw error;
-    }
+  if (ratingError) {
+    console.error('Error deleting blog ratings:', ratingError);
+    return false;
+  }
 
-    return true;
-  } catch (error) {
+  // Luego eliminar el blog
+  const { data, error } = await supabase
+    .from('blogs')
+    .delete()
+    .eq('id', blogId);
+
+  if (error) {
     console.error('Error deleting blog:', error);
     return false;
   }
+
+  return true;
 };
 
 export default deleteBlog;

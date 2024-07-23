@@ -11,6 +11,7 @@ export interface Blog {
     id_categoria: number;
     images: string[];
 }
+  
 
 export interface ImageFileWithPreview {
     file: File;

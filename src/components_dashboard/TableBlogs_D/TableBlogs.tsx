@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Avatar, IconButton, TablePagination, Typography, Button, TextField, MenuItem,
+  Snackbar, Alert
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -30,20 +31,23 @@ const CatalogoTable: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<ImageFileWithPreview[]>([]);
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
   const [categorias, setCategorias] = useState<{ id: number, categoria: string }[]>([]);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const fetchBlogs = async () => {
+    try {
+      const data = await getBlogs();
+      setRows(data);
+    } catch (error) {
+      console.error('There was an error fetching the data!', error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [blogs, categoriasData] = await Promise.all([getBlogs(), getCategorias()]);
-        const formattedData = blogs.map((blog) => ({
-          ...blog,
-          name: blog.titulo,
-          category: blog.categoria,
-          rating: 5,
-          persons: 100,
-          images: []
-        }));
-        setRows(formattedData);
+        setRows(blogs);
         setCategorias(categoriasData);
       } catch (error) {
         console.error('There was an error fetching the data!', error);
@@ -52,23 +56,6 @@ const CatalogoTable: React.FC = () => {
 
     fetchData();
   }, []);
-
-  const fetchBlogs = async () => {
-    try {
-      const data = await getBlogs();
-      const formattedData = data.map((blog) => ({
-        ...blog,
-        name: blog.titulo,
-        category: blog.categoria,
-        rating: 5,
-        persons: 100,
-        images: []
-      }));
-      setRows(formattedData);
-    } catch (error) {
-      console.error('There was an error fetching the data!', error);
-    }
-  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -112,6 +99,11 @@ const CatalogoTable: React.FC = () => {
     setUploadFields([...uploadFields, uploadFields.length]);
   };
 
+  const handleRemoveUploadField = (index: number) => {
+    setUploadFields(uploadFields.filter((_, i) => i !== index));
+    setImageFiles(imageFiles.filter((_, i) => i !== index));
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -138,12 +130,15 @@ const CatalogoTable: React.FC = () => {
   const handleDeleteBlog = async (blogId: number) => {
     const success = await deleteBlog(blogId);
     const folderDeleted = await deleteBlogFolder(blogId);
-
+  
     if (success && folderDeleted) {
       setRows((prevRows) => prevRows.filter((row) => row.id !== blogId));
+      setToastMessage('Blog borrado con éxito.');
     } else {
+      setToastMessage('Hubo un error al eliminar el blog o sus calificaciones.');
       console.error('There was an error deleting the blog or its folder!');
     }
+    setToastOpen(true);
   };
 
   const validateForm = () => {
@@ -156,7 +151,8 @@ const CatalogoTable: React.FC = () => {
 
   const handleSave = async () => {
     if (!validateForm()) {
-      alert('Por favor, completa todos los campos obligatorios.');
+      setToastMessage('Por favor, completa todos los campos.');
+      setToastOpen(true);
       return;
     }
 
@@ -217,6 +213,29 @@ const CatalogoTable: React.FC = () => {
     );
   };
 
+  const handleDownloadExcel = () => {
+    const categoryMap = categorias.reduce((acc, category) => {
+      acc[category.id] = category.categoria;
+      return acc;
+    }, {} as { [key: number]: string });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows.map((row) => ({
+      Titulo: row.titulo,
+      Categoria: categoryMap[row.id_categoria] || row.id_categoria,
+      Descripcion: row.descripcion,
+      Contenido: row.contenido,
+      Calificacion: row.rating,
+      Personas: row.persons
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Blogs");
+    XLSX.writeFile(workbook, "blogs_report.xlsx");
+  };
+
+  const handleCloseToast = () => {
+    setToastOpen(false);
+  };
+
   const UploadButton: React.FC<{ index: number }> = ({ index }) => (
     !imageFiles[index]?.file ? (
       <Box
@@ -231,6 +250,7 @@ const CatalogoTable: React.FC = () => {
           height: '100px',
           boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
           margin: '16px',
+          position: 'relative'
         }}
       >
         <CloudUploadIcon sx={{ fontSize: 40, color: 'black' }} />
@@ -252,29 +272,21 @@ const CatalogoTable: React.FC = () => {
             onChange={(e) => handleFileChange(e, index)}
           />
         </Button>
+        <IconButton
+          onClick={() => handleRemoveUploadField(index)}
+          sx={{ 
+            position: 'absolute', 
+            top: 0, 
+            right: 0, 
+            color: '#E61F93' 
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
       </Box>
     ) : null
   );
-
-  const handleDownloadExcel = () => {
-    const categoryMap = categorias.reduce((acc, category) => {
-      acc[category.id] = category.categoria;
-      return acc;
-    }, {} as { [key: number]: string });
-
-    const worksheet = XLSX.utils.json_to_sheet(rows.map((row) => ({
-      Titulo: row.titulo,
-      Categoria: categoryMap[row.id_categoria] || row.id_categoria,
-      Descripcion: row.descripcion,
-      Contenido: row.contenido,
-      Calificacion: row.rating,
-      Personas: row.persons
-    })));
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Blogs");
-    XLSX.writeFile(workbook, "blogs_report.xlsx");
-  };
-
+  
   return (
     <Box sx={{ padding: 2 }}>
       {showForm ? (
@@ -389,7 +401,7 @@ const CatalogoTable: React.FC = () => {
               <AddIcon />
             </IconButton>
           </Box>
-
+  
           <Button
             variant="contained"
             onClick={handleSave}
@@ -484,6 +496,16 @@ const CatalogoTable: React.FC = () => {
           </TableContainer>
         </>
       )}
+      <Snackbar 
+        open={toastOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseToast} 
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseToast} severity="warning" sx={{ width: '100%' }}>
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
