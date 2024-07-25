@@ -24,7 +24,7 @@ export const uploadImage = async (file: File, type: 'outfit' | 'prenda', id_outf
     }
 
     // Sube el nuevo archivo
-    const { data, error } = await supabase.storage.from('Outfits').upload(path, file);
+    const { error } = await supabase.storage.from('Outfits').upload(path, file);
 
     if (error) {
       throw error;

@@ -13,7 +13,7 @@ const deleteBlog = async (blogId: number) => {
   }
 
   // Luego eliminar el blog
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('blogs')
     .delete()
     .eq('id', blogId);
