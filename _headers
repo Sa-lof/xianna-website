@@ -1,9 +1,0 @@
-/*
-  Content-Security-Policy: default-src 'self'; connect-src 'self' https://ulafgjbgmgqqjxayohmg.supabase.co; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
-
-# Puedes añadir otros headers aquí si es necesario
-# Por ejemplo:
-#   X-Frame-Options: DENY
-#   X-Content-Type-Options: nosniff
-#   Referrer-Policy: no-referrer
-#   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
