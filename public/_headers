@@ -3,4 +3,5 @@
   X-XSS-Protection: 1; mode=block
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer-when-downgrade
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:;
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://example.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://example.com; connect-src 'self' https://YOUR_SUPABASE_URL.supabase.co; font-src 'self' https://fonts.googleapis.com; object-src 'none'; upgrade-insecure-requests;
+
