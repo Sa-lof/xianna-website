@@ -6,6 +6,7 @@ export interface Outfit {
     id_estilo: number;
     imagen: string;
     ocasiones: string[];
+    favoritos: number; 
 }
 
 export interface Prenda {

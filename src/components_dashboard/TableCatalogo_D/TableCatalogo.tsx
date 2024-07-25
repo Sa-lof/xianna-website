@@ -81,6 +81,7 @@ const CatalogoTable: React.FC = () => {
       id_estilo: 0,
       imagen: '',
       ocasiones: [],
+      favoritos:0,
     });
     setPrendas([]);
     setSelectedFile(null);
@@ -561,68 +562,69 @@ const CatalogoTable: React.FC = () => {
             </Box>
           </Box>
           <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell style={{ textAlign: 'center' }}>Imagen</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Nombre</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Estilo</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Ocasiones</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Favoritos</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell style={{ textAlign: 'center' }}>
-                      <Avatar 
-                        src={row.imagen} 
-                        alt={row.nombre} 
-                        sx={{ 
-                          width: 56, 
-                          height: 56, 
-                          margin: 'auto', 
-                          borderRadius: '5px'
-                        }} 
-                      />
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>{row.nombre}</TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>
-                      <Box sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 8px', display: 'inline-block', color: 'white', fontWeight: 'bold' }}>
-                        {row.estilo}
-                      </Box>
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>
-                      {row.ocasiones.map((ocasion, idx) => (
-                        <Box key={idx} sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 4px', marginBottom: '4px', color: 'white', fontWeight: 'bold' }}>
-                          {ocasion}
-                        </Box>
-                      ))}
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>100</TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>
-                      <IconButton onClick={() => handleEditClick(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleOpenConfirmDialog(row.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 15]}
-              component="div"
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell style={{ textAlign: 'center' }}>Imagen</TableCell>
+        <TableCell style={{ textAlign: 'center' }}>Nombre</TableCell>
+        <TableCell style={{ textAlign: 'center' }}>Estilo</TableCell>
+        <TableCell style={{ textAlign: 'center' }}>Ocasiones</TableCell>
+        <TableCell style={{ textAlign: 'center' }}>Favoritos</TableCell>
+        <TableCell style={{ textAlign: 'center' }}>Acciones</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+        <TableRow key={row.id}>
+          <TableCell style={{ textAlign: 'center' }}>
+            <Avatar 
+              src={row.imagen} 
+              alt={row.nombre} 
+              sx={{ 
+                width: 56, 
+                height: 56, 
+                margin: 'auto', 
+                borderRadius: '5px'
+              }} 
             />
-          </TableContainer>
+          </TableCell>
+          <TableCell style={{ textAlign: 'center' }}>{row.nombre}</TableCell>
+          <TableCell style={{ textAlign: 'center' }}>
+            <Box sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 8px', display: 'inline-block', color: 'white', fontWeight: 'bold' }}>
+              {row.estilo}
+            </Box>
+          </TableCell>
+          <TableCell style={{ textAlign: 'center' }}>
+            {row.ocasiones.map((ocasion, idx) => (
+              <Box key={idx} sx={{ backgroundColor: '#00D1ED', borderRadius: '12px', padding: '4px 4px', marginBottom: '4px', color: 'white', fontWeight: 'bold' }}>
+                {ocasion}
+              </Box>
+            ))}
+          </TableCell>
+          <TableCell style={{ textAlign: 'center' }}>{row.favoritos}</TableCell>
+          <TableCell style={{ textAlign: 'center' }}>
+            <IconButton onClick={() => handleEditClick(row)}>
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={() => handleOpenConfirmDialog(row.id)}>
+              <DeleteIcon />
+            </IconButton>
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+  <TablePagination
+    rowsPerPageOptions={[5, 10, 15]}
+    component="div"
+    count={rows.length}
+    rowsPerPage={rowsPerPage}
+    page={page}
+    onPageChange={handleChangePage}
+    onRowsPerPageChange={handleChangeRowsPerPage}
+  />
+</TableContainer>
+
         </>
       )}
       <Snackbar 

@@ -8,6 +8,7 @@ interface Outfit {
   estilo: string;
   imagen: string;
   ocasiones: string[];
+  favoritos: number; 
 }
 
 const getOutfits = async (): Promise<Outfit[]> => {
@@ -20,7 +21,8 @@ const getOutfits = async (): Promise<Outfit[]> => {
         descripcion,
         id_estilo,
         estilos ( tipo ),
-        outfit_ocasion ( ocasion ( ocasion ) )
+        outfit_ocasion ( ocasion ( ocasion ) ),
+        favoritos: favoritos ( id )
       `);
 
     if (error) {
@@ -40,7 +42,7 @@ const getOutfits = async (): Promise<Outfit[]> => {
 
         const imageUrl = files.length > 0
           ? supabase.storage.from('Outfits').getPublicUrl(`uploads/${outfit.id}/imagen_principal/${files[0].name}`).data.publicUrl
-          : 'https://via.placeholder.com/150'; // Default image if none found
+          : 'https://via.placeholder.com/150';
 
         const ocasiones = outfit.outfit_ocasion.map((o: any) => o.ocasion.ocasion);
 
@@ -52,6 +54,7 @@ const getOutfits = async (): Promise<Outfit[]> => {
           estilo: outfit.estilos.tipo,
           imagen: imageUrl,
           ocasiones,
+          favoritos: outfit.favoritos.length,
         };
       })
     );
@@ -62,5 +65,7 @@ const getOutfits = async (): Promise<Outfit[]> => {
     return [];
   }
 };
+
+
 
 export default getOutfits;
