@@ -1,19 +1,5 @@
 import supabase from '../../supabaseClient';
 
-interface Answer {
-  id: number;
-  respuesta: string;
-  identificador: string;
-  id_estilo: number;
-  id_pregunta: number;
-}
-
-interface Question {
-  id: number;
-  pregunta: string;
-  answers: Answer[];
-}
-
 const deleteQuestionWithAnswers = async (questionId: number): Promise<void> => {
   try {
     // Delete answers associated with the question

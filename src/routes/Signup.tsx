@@ -16,6 +16,7 @@ import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import supabase from "../supabaseClient";
 
 import loginImage from "../assets/login/login.jpg";
 import logo from "../assets/logo/xianna.png";
@@ -26,10 +27,50 @@ const pink = "#E61F93";
 const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleClickShowConfirmPassword = () =>
     setShowConfirmPassword(!showConfirmPassword);
+
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Registration successful!");
+    }
+  };
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Login successful!");
+    }
+  };
 
   return (
     <div
@@ -65,6 +106,8 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
                   },
                 },
               }}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </Grid>
         )}
@@ -88,8 +131,10 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
                 "&.Mui-focused fieldset": {
                   borderColor: pink,
                 },
-              },
-            }}
+              }}
+            }
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </Grid>
         <Grid item xs={12}>
@@ -126,8 +171,10 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
                 "&.Mui-focused fieldset": {
                   borderColor: pink,
                 },
-              },
-            }}
+              }}
+            }
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </Grid>
         {!isLogin && (
@@ -170,8 +217,10 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
                   "&.Mui-focused fieldset": {
                     borderColor: pink,
                   },
-                },
-              }}
+                }}
+              }
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </Grid>
         )}
@@ -186,6 +235,7 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
             textColor="white"
             link="/send"
             text={isLogin ? "Iniciar Sesión" : "Registrarse"}
+            onClick={isLogin ? handleLogin : handleRegister}
           />
         </Grid>
       </Grid>
