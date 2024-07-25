@@ -12,6 +12,7 @@ interface LargeButtonProps {
   backgroundColor?: string;
   onClick?: () => void;
   sx?: SxProps; // Add the sx prop to the interface
+  disabled?: boolean;
 }
 
 const LargeButton: React.FC<LargeButtonProps> = ({
@@ -22,6 +23,7 @@ const LargeButton: React.FC<LargeButtonProps> = ({
   backgroundColor = "white",
   onClick,
   sx = {}, // Default value for sx
+  disabled,
 }) => {
   const navigate = useNavigate();
 

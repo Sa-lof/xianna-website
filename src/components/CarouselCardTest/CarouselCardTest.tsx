@@ -1,6 +1,6 @@
 import React from "react";
 import Slider from "react-slick";
-import { Card, CardContent, Typography, Avatar, Box } from "@mui/material";
+import { Card, CardContent, Typography, Box } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import "slick-carousel/slick/slick.css";
@@ -70,11 +70,6 @@ const CarouselCardTest: React.FC = () => {
               className="flex flex-col items-center justify-center"
               sx={{ padding: 2 }}
             >
-              <Avatar
-                sx={{ width: 56, height: 56, marginBottom: 2 }}
-                src={testimonial.avatar}
-                alt={testimonial.name}
-              />
               <Typography
                 variant="body1"
                 sx={{ fontWeight: "bold", fontSize: "32px" }}
