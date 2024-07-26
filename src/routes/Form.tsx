@@ -1,52 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, Box, Grid, IconButton, Slide } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import Question from "../components/Question/Question";
 import LargeButton from "../components/LargeButton/LargeButton";
 import UserDataForm from "../components/UserDataForm/UserDataForm";
+import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers"; // Ajusta la ruta según sea necesario
 
 const pink = "#E61F93";
 
-const questions = [
-  {
-    color: "#FFC0CB",
-    question: "¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?",
-    responses: ["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"],
-  },
-  {
-    color: "#FFD700",
-    question: "¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?",
-    responses: ["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"],
-  },
-  {
-    color: "#ADD8E6",
-    question: "¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?",
-    responses: ["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"],
-  },
-  {
-    color: "#FFC0CB",
-    question: "¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?",
-    responses: ["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"],
-  },
-  {
-    color: "#FFD700",
-    question: "¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?",
-    responses: ["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"],
-  },
-  {
-    color: "#ADD8E6",
-    question: "¿Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum?",
-    responses: ["Respuesta 1", "Respuesta 2", "Respuesta 3", "Respuesta 4"],
-  },
-];
+interface Answer {
+  id: number;
+  respuesta: string;
+  identificador: string;
+  id_estilo: number;
+  id_pregunta: number;
+}
+
+interface Question {
+  id: number;
+  pregunta: string;
+  answers: Answer[];
+}
 
 const Form: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [userData, setUserData] = useState<any>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
 
   const questionsPerPage = 3;
+  const questionColors = ["#FFC0CB", "#FFD700", "#ADD8E6"];
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const fetchedQuestions = await getQuestionsWithAnswers();
+      setQuestions(fetchedQuestions);
+    };
+    fetchQuestions();
+  }, []);
+
   const totalSteps = Math.ceil(questions.length / questionsPerPage) + 1;
 
   const handleNext = () => {
@@ -54,6 +48,7 @@ const Form: React.FC = () => {
       setCurrentStep(currentStep + 1);
     } else {
       // Handle form submission here
+      console.log(selectedAnswers); // Aquí puedes enviar las respuestas seleccionadas
       navigate("/some-link"); // Replace with the actual link
     }
   };
@@ -68,6 +63,13 @@ const Form: React.FC = () => {
     setUserData(data);
     setCurrentStep(1); // Move to the first set of questions
     console.log(userData);
+  };
+
+  const handleAnswerChange = (questionId: number, answer: string) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }));
   };
 
   const getQuestionsForCurrentStep = () => {
@@ -132,11 +134,13 @@ const Form: React.FC = () => {
               <>
                 {getQuestionsForCurrentStep().map((q, index) => (
                   <Question
-                    key={index}
-                    color={q.color}
-                    question={q.question}
+                    key={q.id}
+                    color={questionColors[index % questionColors.length]}
+                    question={q.pregunta}
                     questionNumber={(currentStep - 1) * questionsPerPage + index + 1}
-                    responses={q.responses}
+                    responses={q.answers.map((answer: Answer) => answer.respuesta)}
+                    selectedResponse={selectedAnswers[q.id] || ""}
+                    onResponseChange={(answer) => handleAnswerChange(q.id, answer)}
                   />
                 ))}
                 <Box

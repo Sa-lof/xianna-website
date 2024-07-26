@@ -32,6 +32,8 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
 
+  const navigate = useNavigate();
+
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleClickShowConfirmPassword = () =>
     setShowConfirmPassword(!showConfirmPassword);
@@ -56,6 +58,7 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
       alert(error.message);
     } else {
       alert("Registration successful!");
+      navigate("/"); // Redirige a la página principal
     }
   };
 
@@ -69,6 +72,7 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
       alert(error.message);
     } else {
       alert("Login successful!");
+      navigate("/"); // Redirige a la página principal
     }
   };
 

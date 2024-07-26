@@ -1,20 +1,42 @@
-// src/pages/Home.tsx
-
 import React, { useState, useEffect } from "react";
 import MainGrid from "../components/MainGrid/MainGrid";
+import MainGridLogged from "../components/MainGridLogged/MainGridLogged";
 import { Box, Slide } from "@mui/material";
 import Footer from "../components/Footer/Footer";
 import Loader from "../components/Loader/Loader";
+import supabase from "../supabaseClient";
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userStyle, setUserStyle] = useState("");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500); // Same as the slide timeout
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      
+      if (session) {
+        const user = session.user;
+        const { data: userDetails, error } = await supabase
+          .from('user_details')
+          .select('nombre, tipo_estilo')
+          .eq('correo', user.email)
+          .single();
+        
+        if (userDetails) {
+          setUserName(userDetails.nombre);
+          setUserStyle(userDetails.tipo_estilo);
+        } else {
+          console.error('Error fetching user details:', error);
+        }
+      }
 
-    return () => clearTimeout(timer);
+      setLoading(false);
+    };
+
+    checkSession();
   }, []);
 
   if (loading) {
@@ -36,10 +58,13 @@ const Home: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-
           }}
         >
-          <MainGrid />
+          {isAuthenticated ? (
+            <MainGridLogged userName={userName} userStyle={userStyle} />
+          ) : (
+            <MainGrid />
+          )}
         </Box>
 
         <Footer />

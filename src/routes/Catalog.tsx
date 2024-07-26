@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -23,70 +23,22 @@ import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import Footer from "../components/Footer/Footer";
 import placeholder from "../assets/placeholders/place1.jpg";
+import getOutfits from '../supabase/CatalogoServices/getOutfits';
+import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
 
-const catalogData = [
-  {
-    id: "1",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/1",
-    estilo: "Seductor",
-    ocasion: "Casual",
-    cuerpo: "Atlético",
-  },
-  {
-    id: "2",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/2",
-    estilo: "Dramático",
-    ocasion: "Formal",
-    cuerpo: "Delgado",
-  },
-  {
-    id: "3",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/3",
-    estilo: "Creativo",
-    ocasion: "Fiesta",
-    cuerpo: "Atlético",
-  },
-  {
-    id: "4",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/4",
-    estilo: "Casual",
-    ocasion: "Deportivo",
-    cuerpo: "Grande",
-  },
-  {
-    id: "5",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/5",
-    estilo: "Seductor",
-    ocasion: "Casual",
-    cuerpo: "Delgado",
-  },
-  {
-    id: "6",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/6",
-    estilo: "Creativo",
-    ocasion: "Formal",
-    cuerpo: "Atlético",
-  },
-];
-
-const estilos = ["Seductor", "Dramático", "Creativo", "Casual"];
-const ocasiones = ["Casual", "Formal", "Fiesta", "Deportivo"];
-const cuerpos = ["Atlético", "Delgado", "Grande"];
+interface Outfit {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  id_estilo: number;
+  estilo: string;
+  imagen: string;
+  ocasiones: string[];
+  favoritos: number; 
+}
 
 const Catalog: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
@@ -94,6 +46,9 @@ const Catalog: React.FC = () => {
   const [selectedOcasiones, setSelectedOcasiones] = useState<string[]>([]);
   const [selectedCuerpos, setSelectedCuerpos] = useState<string[]>([]);
   const [myOutfits, setMyOutfits] = useState<string[]>([]);
+  const [outfits, setOutfits] = useState<Outfit[]>([]);
+  const [styles, setStyles] = useState<string[]>([]);
+  const [occasions, setOccasions] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -110,6 +65,21 @@ const Catalog: React.FC = () => {
     triggerOnce: true,
     threshold: 0.5,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const fetchedOutfits = await getOutfits();
+      setOutfits(fetchedOutfits);
+
+      const fetchedStyles = await getStyles();
+      setStyles(fetchedStyles.map(style => style.tipo));
+
+      const fetchedOccasions = await getOccasions();
+      setOccasions(fetchedOccasions.map(occasion => occasion.ocasion));
+    };
+
+    fetchData();
+  }, []);
 
   const handleButtonClick = () => {
     setSelectedTab("Todo");
@@ -128,23 +98,22 @@ const Catalog: React.FC = () => {
     setSelectedCuerpos(event.target.value as string[]);
   };
 
-  const handleToggleOutfit = (id: string) => {
+  const handleToggleOutfit = (id: number) => {
     setMyOutfits((prevOutfits) =>
-      prevOutfits.includes(id)
-        ? prevOutfits.filter((outfitId) => outfitId !== id)
-        : [...prevOutfits, id]
+      prevOutfits.includes(id.toString())
+        ? prevOutfits.filter((outfitId) => outfitId !== id.toString())
+        : [...prevOutfits, id.toString()]
     );
   };
 
-  const filteredCatalogData = catalogData.filter((item) => {
+  const filteredCatalogData = outfits.filter((item) => {
     const estiloMatch =
       selectedEstilos.length === 0 || selectedEstilos.includes(item.estilo);
     const ocasionMatch =
-      selectedOcasiones.length === 0 ||
-      selectedOcasiones.includes(item.ocasion);
-    const cuerpoMatch =
-      selectedCuerpos.length === 0 || selectedCuerpos.includes(item.cuerpo);
-    return estiloMatch && ocasionMatch && cuerpoMatch;
+      selectedOcasiones.length === 0 || 
+      item.ocasiones.some(ocasion => selectedOcasiones.includes(ocasion));
+    // Ajustar según la lógica para cuerpos, si es necesario
+    return estiloMatch && ocasionMatch;
   });
 
   return (
@@ -153,10 +122,10 @@ const Catalog: React.FC = () => {
         sx={{
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          minHeight: "100vh",
+          paddingBottom: 10,
+          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
           paddingTop: 5,
         }}
       >
@@ -234,7 +203,7 @@ const Catalog: React.FC = () => {
                     },
                   }}
                 >
-                  {estilos.map((estilo) => (
+                  {styles.map((estilo) => (
                     <MenuItem key={estilo} value={estilo}>
                       <Checkbox
                         checked={selectedEstilos.indexOf(estilo) > -1}
@@ -262,7 +231,7 @@ const Catalog: React.FC = () => {
                     },
                   }}
                 >
-                  {ocasiones.map((ocasion) => (
+                  {occasions.map((ocasion) => (
                     <MenuItem key={ocasion} value={ocasion}>
                       <Checkbox
                         checked={selectedOcasiones.indexOf(ocasion) > -1}
@@ -272,34 +241,7 @@ const Catalog: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl sx={{ minWidth: 120 }}>
-                <InputLabel>Cuerpo</InputLabel>
-                <Select
-                  multiple
-                  value={selectedCuerpos}
-                  onChange={handleCuerpoChange}
-                  renderValue={(selected) => (selected as string[]).join(", ")}
-                  sx={{
-                    borderRadius: "16px",
-                    "& .MuiSelect-select": {
-                      fontWeight: "bold",
-                      fontSize: "16px",
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: pink,
-                    },
-                  }}
-                >
-                  {cuerpos.map((cuerpo) => (
-                    <MenuItem key={cuerpo} value={cuerpo}>
-                      <Checkbox
-                        checked={selectedCuerpos.indexOf(cuerpo) > -1}
-                      />
-                      <ListItemText primary={cuerpo} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {/* Similar section for cuerpos if required */}
             </>
           )}
         </Box>
@@ -311,17 +253,38 @@ const Catalog: React.FC = () => {
                   sx={{
                     position: "relative",
                     overflow: "hidden",
+                    height: '100%', // Ensure the card takes the full height of the grid item
                   }}
                 >
-                  <CardActionArea onClick={() => navigate(item.link)}>
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      style={{
+                  <CardActionArea 
+                    sx={{
+                      height: '100%', // Ensure the CardActionArea takes the full height of the card
+                      display: 'flex',
+                      flexDirection: 'column', // Ensure the content is stacked vertically
+                    }}
+                    onClick={() => navigate(`/catalogo/${item.id}`)}
+                  >
+                    <Box 
+                      sx={{
                         width: "100%",
-                        height: "auto",
+                        height: 0,
+                        paddingTop: "75%", // Aspect ratio of 4:3
+                        position: "relative",
                       }}
-                    />
+                    >
+                      <img
+                        src={item.imagen}
+                        alt={item.nombre}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </Box>
                     <Box
                       sx={{
                         position: "absolute",
@@ -343,7 +306,7 @@ const Catalog: React.FC = () => {
                           fontSize: "24px",
                         }}
                       >
-                        {item.title}
+                        {item.nombre}
                       </Typography>
                       <IconButton
                         sx={{
@@ -361,7 +324,7 @@ const Catalog: React.FC = () => {
                       position: "absolute",
                       top: 10,
                       right: 10,
-                      color: myOutfits.includes(item.id) ? yellow : "white",
+                      color: myOutfits.includes(item.id.toString()) ? yellow : "white",
                       backgroundColor: "rgba(0, 0, 0, 0.5)",
                       borderRadius: "50%",
                     }}
