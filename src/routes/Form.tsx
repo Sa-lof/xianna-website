@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Box, Grid, IconButton, Slide } from "@mui/material";
+import { Typography, Box, Grid, IconButton, Slide, Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import Question from "../components/Question/Question";
@@ -38,6 +38,10 @@ const Form: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
   const [styles, setStyles] = useState<Estilo[]>([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [userStyle, setUserStyle] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   const questionsPerPage = 3;
   const questionColors = ["#FFC0CB", "#FFD700", "#ADD8E6"];
@@ -47,10 +51,31 @@ const Form: React.FC = () => {
       const fetchedQuestions = await getQuestionsWithAnswers();
       setQuestions(fetchedQuestions);
     };
+
     const fetchStyles = async () => {
       const fetchedStyles = await getStyles();
       setStyles(fetchedStyles);
+      await checkSubmission(fetchedStyles); // Pasar los estilos obtenidos a checkSubmission
     };
+
+    const checkSubmission = async (styles: Estilo[]) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsAuthenticated(true);
+        const user = session.user;
+        const { data: userDetails, error } = await supabase
+          .from('user_details')
+          .select('tipo_estilo')
+          .eq('correo', user.email)
+          .single();
+        if (userDetails && userDetails.tipo_estilo) {
+          setHasSubmitted(true);
+          const userStyle = styles.find(style => style.id === userDetails.tipo_estilo);
+          setUserStyle(userStyle ? userStyle.tipo : "Desconocido");
+        }
+      }
+    };
+
     fetchQuestions();
     fetchStyles();
   }, []);
@@ -61,8 +86,12 @@ const Form: React.FC = () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      await updateUserDetails();
-      navigate("/some-link"); // Reemplaza con el enlace real
+      if (!isAuthenticated) {
+        setOpenDialog(true);
+      } else {
+        await updateUserDetails();
+        navigate("/some-link"); // Reemplaza con el enlace real
+      }
     }
   };
 
@@ -127,6 +156,15 @@ const Form: React.FC = () => {
     }
   };
 
+  const handleRetakeForm = () => {
+    setHasSubmitted(false);
+    setCurrentStep(0);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Box
@@ -164,67 +202,96 @@ const Form: React.FC = () => {
             <CloseIcon sx={{ fontSize: 40, color: "white" }} />
           </IconButton>
         </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={12} md={7} lg={6}>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: "bold", fontSize: "64px" }}
-            >
-              Descubre tu verdadero estilo
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mb: 4, fontSize: "40px" }}>
-              Responde el cuestionario y descubre tu estilo prevalecedor
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={12} md={5} lg={6}>
-            {currentStep === 0 ? (
-              <UserDataForm onSubmit={handleUserDataSubmit} />
-            ) : (
-              <>
-                {getQuestionsForCurrentStep().map((q, index) => (
-                  <Question
-                    key={q.id}
-                    color={questionColors[index % questionColors.length]}
-                    question={q.pregunta}
-                    questionNumber={(currentStep - 1) * questionsPerPage + index + 1}
-                    responses={q.answers.map((answer: Answer) => answer.respuesta)}
-                    selectedResponse={selectedAnswers[q.id] || ""}
-                    onResponseChange={(answer) => handleAnswerChange(q.id, answer)}
-                  />
-                ))}
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    mt: 4,
-                    justifyContent: "space-between",
-                    display: "flex",
-                  }}
-                >
-                  {currentStep > 1 && (
+        {hasSubmitted ? (
+          <Alert
+            severity="info"
+            action={
+              <Button color="inherit" size="small" onClick={handleRetakeForm}>
+                Volver a hacer
+              </Button>
+            }
+          >
+            Ya has contestado el formulario. Tu tipo de estilo es {userStyle}. ¿Quieres volver a hacerlo?
+          </Alert>
+        ) : (
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={12} md={7} lg={6}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: "bold", fontSize: "64px" }}
+              >
+                Descubre tu verdadero estilo
+              </Typography>
+              <Typography variant="subtitle1" sx={{ mb: 4, fontSize: "40px" }}>
+                Responde el cuestionario y descubre tu estilo prevalecedor
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={12} md={5} lg={6}>
+              {currentStep === 0 ? (
+                <UserDataForm onSubmit={handleUserDataSubmit} />
+              ) : (
+                <>
+                  {getQuestionsForCurrentStep().map((q, index) => (
+                    <Question
+                      key={q.id}
+                      color={questionColors[index % questionColors.length]}
+                      question={q.pregunta}
+                      questionNumber={(currentStep - 1) * questionsPerPage + index + 1}
+                      responses={q.answers.map((answer: Answer) => answer.respuesta)}
+                      selectedResponse={selectedAnswers[q.id] || ""}
+                      onResponseChange={(answer) => handleAnswerChange(q.id, answer)}
+                    />
+                  ))}
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      mt: 4,
+                      justifyContent: "space-between",
+                      display: "flex",
+                    }}
+                  >
+                    {currentStep > 1 && (
+                      <LargeButton
+                        text="Atrás"
+                        link="#"
+                        textColor="white"
+                        arrowColor="white"
+                        backgroundColor={pink}
+                        onClick={handleBack}
+                        sx={{ mt: 4 }} // Additional styles if needed
+                      />
+                    )}
                     <LargeButton
-                      text="Atrás"
+                      text={currentStep < totalSteps - 1 ? "Siguiente" : "Enviar"}
                       link="#"
                       textColor="white"
                       arrowColor="white"
                       backgroundColor={pink}
-                      onClick={handleBack}
+                      onClick={handleNext}
                       sx={{ mt: 4 }} // Additional styles if needed
                     />
-                  )}
-                  <LargeButton
-                    text={currentStep < totalSteps - 1 ? "Siguiente" : "Enviar"}
-                    link="#"
-                    textColor="white"
-                    arrowColor="white"
-                    backgroundColor={pink}
-                    onClick={handleNext}
-                    sx={{ mt: 4 }} // Additional styles if needed
-                  />
-                </Box>
-              </>
-            )}
+                  </Box>
+                </>
+              )}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>Registro requerido</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Debes registrarte para poder saber tus resultados.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => navigate("/register")} color="primary">
+              Registrarse
+            </Button>
+            <Button onClick={handleCloseDialog} color="primary" autoFocus>
+              Cancelar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Slide>
   );

@@ -10,7 +10,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
-  const [userStyle, setUserStyle] = useState("");
+  const [userStyle, setUserStyle] = useState<string | number>("");
 
   useEffect(() => {
     const checkSession = async () => {
@@ -61,7 +61,7 @@ const Home: React.FC = () => {
           }}
         >
           {isAuthenticated ? (
-            <MainGridLogged userName={userName} userStyle={userStyle} />
+            <MainGridLogged userName={userName} userStyleId={Number(userStyle)} />
           ) : (
             <MainGrid />
           )}

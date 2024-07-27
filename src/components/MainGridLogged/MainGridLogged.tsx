@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Card,
@@ -17,8 +17,21 @@ import CarouselCardTest from "../CarouselCardTest/CarouselCardTest";
 
 import placeholder1 from "../../assets/placeholders/place1.jpg";
 import x from "../../assets/logo/x.png";
+import getStyles from "../../supabase/CuestionarioServices/getStyles";
 
-const MainGridLogged: React.FC<{ userName: string, userStyle: string }> = ({ userName, userStyle }) => {
+const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ userName, userStyleId }) => {
+  const [userStyle, setUserStyle] = useState<string>("");
+
+  useEffect(() => {
+    const fetchStyles = async () => {
+      const styles = await getStyles();
+      const style = styles.find(s => s.id === userStyleId);
+      setUserStyle(style ? style.tipo : "Desconocido");
+    };
+
+    fetchStyles();
+  }, [userStyleId]);
+
   const pink = "#E61F93";
   const yellow = "#FDE12D";
   const blue = "#00D1ED";
