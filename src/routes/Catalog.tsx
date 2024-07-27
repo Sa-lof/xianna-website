@@ -25,6 +25,8 @@ import Footer from "../components/Footer/Footer";
 import placeholder from "../assets/placeholders/place1.jpg";
 import getOutfits from '../supabase/CatalogoServices/getOutfits';
 import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
+import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService'; // Importa el servicio
+import supabase from '../supabaseClient'; // Importa supabase
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -44,8 +46,7 @@ const Catalog: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
   const [selectedEstilos, setSelectedEstilos] = useState<string[]>([]);
   const [selectedOcasiones, setSelectedOcasiones] = useState<string[]>([]);
-  const [selectedCuerpos, setSelectedCuerpos] = useState<string[]>([]);
-  const [myOutfits, setMyOutfits] = useState<string[]>([]);
+  const [myOutfits, setMyOutfits] = useState<number[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [styles, setStyles] = useState<string[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
@@ -76,6 +77,17 @@ const Catalog: React.FC = () => {
 
       const fetchedOccasions = await getOccasions();
       setOccasions(fetchedOccasions.map(occasion => occasion.ocasion));
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const user = session.user;
+        if (user.email) {
+          const favoritos = await getFavorites(user.email);
+          setMyOutfits(favoritos);
+        } else {
+          console.error('User email is undefined');
+        }
+      }
     };
 
     fetchData();
@@ -95,15 +107,34 @@ const Catalog: React.FC = () => {
   };
 
   const handleCuerpoChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedCuerpos(event.target.value as string[]);
   };
 
-  const handleToggleOutfit = (id: number) => {
-    setMyOutfits((prevOutfits) =>
-      prevOutfits.includes(id.toString())
-        ? prevOutfits.filter((outfitId) => outfitId !== id.toString())
-        : [...prevOutfits, id.toString()]
-    );
+  const handleToggleOutfit = async (id: number) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert('You must be logged in to save favorites');
+      return;
+    }
+
+    const user = session.user;
+    if (!user.email) {
+      console.error('User email is undefined');
+      return;
+    }
+
+    const isFavorite = myOutfits.includes(id);
+
+    if (isFavorite) {
+      const success = await removeFavorite(user.email, id);
+      if (success) {
+        setMyOutfits((prevOutfits) => prevOutfits.filter((outfitId) => outfitId !== id));
+      }
+    } else {
+      const success = await addFavorite(user.email, id);
+      if (success) {
+        setMyOutfits((prevOutfits) => [...prevOutfits, id]);
+      }
+    }
   };
 
   const filteredCatalogData = outfits.filter((item) => {
@@ -324,7 +355,7 @@ const Catalog: React.FC = () => {
                       position: "absolute",
                       top: 10,
                       right: 10,
-                      color: myOutfits.includes(item.id.toString()) ? yellow : "white",
+                      color: myOutfits.includes(item.id) ? yellow : "white",
                       backgroundColor: "rgba(0, 0, 0, 0.5)",
                       borderRadius: "50%",
                     }}

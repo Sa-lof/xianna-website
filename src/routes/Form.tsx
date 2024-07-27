@@ -5,7 +5,9 @@ import { useNavigate } from "react-router-dom";
 import Question from "../components/Question/Question";
 import LargeButton from "../components/LargeButton/LargeButton";
 import UserDataForm from "../components/UserDataForm/UserDataForm";
-import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers"; // Ajusta la ruta según sea necesario
+import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers";
+import getStyles from "../supabase/CuestionarioServices/getStyles"; // Ajusta la ruta según sea necesario
+import supabase from "../supabaseClient";
 
 const pink = "#E61F93";
 
@@ -23,12 +25,19 @@ interface Question {
   answers: Answer[];
 }
 
+interface Estilo {
+  id: number;
+  tipo: string;
+  descripcion: string;
+}
+
 const Form: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [userData, setUserData] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
+  const [styles, setStyles] = useState<Estilo[]>([]);
 
   const questionsPerPage = 3;
   const questionColors = ["#FFC0CB", "#FFD700", "#ADD8E6"];
@@ -38,18 +47,22 @@ const Form: React.FC = () => {
       const fetchedQuestions = await getQuestionsWithAnswers();
       setQuestions(fetchedQuestions);
     };
+    const fetchStyles = async () => {
+      const fetchedStyles = await getStyles();
+      setStyles(fetchedStyles);
+    };
     fetchQuestions();
+    fetchStyles();
   }, []);
 
   const totalSteps = Math.ceil(questions.length / questionsPerPage) + 1;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Handle form submission here
-      console.log(selectedAnswers); // Aquí puedes enviar las respuestas seleccionadas
-      navigate("/some-link"); // Replace with the actual link
+      await updateUserDetails();
+      navigate("/some-link"); // Reemplaza con el enlace real
     }
   };
 
@@ -61,8 +74,8 @@ const Form: React.FC = () => {
 
   const handleUserDataSubmit = (data: any) => {
     setUserData(data);
-    setCurrentStep(1); // Move to the first set of questions
-    console.log(userData);
+    setCurrentStep(1); // Mover al primer conjunto de preguntas
+    console.log(data); // Verificar los datos capturados
   };
 
   const handleAnswerChange = (questionId: number, answer: string) => {
@@ -76,6 +89,42 @@ const Form: React.FC = () => {
     const startIndex = (currentStep - 1) * questionsPerPage;
     const endIndex = startIndex + questionsPerPage;
     return questions.slice(startIndex, endIndex);
+  };
+
+  const getRandomStyleId = (): number => {
+    if (styles.length === 0) return 1; // Default value if styles are not loaded
+    const randomIndex = Math.floor(Math.random() * styles.length);
+    return styles[randomIndex].id;
+  };
+
+  const updateUserDetails = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const user = session.user;
+
+      // Mapea las respuestas seleccionadas a los campos de user_details
+      const updatedDetails = {
+        tipo_estilo: getRandomStyleId(), // Asigna un estilo aleatorio
+        sexo: userData.sex,
+        edad: userData.age,
+        profesion: userData.profession,
+        talla: userData.size,
+        tipo_cuerpo: userData.bodyType,
+        nombre: userData.name,
+        ciudad: userData.country,
+      };
+
+      const { error } = await supabase
+        .from('user_details')
+        .update(updatedDetails)
+        .eq('correo', user.email);
+
+      if (error) {
+        console.error('Error updating user details:', error);
+      } else {
+        console.log('User details updated successfully');
+      }
+    }
   };
 
   return (
