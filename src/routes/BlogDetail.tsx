@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Typography, IconButton, Slide, Fade } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Slide, Fade, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
@@ -35,6 +35,7 @@ const BlogDetail: React.FC = () => {
   const [rating, setRating] = useState<number | null>(null);
   const [existingRating, setExistingRating] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [showReRateMessage, setShowReRateMessage] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,7 +59,7 @@ const BlogDetail: React.FC = () => {
       if (userEmail) {
         const { data, error } = await supabase
           .from('blogs_calificados')
-          .select('*')
+          .select('calificacion')
           .eq('blog', id)
           .eq('usuario', userEmail)
           .single();
@@ -66,16 +67,32 @@ const BlogDetail: React.FC = () => {
         if (data) {
           setExistingRating(data.calificacion);
           setRating(data.calificacion);
+          setShowReRateMessage(true);
+        }
+      } else {
+        const localRating = localStorage.getItem(`rating-${id}`);
+        if (localRating) {
+          setExistingRating(Number(localRating));
+          setRating(Number(localRating));
+          setShowReRateMessage(true);
         }
       }
     };
 
-    fetchBlog();
-    fetchUserEmail();
-    fetchRating();
+    const initialize = async () => {
+      await fetchBlog();
+      await fetchUserEmail();
+      await fetchRating();
+    };
+
+    initialize();
   }, [id, userEmail]);
 
   const handleRatingSubmit = async (newRating: number) => {
+    await submitRating(newRating);
+  };
+
+  const submitRating = async (newRating: number) => {
     if (userEmail) {
       if (existingRating !== null) {
         // Update existing rating
@@ -90,6 +107,7 @@ const BlogDetail: React.FC = () => {
         } else {
           alert('Rating updated successfully!');
           setRating(newRating);
+          setExistingRating(newRating);
         }
       } else {
         // Insert new rating
@@ -102,11 +120,29 @@ const BlogDetail: React.FC = () => {
         } else {
           alert('Rating submitted successfully!');
           setRating(newRating);
+          setExistingRating(newRating);
         }
       }
     } else {
-      alert('Please log in to rate this blog.');
+      // Insert anonymous rating
+      const { error } = await supabase
+        .from('blogs_calificados')
+        .insert([{ blog: id, calificacion: newRating, usuario: null }]);
+
+      if (error) {
+        console.error('Error inserting anonymous rating:', error);
+      } else {
+        localStorage.setItem(`rating-${id}`, String(newRating));
+        alert('Rating submitted successfully!');
+        setRating(newRating);
+        setExistingRating(newRating);
+      }
     }
+    setShowReRateMessage(false);
+  };
+
+  const handleReRate = () => {
+    setShowReRateMessage(false);
   };
 
   const { ref: headerRef, inView: headerInView } = useInView({
@@ -204,7 +240,18 @@ const BlogDetail: React.FC = () => {
           <Grid item xs={12}>
             <Fade in={ratingInView} timeout={2000}>
               <div ref={ratingRef}>
-                <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />
+                {showReRateMessage ? (
+                  <Box mt={2}>
+                    <Typography variant="body1" color="textSecondary">
+                      Ya has calificado este blog, ¿quieres volver a calificar?
+                    </Typography>
+                    <Button variant="contained" color="primary" onClick={handleReRate}>
+                      Volver a calificar
+                    </Button>
+                  </Box>
+                ) : (
+                  <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />
+                )}
               </div>
             </Fade>
           </Grid>
