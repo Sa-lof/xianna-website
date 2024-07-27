@@ -8,6 +8,7 @@ import {
   Box,
   Button,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LargeButton from "../LargeButton/LargeButton";
@@ -22,6 +23,7 @@ const MainGridLogged: React.FC<{ userName: string, userStyle: string }> = ({ use
   const yellow = "#FDE12D";
   const blue = "#00D1ED";
   const lightpink = "#FAACC1";
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={6} sm={12}>
@@ -101,9 +103,11 @@ const MainGridLogged: React.FC<{ userName: string, userStyle: string }> = ({ use
             {userName}
           </Typography>
           <Typography variant="body2">{userStyle}</Typography>
-          <Button variant="contained" className="bg-white text-blue-500 mt-2">
-            Ver Perfil
-          </Button>
+          <Link to="/perfil" style={{ textDecoration: "none" }}>
+            <Button variant="contained" className="bg-white text-blue-500 mt-2">
+              Ver Perfil
+            </Button>
+          </Link>
         </Card>
       </Grid>
       <Grid item xs={12} md={3} sm={12}>

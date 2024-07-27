@@ -14,7 +14,7 @@ export const updatePrendas = async (prendas: Prenda[]): Promise<void> => {
       const { id, nombre, link, imagen } = prenda;
       const { error } = await supabase
         .from('prendas')
-        .update({ nombre, link, imagen }) // Asegúrate de actualizar la imagen también
+        .update({ nombre, link }) // Asegúrate de actualizar la imagen también
         .eq('id', id);
 
       if (error) {

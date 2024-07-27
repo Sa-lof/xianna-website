@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid, Typography, IconButton, Slide, Fade } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
@@ -8,33 +8,40 @@ import Content from "../components/Content/Content";
 import Rating from "../components/Rating/Rating";
 import BlogImages from "../components/BlogImages/BlogImages";
 import Footer from "../components/Footer/Footer";
+import getBlogs from "../supabase/BlogServices/getBlogs";
+import getBlogImages from "../supabase/BlogServices/getBlogImages";
 
 const pink = "#E61F93";
-
-const blogData = [
-  {
-    id: "1",
-    title: "Título del Blog",
-    description: "Descripción corta",
-    category: "Categoría",
-    content:
-      "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum",
-    images: [
-      "/path/to/image1.jpg",
-      "/path/to/image2.jpg",
-      "/path/to/image3.jpg",
-      "/path/to/image4.jpg",
-      "/path/to/image5.jpg",
-    ],
-    chipColor: "#E61F93",
-  },
-  // Add more blog data as needed
-];
-
+interface Blog {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  contenido: string;
+  id_categoria: number;
+  categoria: string;
+  image: string;
+  name: string;
+  category: string;
+  rating: number;
+  persons: number;
+  images: string[];
+}
 const BlogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const blog = blogData.find((b) => b.id === id);
+  const [blog, setBlog] = useState<Blog | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBlog = async () => {
+      const blogs = await getBlogs();
+      const selectedBlog = blogs.find((b) => b.id === Number(id));
+      if (selectedBlog) {
+        const images = await getBlogImages(selectedBlog.id);
+        setBlog({ ...selectedBlog, images });
+      }
+    };
+    fetchBlog();
+  }, [id]);
 
   const { ref: headerRef, inView: headerInView } = useInView({
     triggerOnce: true,
@@ -106,10 +113,10 @@ const BlogDetail: React.FC = () => {
             <Fade in={headerInView} timeout={2000}>
               <div ref={headerRef}>
                 <Header
-                  title={blog.title}
-                  description={blog.description}
-                  category={blog.category}
-                  chipColor={blog.chipColor}
+                  title={blog.titulo}
+                  description={blog.descripcion}
+                  category={blog.categoria}
+                  chipColor={pink} // Cambiar el color si es necesario
                 />
               </div>
             </Fade>
@@ -117,7 +124,7 @@ const BlogDetail: React.FC = () => {
           <Grid item xs={12} md={7}>
             <Fade in={contentInView} timeout={2000}>
               <div ref={contentRef}>
-                <Content content={blog.content} />
+                <Content content={blog.contenido} />
               </div>
             </Fade>
           </Grid>
