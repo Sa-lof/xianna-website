@@ -5,13 +5,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import Header from "../components/Header/Header";
 import Content from "../components/Content/Content";
-import Rating from "../components/Rating/Rating";
 import BlogImages from "../components/BlogImages/BlogImages";
 import Footer from "../components/Footer/Footer";
 import getBlogs from "../supabase/BlogServices/getBlogs";
 import getBlogImages from "../supabase/BlogServices/getBlogImages";
+import supabase from "../supabaseClient";
+import Rating from "../components/Rating/Rating";
 
 const pink = "#E61F93";
+
 interface Blog {
   id: number;
   titulo: string;
@@ -26,9 +28,13 @@ interface Blog {
   persons: number;
   images: string[];
 }
+
 const BlogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [blog, setBlog] = useState<Blog | null>(null);
+  const [rating, setRating] = useState<number | null>(null);
+  const [existingRating, setExistingRating] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,8 +46,68 @@ const BlogDetail: React.FC = () => {
         setBlog({ ...selectedBlog, images });
       }
     };
+
+    const fetchUserEmail = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user && session.user.email) {
+        setUserEmail(session.user.email);
+      }
+    };
+
+    const fetchRating = async () => {
+      if (userEmail) {
+        const { data, error } = await supabase
+          .from('blogs_calificados')
+          .select('*')
+          .eq('blog', id)
+          .eq('usuario', userEmail)
+          .single();
+
+        if (data) {
+          setExistingRating(data.calificacion);
+          setRating(data.calificacion);
+        }
+      }
+    };
+
     fetchBlog();
-  }, [id]);
+    fetchUserEmail();
+    fetchRating();
+  }, [id, userEmail]);
+
+  const handleRatingSubmit = async (newRating: number) => {
+    if (userEmail) {
+      if (existingRating !== null) {
+        // Update existing rating
+        const { error } = await supabase
+          .from('blogs_calificados')
+          .update({ calificacion: newRating })
+          .eq('blog', id)
+          .eq('usuario', userEmail);
+
+        if (error) {
+          console.error('Error updating rating:', error);
+        } else {
+          alert('Rating updated successfully!');
+          setRating(newRating);
+        }
+      } else {
+        // Insert new rating
+        const { error } = await supabase
+          .from('blogs_calificados')
+          .insert([{ blog: id, calificacion: newRating, usuario: userEmail }]);
+
+        if (error) {
+          console.error('Error inserting rating:', error);
+        } else {
+          alert('Rating submitted successfully!');
+          setRating(newRating);
+        }
+      }
+    } else {
+      alert('Please log in to rate this blog.');
+    }
+  };
 
   const { ref: headerRef, inView: headerInView } = useInView({
     triggerOnce: true,
@@ -138,7 +204,7 @@ const BlogDetail: React.FC = () => {
           <Grid item xs={12}>
             <Fade in={ratingInView} timeout={2000}>
               <div ref={ratingRef}>
-                <Rating />
+                <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />
               </div>
             </Fade>
           </Grid>

@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import LargeButton from "../LargeButton/LargeButton";
-import { useParams } from "react-router-dom";
 
-const Rating: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [rating, setRating] = useState(0);
+interface RatingProps {
+  initialRating: number;
+  onSubmit: (rating: number) => void;
+}
+
+const Rating: React.FC<RatingProps> = ({ initialRating, onSubmit }) => {
+  const [rating, setRating] = useState(initialRating);
   const pink = "#E61F93";
 
   const handleRatingClick = (index: number) => {
@@ -14,7 +17,7 @@ const Rating: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    console.log(`Blog ID: ${id}, Rating: ${rating}`);
+    onSubmit(rating);
   };
 
   return (
