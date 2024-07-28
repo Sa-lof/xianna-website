@@ -11,7 +11,7 @@ interface Prenda {
 export const updatePrendas = async (prendas: Prenda[]): Promise<void> => {
   try {
     for (const prenda of prendas) {
-      const { id, nombre, link, imagen } = prenda;
+      const { id, nombre, link } = prenda;
       const { error } = await supabase
         .from('prendas')
         .update({ nombre, link }) // Asegúrate de actualizar la imagen también
