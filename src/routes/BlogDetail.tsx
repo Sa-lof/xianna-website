@@ -7,10 +7,8 @@ import Header from "../components/Header/Header";
 import Content from "../components/Content/Content";
 import BlogImages from "../components/BlogImages/BlogImages";
 import Footer from "../components/Footer/Footer";
-import getBlogs from "../supabase/BlogServices/getBlogs";
-import getBlogImages from "../supabase/BlogServices/getBlogImages";
-import supabase from "../supabaseClient";
 import Rating from "../components/Rating/Rating";
+import { fetchBlog, fetchUserEmail, fetchRating, submitRating } from "../supabase/BlogServices/BlogService";
 
 const pink = "#E61F93";
 
@@ -39,106 +37,34 @@ const BlogDetail: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchBlog = async () => {
-      const blogs = await getBlogs();
-      const selectedBlog = blogs.find((b) => b.id === Number(id));
-      if (selectedBlog) {
-        const images = await getBlogImages(selectedBlog.id);
-        setBlog({ ...selectedBlog, images });
-      }
-    };
-
-    const fetchUserEmail = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user && session.user.email) {
-        setUserEmail(session.user.email);
-      }
-    };
-
-    const fetchRating = async () => {
-      if (userEmail) {
-        const { data, error } = await supabase
-          .from('blogs_calificados')
-          .select('calificacion')
-          .eq('blog', id)
-          .eq('usuario', userEmail)
-          .single();
-
-        if (data) {
-          setExistingRating(data.calificacion);
-          setRating(data.calificacion);
-          setShowReRateMessage(true);
-        }
-      } else {
-        const localRating = localStorage.getItem(`rating-${id}`);
-        if (localRating) {
-          setExistingRating(Number(localRating));
-          setRating(Number(localRating));
-          setShowReRateMessage(true);
-        }
-      }
-    };
-
     const initialize = async () => {
-      await fetchBlog();
-      await fetchUserEmail();
-      await fetchRating();
+      const blogData = await fetchBlog(Number(id));
+      setBlog(blogData);
+
+      const email = await fetchUserEmail();
+      setUserEmail(email);
+
+      const userRating = await fetchRating(Number(id), email);
+      if (userRating !== null) {
+        setExistingRating(userRating);
+        setRating(userRating);
+        setShowReRateMessage(true);
+      }
     };
 
     initialize();
-  }, [id, userEmail]);
+  }, [id]);
 
   const handleRatingSubmit = async (newRating: number) => {
-    await submitRating(newRating);
-  };
-
-  const submitRating = async (newRating: number) => {
-    if (userEmail) {
-      if (existingRating !== null) {
-        // Update existing rating
-        const { error } = await supabase
-          .from('blogs_calificados')
-          .update({ calificacion: newRating })
-          .eq('blog', id)
-          .eq('usuario', userEmail);
-
-        if (error) {
-          console.error('Error updating rating:', error);
-        } else {
-          alert('Rating updated successfully!');
-          setRating(newRating);
-          setExistingRating(newRating);
-        }
-      } else {
-        // Insert new rating
-        const { error } = await supabase
-          .from('blogs_calificados')
-          .insert([{ blog: id, calificacion: newRating, usuario: userEmail }]);
-
-        if (error) {
-          console.error('Error inserting rating:', error);
-        } else {
-          alert('Rating submitted successfully!');
-          setRating(newRating);
-          setExistingRating(newRating);
-        }
-      }
-    } else {
-      // Insert anonymous rating
-      const { error } = await supabase
-        .from('blogs_calificados')
-        .insert([{ blog: id, calificacion: newRating, usuario: null }]);
-
-      if (error) {
-        console.error('Error inserting anonymous rating:', error);
-      } else {
-        localStorage.setItem(`rating-${id}`, String(newRating));
-        alert('Rating submitted successfully!');
-        setRating(newRating);
-        setExistingRating(newRating);
-      }
+    try {
+      await submitRating(Number(id), newRating, userEmail, existingRating);
+      alert('Rating submitted successfully!');
+      setRating(newRating);
+      setExistingRating(newRating);
+      setShowReRateMessage(false);
+    } catch (error) {
+      console.error(error);
     }
-    setShowReRateMessage(false);
   };
 
   const handleReRate = () => {
@@ -175,21 +101,15 @@ const BlogDetail: React.FC = () => {
   }
 
   return (
-    <Slide
-      direction="right"
-      in={true}
-      mountOnEnter
-      unmountOnExit
-      timeout={800}
-    >
+    <Slide direction="right" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          minHeight: "100vh",
+          paddingBottom: 10,
+          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
           paddingTop: 5,
         }}
       >
@@ -218,7 +138,7 @@ const BlogDetail: React.FC = () => {
                   title={blog.titulo}
                   description={blog.descripcion}
                   category={blog.categoria}
-                  chipColor={pink} // Cambiar el color si es necesario
+                  chipColor={pink}
                 />
               </div>
             </Fade>

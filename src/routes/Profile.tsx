@@ -16,49 +16,12 @@ import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
 import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
-import supabase from "../supabaseClient";
-import getOutfits from "../supabase/UsersServices/getOutfits";
-import { getPrendasByOutfitId } from "../supabase/UsersServices/getPrendasByOutfitId"; // Ajustar la ruta si es necesario
+import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
+import { updateUserProfile } from "../supabase/UsersServices/updateUserProfile";
+import { User, Outfit, Prenda } from "../supabase/UsersServices/types";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
-
-interface Prenda {
-  id: number;
-  nombre: string;
-  link: string;
-  imagen: string;
-  id_outfit: number;
-}
-
-interface Outfit {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  id_estilo: number;
-  estilo: string;
-  imagen: string;
-  ocasiones: string[];
-  favoritos: number;
-}
-
-interface User {
-  name: string;
-  email: string;
-  city: string;
-  sex: string;
-  age: number;
-  profession: string;
-  bodyType: string;
-  size: string;
-  country: string;
-  styleType: string;
-  styleDescription: string;
-  colors: string[];
-  outfits: Outfit[];
-  basicItems: Prenda[];
-  tips: string[];
-}
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -82,55 +45,7 @@ const Profile: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const userEmail = session.user.email || ""; // Asegurarse de que sea una cadena
-        const { data: userDetails, error } = await supabase
-          .from('user_details')
-          .select('*')
-          .eq('correo', userEmail)
-          .single();
-
-        if (userDetails) {
-          const { data: styleData, error: styleError } = await supabase
-            .from('estilos')
-            .select('tipo, descripcion')
-            .eq('id', userDetails.tipo_estilo)
-            .single();
-
-          if (styleError) {
-            console.error('Error fetching style description:', styleError);
-          } else if (styleData) {
-            const outfits = await getOutfits(userDetails.tipo_estilo);
-            const allPrendas = await Promise.all(outfits.map((outfit) => getPrendasByOutfitId(outfit.id)));
-            const mergedPrendas = allPrendas.flat();
-
-            setUser({
-              name: userDetails.nombre,
-              email: userEmail,
-              city: userDetails.ciudad,
-              sex: userDetails.sexo,
-              age: userDetails.edad,
-              profession: userDetails.profesion,
-              bodyType: userDetails.tipo_cuerpo,
-              size: userDetails.talla,
-              country: userDetails.country, // Asumir que `country` está presente en la tabla `user_details`
-              styleType: styleData.tipo,
-              styleDescription: styleData.descripcion,
-              colors: userDetails.colors || [],
-              outfits: outfits,
-              basicItems: mergedPrendas,
-              tips: userDetails.tips || [],
-            });
-          }
-        } else {
-          console.error('Error fetching user details:', error);
-        }
-      }
-    };
-
-    fetchUserProfile();
+    fetchUserProfile(setUser);
   }, []);
 
   const handleModalOpen = () => {
@@ -142,22 +57,7 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = async (updatedUser: User) => {
-    // Save the updated user data to Supabase
-    const { data, error } = await supabase
-      .from('user_details')
-      .update({
-        nombre: updatedUser.name,
-        ciudad: updatedUser.city,
-        sexo: updatedUser.sex,
-        edad: updatedUser.age,
-        profesion: updatedUser.profession,
-        tipo_cuerpo: updatedUser.bodyType,
-        talla: updatedUser.size,
-        country: updatedUser.country, // Asumir que `country` está presente en la tabla `user_details`
-        // Add more fields if necessary
-      })
-      .eq('correo', updatedUser.email);
-
+    const { data, error } = await updateUserProfile(updatedUser);
     if (error) {
       console.error('Error updating user details:', error);
     } else {
