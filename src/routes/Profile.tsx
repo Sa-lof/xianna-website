@@ -18,7 +18,7 @@ import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
 import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
 import { updateUserProfile } from "../supabase/UsersServices/updateUserProfile";
-import { User, Outfit, Prenda } from "../supabase/UsersServices/types";
+import { User } from "../supabase/UsersServices/types";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -57,7 +57,7 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = async (updatedUser: User) => {
-    const { data, error } = await updateUserProfile(updatedUser);
+    const { error } = await updateUserProfile(updatedUser);
     if (error) {
       console.error('Error updating user details:', error);
     } else {

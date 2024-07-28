@@ -128,7 +128,7 @@ const MyOutfits: React.FC = () => {
 
   const handleSave = async (updatedUser: User) => {
     // Save the updated user data to Supabase
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('user_details')
       .update({
         nombre: updatedUser.name,

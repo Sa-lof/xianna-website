@@ -22,7 +22,6 @@ import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import Footer from "../components/Footer/Footer";
-import placeholder from "../assets/placeholders/place1.jpg";
 import getOutfits from '../supabase/CatalogoServices/getOutfits';
 import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
 import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
@@ -108,8 +107,6 @@ const Catalog: React.FC = () => {
   const handleOcasionChange = (event: SelectChangeEvent<string[]>) => {
     setSelectedOcasiones(event.target.value as string[]);
   };
-
-  const handleCuerpoChange = (event: SelectChangeEvent<string[]>) => {};
 
   const handleToggleOutfit = async (id: number) => {
     if (!session) {

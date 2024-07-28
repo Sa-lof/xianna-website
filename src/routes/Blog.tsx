@@ -10,7 +10,7 @@ import getBlogs from "../supabase/BlogServices/getBlogs";
 const pink = "#E61F93";
 const yellow = "#FDE12D";
 
-interface Blog {
+interface BlogData {
   id: number;
   titulo: string;
   descripcion: string;
@@ -25,13 +25,13 @@ interface Blog {
   images: string[];
 }
 
-interface BlogWithExtras extends Blog {
+interface BlogWithExtras extends BlogData {
   size: string;
   link: string;
   categoryColor: string;
 }
 
-const Blog: React.FC = () => {
+const BlogComponent: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
   const [blogs, setBlogs] = useState<BlogWithExtras[]>([]);
   const navigate = useNavigate();
@@ -190,4 +190,4 @@ const Blog: React.FC = () => {
   );
 };
 
-export default Blog;
+export default BlogComponent;

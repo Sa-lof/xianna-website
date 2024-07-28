@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Typography, Box, Grid, IconButton, Slide, Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
-import Question from "../components/Question/Question";
+import QuestionComponent from "../components/Question/Question";
 import LargeButton from "../components/LargeButton/LargeButton";
 import UserDataForm from "../components/UserDataForm/UserDataForm";
 import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers";
@@ -63,7 +63,7 @@ const Form: React.FC = () => {
       if (session) {
         setIsAuthenticated(true);
         const user = session.user;
-        const { data: userDetails, error } = await supabase
+        const { data: userDetails } = await supabase
           .from('user_details')
           .select('tipo_estilo')
           .eq('correo', user.email)
@@ -232,7 +232,7 @@ const Form: React.FC = () => {
               ) : (
                 <>
                   {getQuestionsForCurrentStep().map((q, index) => (
-                    <Question
+                    <QuestionComponent
                       key={q.id}
                       color={questionColors[index % questionColors.length]}
                       question={q.pregunta}
