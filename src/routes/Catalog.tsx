@@ -25,8 +25,8 @@ import Footer from "../components/Footer/Footer";
 import placeholder from "../assets/placeholders/place1.jpg";
 import getOutfits from '../supabase/CatalogoServices/getOutfits';
 import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
-import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService'; // Importa el servicio
-import supabase from '../supabaseClient'; // Importa supabase
+import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
+import supabase from '../supabaseClient';
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -39,7 +39,7 @@ interface Outfit {
   estilo: string;
   imagen: string;
   ocasiones: string[];
-  favoritos: number; 
+  favoritos: number;
 }
 
 const Catalog: React.FC = () => {
@@ -50,6 +50,7 @@ const Catalog: React.FC = () => {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [styles, setStyles] = useState<string[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
+  const [session, setSession] = useState<any>(null); // Estado para manejar la sesión de usuario
   const navigate = useNavigate();
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -79,6 +80,8 @@ const Catalog: React.FC = () => {
       setOccasions(fetchedOccasions.map(occasion => occasion.ocasion));
 
       const { data: { session } } = await supabase.auth.getSession();
+      setSession(session); // Guarda la sesión en el estado
+
       if (session) {
         const user = session.user;
         if (user.email) {
@@ -106,11 +109,9 @@ const Catalog: React.FC = () => {
     setSelectedOcasiones(event.target.value as string[]);
   };
 
-  const handleCuerpoChange = (event: SelectChangeEvent<string[]>) => {
-  };
+  const handleCuerpoChange = (event: SelectChangeEvent<string[]>) => {};
 
   const handleToggleOutfit = async (id: number) => {
-    const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       alert('You must be logged in to save favorites');
       return;
@@ -138,12 +139,8 @@ const Catalog: React.FC = () => {
   };
 
   const filteredCatalogData = outfits.filter((item) => {
-    const estiloMatch =
-      selectedEstilos.length === 0 || selectedEstilos.includes(item.estilo);
-    const ocasionMatch =
-      selectedOcasiones.length === 0 || 
-      item.ocasiones.some(ocasion => selectedOcasiones.includes(ocasion));
-    // Ajustar según la lógica para cuerpos, si es necesario
+    const estiloMatch = selectedEstilos.length === 0 || selectedEstilos.includes(item.estilo);
+    const ocasionMatch = selectedOcasiones.length === 0 || item.ocasiones.some(ocasion => selectedOcasiones.includes(ocasion));
     return estiloMatch && ocasionMatch;
   });
 
@@ -284,14 +281,14 @@ const Catalog: React.FC = () => {
                   sx={{
                     position: "relative",
                     overflow: "hidden",
-                    height: '100%', // Ensure the card takes the full height of the grid item
+                    height: '100%',
                   }}
                 >
                   <CardActionArea 
                     sx={{
-                      height: '100%', // Ensure the CardActionArea takes the full height of the card
+                      height: '100%',
                       display: 'flex',
-                      flexDirection: 'column', // Ensure the content is stacked vertically
+                      flexDirection: 'column',
                     }}
                     onClick={() => navigate(`/catalogo/${item.id}`)}
                   >
@@ -299,7 +296,7 @@ const Catalog: React.FC = () => {
                       sx={{
                         width: "100%",
                         height: 0,
-                        paddingTop: "75%", // Aspect ratio of 4:3
+                        paddingTop: "75%",
                         position: "relative",
                       }}
                     >
@@ -326,7 +323,7 @@ const Catalog: React.FC = () => {
                         padding: "4px 8px",
                         display: "flex",
                         alignItems: "center",
-                        width: "calc(100% - 20px)", // Adjust to fit the padding
+                        width: "calc(100% - 20px)",
                         justifyContent: "space-between",
                       }}
                     >
@@ -350,19 +347,21 @@ const Catalog: React.FC = () => {
                       </IconButton>
                     </Box>
                   </CardActionArea>
-                  <IconButton
-                    sx={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      color: myOutfits.includes(item.id) ? yellow : "white",
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      borderRadius: "50%",
-                    }}
-                    onClick={() => handleToggleOutfit(item.id)}
-                  >
-                    <StarIcon />
-                  </IconButton>
+                  {session && (
+                    <IconButton
+                      sx={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        color: myOutfits.includes(item.id) ? yellow : "white",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        borderRadius: "50%",
+                      }}
+                      onClick={() => handleToggleOutfit(item.id)}
+                    >
+                      <StarIcon />
+                    </IconButton>
+                  )}
                 </Card>
               </Grid>
             ))}
