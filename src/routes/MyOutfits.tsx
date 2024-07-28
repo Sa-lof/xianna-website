@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
+import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import { getFavorites, getOutfitsByIds, removeFavorite } from "../supabase/UsersServices/getFavorites";
 import supabase from "../supabaseClient";
 
@@ -33,6 +34,13 @@ interface Outfit {
 interface User {
   name: string;
   email: string;
+  city: string;
+  sex: string;
+  age: number;
+  profession: string;
+  bodyType: string;
+  size: string;
+  country: string;
   outfits: Outfit[];
 }
 
@@ -41,8 +49,16 @@ const MyOutfits: React.FC = () => {
   const [user, setUser] = useState<User>({
     name: "",
     email: "",
+    city: "",
+    sex: "",
+    age: 0,
+    profession: "",
+    bodyType: "",
+    size: "",
+    country: "",
     outfits: [],
   });
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserOutfits = async () => {
@@ -56,7 +72,7 @@ const MyOutfits: React.FC = () => {
         
         const { data: userDetails, error } = await supabase
           .from('user_details')
-          .select('nombre, correo')
+          .select('*')
           .eq('correo', userEmail)
           .single();
 
@@ -71,6 +87,13 @@ const MyOutfits: React.FC = () => {
         setUser({
           name: userDetails.nombre,
           email: userDetails.correo,
+          city: userDetails.ciudad,
+          sex: userDetails.sexo,
+          age: userDetails.edad,
+          profession: userDetails.profesion,
+          bodyType: userDetails.tipo_cuerpo,
+          size: userDetails.talla,
+          country: userDetails.country,
           outfits: favoriteOutfits,
         });
       } else {
@@ -92,6 +115,39 @@ const MyOutfits: React.FC = () => {
           outfits: prevState.outfits.filter((outfit) => outfit.id !== outfitId),
         }));
       }
+    }
+  };
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleSave = async (updatedUser: User) => {
+    // Save the updated user data to Supabase
+    const { data, error } = await supabase
+      .from('user_details')
+      .update({
+        nombre: updatedUser.name,
+        ciudad: updatedUser.city,
+        sexo: updatedUser.sex,
+        edad: updatedUser.age,
+        profesion: updatedUser.profession,
+        tipo_cuerpo: updatedUser.bodyType,
+        talla: updatedUser.size,
+        country: updatedUser.country,
+        // Add more fields if necessary
+      })
+      .eq('correo', updatedUser.email);
+
+    if (error) {
+      console.error('Error updating user details:', error);
+    } else {
+      setUser(updatedUser);
+      handleModalClose();
     }
   };
 
@@ -180,7 +236,7 @@ const MyOutfits: React.FC = () => {
                       backgroundColor: lightpink,
                     },
                   }}
-                  onClick={() => navigate("/edit-profile")}
+                  onClick={handleModalOpen}
                 >
                   <EditIcon sx={{ color: "white" }} />
                 </IconButton>
@@ -204,18 +260,18 @@ const MyOutfits: React.FC = () => {
                         link={`/catalogo/${outfit.id}`}
                       />
                       <IconButton
-                      sx={{
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        color: "yellow",
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        borderRadius: "50%",
-                      }}
-                      onClick={() => handleRemoveFavorite(outfit.id)}
-                    >
-                      <StarIcon />
-                    </IconButton>
+                        sx={{
+                          position: "absolute",
+                          top: 10,
+                          right: 10,
+                          color: "yellow",
+                          backgroundColor: "rgba(0, 0, 0, 0.5)",
+                          borderRadius: "50%",
+                        }}
+                        onClick={() => handleRemoveFavorite(outfit.id)}
+                      >
+                        <StarIcon />
+                      </IconButton>
                     </Box>
                   </Grid>
                 ))}
@@ -223,6 +279,12 @@ const MyOutfits: React.FC = () => {
             </Grid>
           </Grid>
           <Footer />
+          <EditProfileModal
+            open={isModalOpen}
+            handleClose={handleModalClose}
+            user={user}
+            handleSave={handleSave}
+          />
         </Box>
       </Fade>
     </Slide>

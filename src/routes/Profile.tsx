@@ -18,7 +18,7 @@ import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
 import supabase from "../supabaseClient";
 import getOutfits from "../supabase/UsersServices/getOutfits";
-import { getPrendasByOutfitId } from "../supabase/UsersServices/getPrendasByOutfitId"; // Adjust the path as necessary
+import { getPrendasByOutfitId } from "../supabase/UsersServices/getPrendasByOutfitId"; // Ajustar la ruta si es necesario
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -45,8 +45,9 @@ interface Outfit {
 interface User {
   name: string;
   email: string;
+  city: string;
   sex: string;
-  age: string;
+  age: number;
   profession: string;
   bodyType: string;
   size: string;
@@ -64,8 +65,9 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<User>({
     name: "",
     email: "",
+    city: "",
     sex: "",
-    age: "",
+    age: 0,
     profession: "",
     bodyType: "",
     size: "",
@@ -107,12 +109,13 @@ const Profile: React.FC = () => {
             setUser({
               name: userDetails.nombre,
               email: userEmail,
-              sex: userDetails.sex,
-              age: userDetails.age,
-              profession: userDetails.profession,
-              bodyType: userDetails.bodyType,
-              size: userDetails.size,
-              country: userDetails.country,
+              city: userDetails.ciudad,
+              sex: userDetails.sexo,
+              age: userDetails.edad,
+              profession: userDetails.profesion,
+              bodyType: userDetails.tipo_cuerpo,
+              size: userDetails.talla,
+              country: userDetails.country, // Asumir que `country` está presente en la tabla `user_details`
               styleType: styleData.tipo,
               styleDescription: styleData.descripcion,
               colors: userDetails.colors || [],
@@ -138,9 +141,29 @@ const Profile: React.FC = () => {
     setModalOpen(false);
   };
 
-  const handleSave = (updatedUser: User) => {
-    setUser(updatedUser);
-    handleModalClose();
+  const handleSave = async (updatedUser: User) => {
+    // Save the updated user data to Supabase
+    const { data, error } = await supabase
+      .from('user_details')
+      .update({
+        nombre: updatedUser.name,
+        ciudad: updatedUser.city,
+        sexo: updatedUser.sex,
+        edad: updatedUser.age,
+        profesion: updatedUser.profession,
+        tipo_cuerpo: updatedUser.bodyType,
+        talla: updatedUser.size,
+        country: updatedUser.country, // Asumir que `country` está presente en la tabla `user_details`
+        // Add more fields if necessary
+      })
+      .eq('correo', updatedUser.email);
+
+    if (error) {
+      console.error('Error updating user details:', error);
+    } else {
+      setUser(updatedUser);
+      handleModalClose();
+    }
   };
 
   return (

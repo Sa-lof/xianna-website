@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -24,6 +24,10 @@ const EditProfileModal = ({
   handleSave: (updatedUser: any) => void;
 }) => {
   const [formData, setFormData] = useState(user);
+
+  useEffect(() => {
+    setFormData(user);
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,6 +57,31 @@ const EditProfileModal = ({
           label="Nombre"
           fullWidth
           value={formData.name}
+          onChange={handleChange}
+          sx={{
+            backgroundColor: "white",
+            borderRadius: 1,
+            marginBottom: 4,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: pink,
+                borderRadius: 5,
+              },
+              "&:hover fieldset": {
+                borderColor: pink,
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: pink,
+              },
+            },
+          }}
+        />
+        <TextField
+          margin="dense"
+          name="city"
+          label="Ciudad"
+          fullWidth
+          value={formData.city}
           onChange={handleChange}
           sx={{
             backgroundColor: "white",
@@ -183,31 +212,6 @@ const EditProfileModal = ({
           label="Talla"
           fullWidth
           value={formData.size}
-          onChange={handleChange}
-          sx={{
-            backgroundColor: "white",
-            borderRadius: 1,
-            marginBottom: 4,
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: pink,
-                borderRadius: 5,
-              },
-              "&:hover fieldset": {
-                borderColor: pink,
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: pink,
-              },
-            },
-          }}
-        />
-        <TextField
-          margin="dense"
-          name="country"
-          label="País"
-          fullWidth
-          value={formData.country}
           onChange={handleChange}
           sx={{
             backgroundColor: "white",
