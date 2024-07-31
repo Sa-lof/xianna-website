@@ -1,5 +1,4 @@
-// question.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MenuItem,
   Select,
@@ -16,6 +15,8 @@ interface QuestionProps {
   question: string;
   questionNumber: number;
   responses: string[];
+  selectedResponse: string;
+  onResponseChange: (answer: string) => void;
 }
 
 const Question: React.FC<QuestionProps> = ({
@@ -23,11 +24,19 @@ const Question: React.FC<QuestionProps> = ({
   question,
   questionNumber,
   responses,
+  selectedResponse,
+  onResponseChange,
 }) => {
-  const [selectedResponse, setSelectedResponse] = useState<string>("");
+  const [localSelectedResponse, setLocalSelectedResponse] = useState<string>(selectedResponse);
+
+  useEffect(() => {
+    setLocalSelectedResponse(selectedResponse);
+  }, [selectedResponse]);
 
   const handleResponseChange = (event: SelectChangeEvent<string>) => {
-    setSelectedResponse(event.target.value as string);
+    const response = event.target.value as string;
+    setLocalSelectedResponse(response);
+    onResponseChange(response);
   };
 
   return (
@@ -56,7 +65,7 @@ const Question: React.FC<QuestionProps> = ({
         <InputLabel>Selecciona una respuesta</InputLabel>
         <Select
           labelId={`response-label-${questionNumber}`}
-          value={selectedResponse}
+          value={localSelectedResponse}
           onChange={handleResponseChange}
           label="Respuesta"
           sx={{

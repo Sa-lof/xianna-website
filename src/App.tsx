@@ -12,6 +12,7 @@ import Signup from "./routes/Signup";
 import MyOutfits from "./routes/MyOutfits";
 import Form from "./routes/Form";
 import Dashboard from "./routes_dashboard/Dashboard";
+import LoginAdmin from "./routes_dashboard/LoginAdmin";
 
 const App: React.FC = () => {
   return (
@@ -29,6 +30,7 @@ const App: React.FC = () => {
           <Route path="/mis-outfits" element={<MyOutfits />} />
           <Route path="/formulario" element={<Form />} />
           <Route path="/dashboard/home" element={<Dashboard />} />
+          <Route path="/dashboard/login" element={<LoginAdmin />} />
         </Routes>
       </Router>
     </div>

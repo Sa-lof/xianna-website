@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -14,44 +14,63 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
+import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
+import CatalogCard from "../components/CatalogCard/CatalogCard";
+import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
+import { updateUserProfile } from "../supabase/UsersServices/updateUserProfile";
+import { User } from "../supabase/UsersServices/types";
+import Loader from "../components/Loader/Loader"; // Import the Loader component
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
 
-const userDummyData = {
-  name: "Nombre",
-  email: "Correo electrónico",
-  styleType: "Tipo estilo del usuario",
-  colors: ["#001f3f", "#ffffff", "#808080", "#808000"],
-  outfits: [
-    {
-      id: 1,
-      image: "path/to/outfit1.jpg",
-      description: "Outfit 1 description",
-    },
-    {
-      id: 2,
-      image: "path/to/outfit2.jpg",
-      description: "Outfit 2 description",
-    },
-  ],
-  basicItems: [
-    {
-      id: 1,
-      image: "path/to/item1.jpg",
-      description: "Prenda 1",
-    },
-  ],
-  tips: [
-    "Lorem ipsum lorem ipsum lorem ipsum lorem ipsum",
-    "Lorem ipsum lorem ipsum lorem ipsum lorem ipsum",
-    "Lorem ipsum lorem ipsum lorem ipsum lorem ipsum",
-  ],
-};
-
 const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const user = userDummyData;
+  const [user, setUser] = useState<User>({
+    name: "",
+    email: "",
+    city: "",
+    sex: "",
+    age: 0,
+    profession: "",
+    bodyType: "",
+    size: "",
+    country: "",
+    styleType: "",
+    styleDescription: "",
+    colors: [],
+    outfits: [],
+    basicItems: [],
+    tips: [],
+  });
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchUserProfile(setUser).finally(() => setIsLoading(false)); // Set loading to false after data is fetched
+  }, []);
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleSave = async (updatedUser: User) => {
+    const { error } = await updateUserProfile(updatedUser);
+    if (error) {
+      console.error('Error updating user details:', error);
+    } else {
+      setUser(updatedUser);
+      handleModalClose();
+    }
+  };
+
+  if (isLoading) {
+    return <Loader />; // Show loader while loading
+  }
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
@@ -62,9 +81,9 @@ const Profile: React.FC = () => {
             flexDirection: "column",
             minHeight: "100vh",
             backgroundColor: "#fff",
-            paddingBottom: 10, // Responsive padding
-            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+            paddingBottom: 10,
+            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
             paddingTop: 5,
           }}
         >
@@ -110,13 +129,13 @@ const Profile: React.FC = () => {
                 />
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 1 }}
+                  sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "25px" }}
                 >
                   {user.name}
                 </Typography>
                 <Typography
                   variant="body2"
-                  sx={{ color: "gray", marginBottom: 3 }}
+                  sx={{ color: "gray", marginBottom: 3, fontSize: "15px" }}
                 >
                   {user.email}
                 </Typography>
@@ -145,7 +164,7 @@ const Profile: React.FC = () => {
                       backgroundColor: lightpink,
                     },
                   }}
-                  onClick={() => navigate("/edit-profile")}
+                  onClick={handleModalOpen}
                 >
                   <EditIcon sx={{ color: "white" }} />
                 </IconButton>
@@ -168,10 +187,7 @@ const Profile: React.FC = () => {
                   {user.styleType}
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: 2 }}>
-                  Lorem ipsum lorem ipsum lorem ipsum lorem ipsum Lorem ipsum
-                  lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
-                  Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum
-                  lorem ipsum Lorem ipsum Lorem ipsum
+                  {user.styleDescription}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1 }}>
                   {user.colors.map((color, index) => (
@@ -199,36 +215,30 @@ const Profile: React.FC = () => {
                 >
                   Outfits para ti
                 </Typography>
-                <Grid container spacing={2}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    overflowX: "auto",
+                    padding: 1,
+                  }}
+                >
                   {user.outfits.map((outfit) => (
-                    <Grid item xs={6} key={outfit.id}>
-                      <Card
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          padding: 2,
-                          cursor: "pointer",
-                        }}
-                        onClick={() => navigate(`/catalogo/${outfit.id}`)}
-                      >
-                        <img
-                          src={outfit.image}
-                          alt={outfit.description}
-                          style={{
-                            width: "100%",
-                            height: "auto",
-                            borderRadius: 8,
-                            marginBottom: 2,
-                          }}
-                        />
-                        <Typography variant="body2">
-                          {outfit.description}
-                        </Typography>
-                      </Card>
-                    </Grid>
+                    <Box
+                      key={outfit.id}
+                      sx={{
+                        minWidth: "200px",
+                        marginRight: 2,
+                      }}
+                    >
+                      <CatalogCard
+                        id={outfit.id.toString()}
+                        image={outfit.imagen}
+                        title={outfit.nombre}
+                        link={`/catalogo/${outfit.id}`}
+                      />
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               </Card>
               <Card
                 sx={{
@@ -242,38 +252,69 @@ const Profile: React.FC = () => {
                 >
                   Prendas básicas
                 </Typography>
-                <Grid container spacing={2}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    overflowX: "auto",
+                    padding: 1,
+                  }}
+                >
                   {user.basicItems.map((item) => (
-                    <Grid item xs={6} key={item.id}>
+                    <Box
+                      key={item.id}
+                      sx={{
+                        minWidth: "200px",
+                        marginRight: 2,
+                      }}
+                    >
                       <Card
                         sx={{
                           display: "flex",
                           flexDirection: "column",
-                          alignItems: "center",
+                          justifyContent: "flex-end",
                           padding: 2,
                           cursor: "pointer",
+                          width: "200px",
+                          height: "300px",
+                          position: "relative",
+                          overflow: "hidden",
                         }}
-                        onClick={() =>
-                          window.open("https://prenda-website.com", "_blank")
-                        }
+                        onClick={() => window.open(item.link, "_blank")}
                       >
                         <img
-                          src={item.image}
-                          alt={item.description}
+                          src={item.imagen}
+                          alt={item.nombre}
                           style={{
                             width: "100%",
-                            height: "auto",
-                            borderRadius: 8,
-                            marginBottom: 2,
+                            height: "100%",
+                            objectFit: "cover",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            zIndex: 1,
                           }}
                         />
-                        <Typography variant="body2">
-                          {item.description}
-                        </Typography>
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            width: "100%",
+                            zIndex: 2,
+                            textAlign: "right",
+                            color: "white",
+                            fontWeight: "bold",
+                            padding: "10px 0",
+                            paddingRight:"15%"
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "24px" }}>
+                            {item.nombre}
+                          </Typography>
+                        </Box>
                       </Card>
-                    </Grid>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               </Card>
               <Card
                 sx={{
@@ -311,6 +352,12 @@ const Profile: React.FC = () => {
             </Grid>
           </Grid>
           <Footer />
+          <EditProfileModal
+            open={isModalOpen}
+            handleClose={handleModalClose}
+            user={user}
+            handleSave={handleSave}
+          />
         </Box>
       </Fade>
     </Slide>

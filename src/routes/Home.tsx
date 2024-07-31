@@ -1,20 +1,42 @@
-// src/pages/Home.tsx
-
 import React, { useState, useEffect } from "react";
 import MainGrid from "../components/MainGrid/MainGrid";
+import MainGridLogged from "../components/MainGridLogged/MainGridLogged";
 import { Box, Slide } from "@mui/material";
 import Footer from "../components/Footer/Footer";
 import Loader from "../components/Loader/Loader";
+import supabase from "../supabaseClient";
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userStyle, setUserStyle] = useState<string | number>("");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500); // Same as the slide timeout
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      
+      if (session) {
+        const user = session.user;
+        const { data: userDetails, error } = await supabase
+          .from('user_details')
+          .select('nombre, tipo_estilo')
+          .eq('correo', user.email)
+          .single();
+        
+        if (userDetails) {
+          setUserName(userDetails.nombre);
+          setUserStyle(userDetails.tipo_estilo);
+        } else {
+          console.error('Error fetching user details:', error);
+        }
+      }
 
-    return () => clearTimeout(timer);
+      setLoading(false);
+    };
+
+    checkSession();
   }, []);
 
   if (loading) {
@@ -25,9 +47,10 @@ const Home: React.FC = () => {
     <Slide direction="down" in={!loading} mountOnEnter unmountOnExit timeout={2000}>
       <Box
         sx={{
-          paddingBottom: 10, // Responsive padding
+          paddingBottom: 4, // Responsive padding
           paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
           paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          paddingTop: 8,
         }}
       >
         <Box
@@ -35,10 +58,13 @@ const Home: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            minHeight: "100vh", // Full viewport height
           }}
         >
-          <MainGrid />
+          {isAuthenticated ? (
+            <MainGridLogged userName={userName} userStyleId={Number(userStyle)} />
+          ) : (
+            <MainGrid />
+          )}
         </Box>
 
         <Footer />

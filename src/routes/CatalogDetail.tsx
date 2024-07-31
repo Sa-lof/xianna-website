@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -19,47 +19,32 @@ import Clothes from "../components/Clothes/Clothes";
 import Occasions from "../components/Occasion/Occasion";
 import Footer from "../components/Footer/Footer";
 import SmallButton from "../components/SmallButton/SmallButton";
-import placeholder from "../assets/placeholders/place1.jpg";
+import getOutfits from '../supabase/CatalogoServices/getOutfits';
+import { getPrendasByOutfitId } from '../supabase/CatalogoServices/getPrendasByOutfitId';
 
-const catalogData = [
-  {
-    id: "1",
-    title: "Nombre del outfit",
-    description:
-      "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum",
-    mainImage: placeholder,
-    styleButtonLink: "/style-questionnaire",
-    occasions: ["Ocasión 1", "Ocasión 2", "Ocasión 3", "Ocasión 4"],
-    items: [
-      { image: "/path/to/item1.jpg", title: "Prenda 1", link: "/item1" },
-      { image: "/path/to/item2.jpg", title: "Prenda 2", link: "/item2" },
-      { image: "/path/to/item3.jpg", title: "Prenda 3", link: "/item3" },
-    ],
-    category: "Tipo estilo 1",
-    chipColor: "#00CFFF",
-  },
-  {
-    id: "2",
-    title: "Otro outfit",
-    description:
-      "Otro Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum",
-    mainImage: "/path/to/mainimage2.jpg",
-    styleButtonLink: "/style-questionnaire-2",
-    occasions: ["Ocasión A", "Ocasión B", "Ocasión C", "Ocasión D"],
-    items: [
-      { image: "/path/to/item4.jpg", title: "Prenda 4", link: "/item4" },
-      { image: "/path/to/item5.jpg", title: "Prenda 5", link: "/item5" },
-      { image: "/path/to/item6.jpg", title: "Prenda 6", link: "/item6" },
-    ],
-    category: "Tipo estilo 2",
-    chipColor: "#FF5733",
-  },
-  // Add more catalog data as needed
-];
+interface Outfit {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  id_estilo: number;
+  estilo: string;
+  imagen: string;
+  ocasiones: string[];
+  favoritos: number;
+}
+
+interface Prenda {
+  id: number;
+  nombre: string;
+  link: string;
+  imagen: string;
+  id_outfit: number;
+}
 
 const CatalogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const catalog = catalogData.find((c) => c.id === id);
+  const [catalog, setCatalog] = useState<Outfit | null>(null);
+  const [prendas, setPrendas] = useState<Prenda[]>([]);
   const navigate = useNavigate();
   const pink = "#E61F93";
   const yellow = "#FDE12D";
@@ -88,6 +73,22 @@ const CatalogDetail: React.FC = () => {
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (id) {
+        const fetchedOutfits = await getOutfits();
+        const outfit = fetchedOutfits.find((o) => o.id === parseInt(id));
+        if (outfit) {
+          setCatalog(outfit);
+          const fetchedPrendas = await getPrendasByOutfitId(outfit.id);
+          setPrendas(fetchedPrendas);
+        }
+      }
+    };
+
+    fetchData();
+  }, [id]);
 
   if (!catalog) {
     return <Typography variant="h6">Catalog not found</Typography>;
@@ -130,9 +131,9 @@ const CatalogDetail: React.FC = () => {
           <ArrowBackIcon sx={{ fontSize: 40, color: "white" }} />
         </IconButton>
         <CatalogTitle
-          title={catalog.title}
-          category={catalog.category}
-          chipColor={catalog.chipColor}
+          title={catalog.nombre}
+          category={catalog.estilo}
+          chipColor={yellow}
         />
         <Grid container spacing={4} sx={{ marginBottom: 3 }}>
           <Grid
@@ -143,7 +144,7 @@ const CatalogDetail: React.FC = () => {
           >
             <Fade in={descriptionInView} timeout={2000}>
               <div ref={descriptionRef}>
-                <Description description={catalog.description} />
+                <Description description={catalog.descripcion} />
               </div>
             </Fade>
             <Card
@@ -187,7 +188,7 @@ const CatalogDetail: React.FC = () => {
                 <SmallButton
                   backgroundColor="white"
                   arrowColor="black"
-                  link={catalog.styleButtonLink}
+                  link="/style-questionnaire"
                 />
               </Box>
             </Card>
@@ -195,14 +196,18 @@ const CatalogDetail: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Fade in={mainImageInView} timeout={2000}>
               <div ref={mainImageRef}>
-                <MainImage imageUrl={catalog.mainImage} />
+                <MainImage imageUrl={catalog.imagen} />
               </div>
             </Fade>
           </Grid>
           <Grid item xs={12} md={3}>
             <Fade in={clothesInView} timeout={2000}>
               <div ref={clothesRef}>
-                <Clothes items={catalog.items} />
+                <Clothes items={prendas.map(prenda => ({
+                  image: prenda.imagen,
+                  title: prenda.nombre,
+                  link: prenda.link
+                }))} />
               </div>
             </Fade>
           </Grid>
@@ -211,7 +216,7 @@ const CatalogDetail: React.FC = () => {
           <Grid item xs={12} md={9}>
             <Fade in={occasionsInView} timeout={2000}>
               <div ref={occasionsRef}>
-                <Occasions occasions={catalog.occasions} />
+                <Occasions occasions={catalog.ocasiones} />
               </div>
             </Fade>
           </Grid>

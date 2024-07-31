@@ -1,40 +1,80 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid, Typography, IconButton, Slide, Fade } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import Header from "../components/Header/Header";
 import Content from "../components/Content/Content";
-import Rating from "../components/Rating/Rating";
 import BlogImages from "../components/BlogImages/BlogImages";
 import Footer from "../components/Footer/Footer";
+import Rating from "../components/Rating/Rating";
+import LargeButton from "../components/LargeButton/LargeButton"; // Assuming you have this component
+import { fetchBlog, fetchUserEmail, fetchRating, submitRating } from "../supabase/BlogServices/BlogService";
 
 const pink = "#E61F93";
 
-const blogData = [
-  {
-    id: "1",
-    title: "Título del Blog",
-    description: "Descripción corta",
-    category: "Categoría",
-    content:
-      "Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum",
-    images: [
-      "/path/to/image1.jpg",
-      "/path/to/image2.jpg",
-      "/path/to/image3.jpg",
-      "/path/to/image4.jpg",
-      "/path/to/image5.jpg",
-    ],
-    chipColor: "#E61F93",
-  },
-  // Add more blog data as needed
-];
+interface Blog {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  contenido: string;
+  id_categoria: number;
+  categoria: string;
+  image: string;
+  name: string;
+  category: string;
+  rating: number;
+  persons: number;
+  images: string[];
+}
 
 const BlogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const blog = blogData.find((b) => b.id === id);
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const [rating, setRating] = useState<number | null>(null);
+  const [existingRating, setExistingRating] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [showReRateMessage, setShowReRateMessage] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const initialize = async () => {
+      const blogData = await fetchBlog(Number(id));
+      setBlog(blogData);
+
+      const email = await fetchUserEmail();
+      setUserEmail(email);
+
+      const userRating = await fetchRating(Number(id), email);
+      if (userRating !== null) {
+        setExistingRating(userRating);
+        setRating(userRating);
+        setShowReRateMessage(true);
+      }
+    };
+
+    initialize();
+  }, [id]);
+
+  const handleRatingSubmit = async (newRating: number) => {
+    try {
+      await submitRating(Number(id), newRating, userEmail, existingRating);
+      alert('Rating submitted successfully!');
+      setRating(newRating);
+      setExistingRating(newRating);
+      setShowReRateMessage(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleReRate = () => {
+    setShowReRateMessage(false);
+  };
+
+  const handleSubmit = () => {
+    // Add your submit logic here
+  };
 
   const { ref: headerRef, inView: headerInView } = useInView({
     triggerOnce: true,
@@ -66,21 +106,15 @@ const BlogDetail: React.FC = () => {
   }
 
   return (
-    <Slide
-      direction="right"
-      in={true}
-      mountOnEnter
-      unmountOnExit
-      timeout={800}
-    >
+    <Slide direction="right" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          minHeight: "100vh",
+          paddingBottom: 10,
+          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
           paddingTop: 5,
         }}
       >
@@ -106,10 +140,10 @@ const BlogDetail: React.FC = () => {
             <Fade in={headerInView} timeout={2000}>
               <div ref={headerRef}>
                 <Header
-                  title={blog.title}
-                  description={blog.description}
-                  category={blog.category}
-                  chipColor={blog.chipColor}
+                  title={blog.titulo}
+                  description={blog.descripcion}
+                  category={blog.categoria}
+                  chipColor={pink}
                 />
               </div>
             </Fade>
@@ -117,7 +151,7 @@ const BlogDetail: React.FC = () => {
           <Grid item xs={12} md={7}>
             <Fade in={contentInView} timeout={2000}>
               <div ref={contentRef}>
-                <Content content={blog.content} />
+                <Content content={blog.contenido} />
               </div>
             </Fade>
           </Grid>
@@ -130,8 +164,38 @@ const BlogDetail: React.FC = () => {
           </Grid>
           <Grid item xs={12}>
             <Fade in={ratingInView} timeout={2000}>
-              <div ref={ratingRef}>
-                <Rating />
+              <div
+                ref={ratingRef}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'column',
+                  textAlign: 'center',
+                }}
+              >
+                {showReRateMessage ? (
+                  <Box mt={2} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                      Ya has calificado este blog
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ marginY: 2 }}>
+                      ¿Quieres volverlo a calificar?
+                    </Typography>
+                    <Box sx={{ marginTop: 2 }}>
+                      <LargeButton
+                        backgroundColor={pink}
+                        arrowColor="white"
+                        link="#"
+                        text="Calificar"
+                        textColor="white"
+                        onClick={handleReRate}
+                      />
+                    </Box>
+                  </Box>
+                ) : (
+                  <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />
+                )}
               </div>
             </Fade>
           </Grid>
