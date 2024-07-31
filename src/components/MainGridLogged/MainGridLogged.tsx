@@ -108,19 +108,38 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
           sx={{ color: "white", backgroundColor: blue, padding: 2 }}
         >
           <Avatar
-            sx={{ bgcolor: blue[600], width: 56, height: 56 }}
+            sx={{ bgcolor: blue[600], width: 100, height: 100 }}
             src="profile.jpg"
             alt="Nombre"
           />
-          <Typography variant="body1" className="mt-2">
-            {userName}
-          </Typography>
-          <Typography variant="body2">{userStyle}</Typography>
-          <Link to="/perfil" style={{ textDecoration: "none" }}>
-            <Button variant="contained" className="bg-white text-blue-500 mt-2">
-              Ver Perfil
-            </Button>
-          </Link>
+          <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", fontSize: "30px" }}
+            >
+              {userName}
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", fontSize: "20px" }}
+            >
+              {userStyle}
+            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "end",
+              justifyContent: "end",
+              marginTop: "auto",
+            }}
+          >
+            <LargeButton
+              text="Ver pefil"
+              link="/perfil"
+              textColor="black"
+              arrowColor="black"
+              backgroundColor="white"
+            />
+          </Box>
         </Card>
       </Grid>
       <Grid item xs={12} md={3} sm={12}>

@@ -8,6 +8,8 @@ import {
   IconButton,
   Slide,
   Fade,
+  Pagination,
+  PaginationItem,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
@@ -19,6 +21,7 @@ import CatalogCard from "../components/CatalogCard/CatalogCard";
 import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import { getFavorites, getOutfitsByIds, removeFavorite } from "../supabase/UsersServices/getFavorites";
 import supabase from "../supabaseClient";
+import Loader from "../components/Loader/Loader"; // Import the Loader component
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -58,7 +61,10 @@ const MyOutfits: React.FC = () => {
     country: "",
     outfits: [],
   });
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [isModalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 9;
 
   useEffect(() => {
     const fetchUserOutfits = async () => {
@@ -96,6 +102,8 @@ const MyOutfits: React.FC = () => {
           country: userDetails.country,
           outfits: favoriteOutfits,
         });
+
+        setIsLoading(false); // Set loading to false after data is fetched
       } else {
         console.error('Error fetching session:', error);
       }
@@ -151,6 +159,17 @@ const MyOutfits: React.FC = () => {
     }
   };
 
+  const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
+  if (isLoading) {
+    return <Loader />; // Show loader while loading
+  }
+
+  // Paginated outfits
+  const paginatedOutfits = user.outfits.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
   return (
     <Slide direction="right" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Fade in={true} timeout={800}>
@@ -201,13 +220,13 @@ const MyOutfits: React.FC = () => {
                 />
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 1 }}
+                  sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "25px" }}
                 >
                   {user.name}
                 </Typography>
                 <Typography
                   variant="body2"
-                  sx={{ color: "gray", marginBottom: 3 }}
+                  sx={{ color: "gray", marginBottom: 3, fontSize: "15px" }}
                 >
                   {user.email}
                 </Typography>
@@ -250,7 +269,7 @@ const MyOutfits: React.FC = () => {
                 Mis Outfits
               </Typography>
               <Grid container spacing={2}>
-                {user.outfits.map((outfit: Outfit) => (
+                {paginatedOutfits.map((outfit: Outfit) => (
                   <Grid item xs={12} sm={6} md={4} key={outfit.id}>
                     <Box sx={{ position: "relative" }}>
                       <CatalogCard
@@ -276,6 +295,27 @@ const MyOutfits: React.FC = () => {
                   </Grid>
                 ))}
               </Grid>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <Pagination
+                  count={Math.ceil(user.outfits.length / itemsPerPage)}
+                  page={page}
+                  onChange={handleChangePage}
+                  renderItem={(item) => (
+                    <PaginationItem
+                      {...item}
+                      sx={{
+                        "&.Mui-selected": {
+                          backgroundColor: pink,
+                          color: "white",
+                        },
+                        "& .MuiPaginationItem-root": {
+                          color: pink,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
             </Grid>
           </Grid>
           <Footer />

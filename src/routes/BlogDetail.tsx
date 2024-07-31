@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Typography, IconButton, Slide, Fade, Button } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Slide, Fade } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
@@ -8,6 +8,7 @@ import Content from "../components/Content/Content";
 import BlogImages from "../components/BlogImages/BlogImages";
 import Footer from "../components/Footer/Footer";
 import Rating from "../components/Rating/Rating";
+import LargeButton from "../components/LargeButton/LargeButton"; // Assuming you have this component
 import { fetchBlog, fetchUserEmail, fetchRating, submitRating } from "../supabase/BlogServices/BlogService";
 
 const pink = "#E61F93";
@@ -69,6 +70,10 @@ const BlogDetail: React.FC = () => {
 
   const handleReRate = () => {
     setShowReRateMessage(false);
+  };
+
+  const handleSubmit = () => {
+    // Add your submit logic here
   };
 
   const { ref: headerRef, inView: headerInView } = useInView({
@@ -159,15 +164,34 @@ const BlogDetail: React.FC = () => {
           </Grid>
           <Grid item xs={12}>
             <Fade in={ratingInView} timeout={2000}>
-              <div ref={ratingRef}>
+              <div
+                ref={ratingRef}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'column',
+                  textAlign: 'center',
+                }}
+              >
                 {showReRateMessage ? (
-                  <Box mt={2}>
-                    <Typography variant="body1" color="textSecondary">
-                      Ya has calificado este blog, ¿quieres volver a calificar?
+                  <Box mt={2} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                      Ya has calificado este blog
                     </Typography>
-                    <Button variant="contained" color="primary" onClick={handleReRate}>
-                      Volver a calificar
-                    </Button>
+                    <Typography variant="subtitle1" sx={{ marginY: 2 }}>
+                      ¿Quieres volverlo a calificar?
+                    </Typography>
+                    <Box sx={{ marginTop: 2 }}>
+                      <LargeButton
+                        backgroundColor={pink}
+                        arrowColor="white"
+                        link="#"
+                        text="Calificar"
+                        textColor="white"
+                        onClick={handleReRate}
+                      />
+                    </Box>
                   </Box>
                 ) : (
                   <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />

@@ -19,6 +19,7 @@ import CatalogCard from "../components/CatalogCard/CatalogCard";
 import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
 import { updateUserProfile } from "../supabase/UsersServices/updateUserProfile";
 import { User } from "../supabase/UsersServices/types";
+import Loader from "../components/Loader/Loader"; // Import the Loader component
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -42,10 +43,11 @@ const Profile: React.FC = () => {
     basicItems: [],
     tips: [],
   });
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchUserProfile(setUser);
+    fetchUserProfile(setUser).finally(() => setIsLoading(false)); // Set loading to false after data is fetched
   }, []);
 
   const handleModalOpen = () => {
@@ -65,6 +67,10 @@ const Profile: React.FC = () => {
       handleModalClose();
     }
   };
+
+  if (isLoading) {
+    return <Loader />; // Show loader while loading
+  }
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
@@ -123,13 +129,13 @@ const Profile: React.FC = () => {
                 />
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 1 }}
+                  sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "25px" }}
                 >
                   {user.name}
                 </Typography>
                 <Typography
                   variant="body2"
-                  sx={{ color: "gray", marginBottom: 3 }}
+                  sx={{ color: "gray", marginBottom: 3, fontSize: "15px" }}
                 >
                   {user.email}
                 </Typography>
@@ -209,18 +215,30 @@ const Profile: React.FC = () => {
                 >
                   Outfits para ti
                 </Typography>
-                <Grid container spacing={2}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    overflowX: "auto",
+                    padding: 1,
+                  }}
+                >
                   {user.outfits.map((outfit) => (
-                    <Grid item xs={6} key={outfit.id}>
+                    <Box
+                      key={outfit.id}
+                      sx={{
+                        minWidth: "200px",
+                        marginRight: 2,
+                      }}
+                    >
                       <CatalogCard
                         id={outfit.id.toString()}
                         image={outfit.imagen}
                         title={outfit.nombre}
                         link={`/catalogo/${outfit.id}`}
                       />
-                    </Grid>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               </Card>
               <Card
                 sx={{
@@ -234,16 +252,32 @@ const Profile: React.FC = () => {
                 >
                   Prendas básicas
                 </Typography>
-                <Grid container spacing={2}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    overflowX: "auto",
+                    padding: 1,
+                  }}
+                >
                   {user.basicItems.map((item) => (
-                    <Grid item xs={6} key={item.id}>
+                    <Box
+                      key={item.id}
+                      sx={{
+                        minWidth: "200px",
+                        marginRight: 2,
+                      }}
+                    >
                       <Card
                         sx={{
                           display: "flex",
                           flexDirection: "column",
-                          alignItems: "center",
+                          justifyContent: "flex-end",
                           padding: 2,
                           cursor: "pointer",
+                          width: "200px",
+                          height: "300px",
+                          position: "relative",
+                          overflow: "hidden",
                         }}
                         onClick={() => window.open(item.link, "_blank")}
                       >
@@ -252,16 +286,35 @@ const Profile: React.FC = () => {
                           alt={item.nombre}
                           style={{
                             width: "100%",
-                            height: "auto",
-                            borderRadius: 8,
-                            marginBottom: 2,
+                            height: "100%",
+                            objectFit: "cover",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            zIndex: 1,
                           }}
                         />
-                        <Typography variant="body2">{item.nombre}</Typography>
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            width: "100%",
+                            zIndex: 2,
+                            textAlign: "right",
+                            color: "white",
+                            fontWeight: "bold",
+                            padding: "10px 0",
+                            paddingRight:"15%"
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "24px" }}>
+                            {item.nombre}
+                          </Typography>
+                        </Box>
                       </Card>
-                    </Grid>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               </Card>
               <Card
                 sx={{
