@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -12,82 +12,44 @@ import {
   ListItemText,
   SelectChangeEvent,
   Slide,
+  Card,
+  CardActionArea,
+  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import StarIcon from "@mui/icons-material/Star";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
-import CatalogCard from "../components/CatalogCard/CatalogCard";
 import Footer from "../components/Footer/Footer";
-import placeholder from "../assets/placeholders/place1.jpg";
+import getOutfits from '../supabase/CatalogoServices/getOutfits';
+import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
+import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
+import supabase from '../supabaseClient';
 
 const pink = "#E61F93";
+const yellow = "#FDE12D";
 
-const catalogData = [
-  {
-    id: "1",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/1",
-    estilo: "Seductor",
-    ocasion: "Casual",
-    cuerpo: "Atlético",
-  },
-  {
-    id: "2",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/2",
-    estilo: "Dramático",
-    ocasion: "Formal",
-    cuerpo: "Delgado",
-  },
-  {
-    id: "3",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/3",
-    estilo: "Creativo",
-    ocasion: "Fiesta",
-    cuerpo: "Atlético",
-  },
-  {
-    id: "4",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/4",
-    estilo: "Casual",
-    ocasion: "Deportivo",
-    cuerpo: "Grande",
-  },
-  {
-    id: "5",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/5",
-    estilo: "Seductor",
-    ocasion: "Casual",
-    cuerpo: "Delgado",
-  },
-  {
-    id: "6",
-    image: placeholder, // Replace with the actual image path
-    title: "Nombre de outfit",
-    link: "/catalogo/6",
-    estilo: "Creativo",
-    ocasion: "Formal",
-    cuerpo: "Atlético",
-  },
-];
-
-const estilos = ["Seductor", "Dramático", "Creativo", "Casual"];
-const ocasiones = ["Casual", "Formal", "Fiesta", "Deportivo"];
-const cuerpos = ["Atlético", "Delgado", "Grande"];
+interface Outfit {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  id_estilo: number;
+  estilo: string;
+  imagen: string;
+  ocasiones: string[];
+  favoritos: number;
+}
 
 const Catalog: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
   const [selectedEstilos, setSelectedEstilos] = useState<string[]>([]);
   const [selectedOcasiones, setSelectedOcasiones] = useState<string[]>([]);
-  const [selectedCuerpos, setSelectedCuerpos] = useState<string[]>([]);
+  const [myOutfits, setMyOutfits] = useState<number[]>([]);
+  const [outfits, setOutfits] = useState<Outfit[]>([]);
+  const [styles, setStyles] = useState<string[]>([]);
+  const [occasions, setOccasions] = useState<string[]>([]);
+  const [session, setSession] = useState<any>(null); // Estado para manejar la sesión de usuario
   const navigate = useNavigate();
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -105,6 +67,34 @@ const Catalog: React.FC = () => {
     threshold: 0.5,
   });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const fetchedOutfits = await getOutfits();
+      setOutfits(fetchedOutfits);
+
+      const fetchedStyles = await getStyles();
+      setStyles(fetchedStyles.map(style => style.tipo));
+
+      const fetchedOccasions = await getOccasions();
+      setOccasions(fetchedOccasions.map(occasion => occasion.ocasion));
+
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session); // Guarda la sesión en el estado
+
+      if (session) {
+        const user = session.user;
+        if (user.email) {
+          const favoritos = await getFavorites(user.email);
+          setMyOutfits(favoritos);
+        } else {
+          console.error('User email is undefined');
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const handleButtonClick = () => {
     setSelectedTab("Todo");
     window.location.reload();
@@ -118,19 +108,37 @@ const Catalog: React.FC = () => {
     setSelectedOcasiones(event.target.value as string[]);
   };
 
-  const handleCuerpoChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedCuerpos(event.target.value as string[]);
+  const handleToggleOutfit = async (id: number) => {
+    if (!session) {
+      alert('You must be logged in to save favorites');
+      return;
+    }
+
+    const user = session.user;
+    if (!user.email) {
+      console.error('User email is undefined');
+      return;
+    }
+
+    const isFavorite = myOutfits.includes(id);
+
+    if (isFavorite) {
+      const success = await removeFavorite(user.email, id);
+      if (success) {
+        setMyOutfits((prevOutfits) => prevOutfits.filter((outfitId) => outfitId !== id));
+      }
+    } else {
+      const success = await addFavorite(user.email, id);
+      if (success) {
+        setMyOutfits((prevOutfits) => [...prevOutfits, id]);
+      }
+    }
   };
 
-  const filteredCatalogData = catalogData.filter((item) => {
-    const estiloMatch =
-      selectedEstilos.length === 0 || selectedEstilos.includes(item.estilo);
-    const ocasionMatch =
-      selectedOcasiones.length === 0 ||
-      selectedOcasiones.includes(item.ocasion);
-    const cuerpoMatch =
-      selectedCuerpos.length === 0 || selectedCuerpos.includes(item.cuerpo);
-    return estiloMatch && ocasionMatch && cuerpoMatch;
+  const filteredCatalogData = outfits.filter((item) => {
+    const estiloMatch = selectedEstilos.length === 0 || selectedEstilos.includes(item.estilo);
+    const ocasionMatch = selectedOcasiones.length === 0 || item.ocasiones.some(ocasion => selectedOcasiones.includes(ocasion));
+    return estiloMatch && ocasionMatch;
   });
 
   return (
@@ -139,10 +147,10 @@ const Catalog: React.FC = () => {
         sx={{
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          minHeight: "100vh",
+          paddingBottom: 10,
+          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
           paddingTop: 5,
         }}
       >
@@ -220,7 +228,7 @@ const Catalog: React.FC = () => {
                     },
                   }}
                 >
-                  {estilos.map((estilo) => (
+                  {styles.map((estilo) => (
                     <MenuItem key={estilo} value={estilo}>
                       <Checkbox
                         checked={selectedEstilos.indexOf(estilo) > -1}
@@ -248,7 +256,7 @@ const Catalog: React.FC = () => {
                     },
                   }}
                 >
-                  {ocasiones.map((ocasion) => (
+                  {occasions.map((ocasion) => (
                     <MenuItem key={ocasion} value={ocasion}>
                       <Checkbox
                         checked={selectedOcasiones.indexOf(ocasion) > -1}
@@ -258,34 +266,7 @@ const Catalog: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl sx={{ minWidth: 120 }}>
-                <InputLabel>Cuerpo</InputLabel>
-                <Select
-                  multiple
-                  value={selectedCuerpos}
-                  onChange={handleCuerpoChange}
-                  renderValue={(selected) => (selected as string[]).join(", ")}
-                  sx={{
-                    borderRadius: "16px",
-                    "& .MuiSelect-select": {
-                      fontWeight: "bold",
-                      fontSize: "16px",
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: pink,
-                    },
-                  }}
-                >
-                  {cuerpos.map((cuerpo) => (
-                    <MenuItem key={cuerpo} value={cuerpo}>
-                      <Checkbox
-                        checked={selectedCuerpos.indexOf(cuerpo) > -1}
-                      />
-                      <ListItemText primary={cuerpo} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {/* Similar section for cuerpos if required */}
             </>
           )}
         </Box>
@@ -293,12 +274,92 @@ const Catalog: React.FC = () => {
           {catalogInView &&
             filteredCatalogData.map((item) => (
               <Grid item xs={12} sm={6} md={3} key={item.id}>
-                <CatalogCard
-                  id={item.id}
-                  image={item.image}
-                  title={item.title}
-                  link={item.link}
-                />
+                <Card
+                  sx={{
+                    position: "relative",
+                    overflow: "hidden",
+                    height: '100%',
+                  }}
+                >
+                  <CardActionArea 
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                    onClick={() => navigate(`/catalogo/${item.id}`)}
+                  >
+                    <Box 
+                      sx={{
+                        width: "100%",
+                        height: 0,
+                        paddingTop: "75%",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        src={item.imagen}
+                        alt={item.nombre}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 10,
+                        left: 10,
+                        color: "white",
+                        borderRadius: 1,
+                        padding: "4px 8px",
+                        display: "flex",
+                        alignItems: "center",
+                        width: "calc(100% - 20px)",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: "bold",
+                          fontSize: "24px",
+                        }}
+                      >
+                        {item.nombre}
+                      </Typography>
+                      <IconButton
+                        sx={{
+                          color: "white",
+                          borderRadius: "50%",
+                          padding: "4px",
+                        }}
+                      >
+                        <ArrowOutwardIcon sx={{ color: "white" }} />
+                      </IconButton>
+                    </Box>
+                  </CardActionArea>
+                  {session && (
+                    <IconButton
+                      sx={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        color: myOutfits.includes(item.id) ? yellow : "white",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        borderRadius: "50%",
+                      }}
+                      onClick={() => handleToggleOutfit(item.id)}
+                    >
+                      <StarIcon />
+                    </IconButton>
+                  )}
+                </Card>
               </Grid>
             ))}
         </Grid>

@@ -14,6 +14,7 @@ import SmallButton from "../SmallButton/SmallButton";
 import CarouselCardTest from "../CarouselCardTest/CarouselCardTest";
 
 import placeholder1 from "../../assets/placeholders/place1.jpg";
+import x from "../../assets/logo/x.png";
 
 const MainGrid: React.FC = () => {
   const pink = "#E61F93";
@@ -32,7 +33,7 @@ const MainGrid: React.FC = () => {
               <Avatar
                 sx={{ bgcolor: "white", width: 80, height: 80, marginRight: 2 }}
               >
-                X
+                <img src={x} alt="main-logo" />
               </Avatar>
               <Typography
                 variant="h1"
@@ -80,7 +81,7 @@ const MainGrid: React.FC = () => {
             <SmallButton
               backgroundColor="white"
               arrowColor="black"
-              link="/profile"
+              link="/formulario"
             />
           </Box>
         </Card>
@@ -99,8 +100,8 @@ const MainGrid: React.FC = () => {
             </Typography>
           </CardContent>
           <LargeButton
-            text="Regístrate"
-            link="/signup"
+            text="Continua"
+            link="/registro"
             textColor="black"
             arrowColor="black"
             backgroundColor="white"

@@ -1,75 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid, Tabs, Tab, IconButton, Slide } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import BlogCard from "../components/BlogCard/BlogCard";
 import Footer from "../components/Footer/Footer";
+import getBlogs from "../supabase/BlogServices/getBlogs";
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
 
-const blogData = [
-  {
-    id: "1",
-    image: "image1.jpg", // Replace with the actual image path
-    category: "Categoria1",
-    categoryColor: pink,
-    title: "Título blog",
-    description:
-      "Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum",
-    link: "/blog/1",
-    size: "small",
-  },
-  {
-    id: "2",
-    image: "image2.jpg", // Replace with the actual image path
-    category: "Categoria2",
-    categoryColor: yellow,
-    title: "Título blog",
-    description:
-      "Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum",
-    link: "/blog/2",
-    size: "small",
-  },
-  {
-    id: "3",
-    image: "image3.jpg", // Replace with the actual image path
-    category: "Categoria2",
-    categoryColor: yellow,
-    title: "Título blog",
-    description:
-      "Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum",
-    link: "/blog/3",
-    size: "small",
-  },
-  {
-    id: "4",
-    image: "image4.jpg", // Replace with the actual image path
-    category: "Categoria2",
-    categoryColor: yellow,
-    title: "Título blog",
-    description:
-      "Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum",
-    link: "/blog/4",
-    size: "large",
-  },
-  {
-    id: "5",
-    image: "image5.jpg", // Replace with the actual image path
-    category: "Categoria1",
-    categoryColor: pink,
-    title: "Título blog",
-    description:
-      "Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum",
-    link: "/blog/5",
-    size: "small",
-  },
-];
+interface BlogData {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  contenido: string;
+  id_categoria: number;
+  categoria: string;
+  image: string;
+  name: string;
+  category: string;
+  rating: number;
+  persons: number;
+  images: string[];
+}
 
-const Blog: React.FC = () => {
+interface BlogWithExtras extends BlogData {
+  size: string;
+  link: string;
+  categoryColor: string;
+}
+
+const BlogComponent: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
+  const [blogs, setBlogs] = useState<BlogWithExtras[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      const blogsData = await getBlogs();
+      let sizeCounter = 0; // Contador para el patrón de tamaño
+      const blogsWithExtras = blogsData.map(blog => {
+        const size = sizeCounter % 5 === 3 ? 'large' : 'small'; // Aplicar patrón de tamaño
+        sizeCounter++;
+        const categoryColor = Math.random() > 0.5 ? pink : yellow; // Asignar color aleatorio
+        return {
+          ...blog,
+          size: size,
+          link: `/blog/${blog.id}`,
+          categoryColor: categoryColor,
+        };
+      });
+      setBlogs(blogsWithExtras);
+    };
+    fetchBlogs();
+  }, []);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
     setSelectedTab(newValue);
@@ -92,8 +77,8 @@ const Blog: React.FC = () => {
 
   const filteredBlogData =
     selectedTab === "Todo"
-      ? blogData
-      : blogData.filter((blog) => blog.category === selectedTab);
+      ? blogs
+      : blogs.filter((blog) => blog.categoria === selectedTab);
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
@@ -188,12 +173,12 @@ const Blog: React.FC = () => {
                 key={blog.id}
               >
                 <BlogCard
-                  id={blog.id}
+                  id={blog.id.toString()} // Convert id to string if necessary
                   image={blog.image}
                   category={blog.category}
                   categoryColor={blog.categoryColor}
-                  title={blog.title}
-                  description={blog.description}
+                  title={blog.titulo} // Adjust field names
+                  description={blog.descripcion} // Adjust field names
                   link={blog.link}
                 />
               </Grid>
@@ -205,4 +190,4 @@ const Blog: React.FC = () => {
   );
 };
 
-export default Blog;
+export default BlogComponent;

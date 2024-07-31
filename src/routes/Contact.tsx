@@ -45,6 +45,10 @@ const Contacto: React.FC = () => {
     threshold: 0.1,
   });
 
+  const handleSocialClick = (url: string) => {
+    window.open(url, "_blank");
+  };
+
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Box
@@ -89,7 +93,7 @@ const Contacto: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
-            marginBottom: 10,
+            marginBottom: 4,
           }}
         >
           <Grid container spacing={4} sx={{ maxWidth: 1200 }}>
@@ -98,7 +102,11 @@ const Contacto: React.FC = () => {
                 <div ref={headerRef}>
                   <Typography
                     variant="h4"
-                    sx={{ fontWeight: "bold", marginBottom: 2, fontSize: "50px" }}
+                    sx={{
+                      fontWeight: "bold",
+                      marginBottom: 2,
+                      fontSize: "50px",
+                    }}
                   >
                     Contáctanos
                   </Typography>
@@ -124,13 +132,16 @@ const Contacto: React.FC = () => {
                       variant="outlined"
                       fullWidth
                       label="Nombre"
-                      InputLabelProps={{ style: { color: pink, fontWeight: "bold" } }}
+                      InputLabelProps={{
+                        style: { color: pink },
+                      }}
                       sx={{
                         backgroundColor: "white",
-                        borderRadius: 1,
+                        borderRadius: 5,
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
                             borderColor: "white",
+                            borderRadius: 5,
                           },
                           "&:hover fieldset": {
                             borderColor: lightpink,
@@ -145,13 +156,16 @@ const Contacto: React.FC = () => {
                       variant="outlined"
                       fullWidth
                       label="Correo electrónico"
-                      InputLabelProps={{ style: { color: pink, fontWeight: "bold" } }}
+                      InputLabelProps={{
+                        style: { color: pink },
+                      }}
                       sx={{
                         backgroundColor: "white",
-                        borderRadius: 1,
+                        borderRadius: 5,
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
                             borderColor: "white",
+                            borderRadius: 5,
                           },
                           "&:hover fieldset": {
                             borderColor: lightpink,
@@ -168,13 +182,16 @@ const Contacto: React.FC = () => {
                       multiline
                       rows={4}
                       label="Mensaje"
-                      InputLabelProps={{ style: { color: pink, fontWeight: "bold" } }}
+                      InputLabelProps={{
+                        style: { color: pink },
+                      }}
                       sx={{
                         backgroundColor: "white",
-                        borderRadius: 1,
+                        borderRadius: 5,
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
                             borderColor: "white",
+                            borderRadius: 5,
                           },
                           "&:hover fieldset": {
                             borderColor: lightpink,
@@ -188,8 +205,8 @@ const Contacto: React.FC = () => {
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                       <LargeButton
                         backgroundColor="white"
-                        arrowColor={lightpink}
-                        textColor={lightpink}
+                        arrowColor={pink}
+                        textColor={pink}
                         link="/send"
                         text="Enviar"
                       />
@@ -215,13 +232,37 @@ const Contacto: React.FC = () => {
                       }}
                     >
                       <Box sx={{ marginBottom: 4 }}>
-                        <InstagramIcon sx={{ color: "white", fontSize: 60 }} />
+                        <IconButton
+                          onClick={() =>
+                            handleSocialClick(
+                              "https://www.instagram.com/xianna/"
+                            )
+                          }
+                        >
+                          <InstagramIcon
+                            sx={{ color: "white", fontSize: 45 }}
+                          />
+                        </IconButton>
                       </Box>
                       <Box sx={{ marginBottom: 4 }}>
-                        <WhatsAppIcon sx={{ color: "white", fontSize: 60 }} />
+                        <IconButton
+                          onClick={() =>
+                            handleSocialClick("https://wa.me/1234567890")
+                          }
+                        >
+                          <WhatsAppIcon sx={{ color: "white", fontSize: 45 }} />
+                        </IconButton>
                       </Box>
                       <Box sx={{ marginBottom: 4 }}>
-                        <FacebookIcon sx={{ color: "white", fontSize: 60 }} />
+                        <IconButton
+                          onClick={() =>
+                            handleSocialClick(
+                              "https://www.facebook.com/xianna/"
+                            )
+                          }
+                        >
+                          <FacebookIcon sx={{ color: "white", fontSize: 45 }} />
+                        </IconButton>
                       </Box>
                       <Box>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
