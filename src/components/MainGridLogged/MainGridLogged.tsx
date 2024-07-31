@@ -6,9 +6,7 @@ import {
   Typography,
   Avatar,
   Box,
-  Button,
 } from "@mui/material";
-import { Link } from "react-router-dom";
 
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LargeButton from "../LargeButton/LargeButton";

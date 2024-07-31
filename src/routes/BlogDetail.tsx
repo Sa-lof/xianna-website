@@ -72,10 +72,6 @@ const BlogDetail: React.FC = () => {
     setShowReRateMessage(false);
   };
 
-  const handleSubmit = () => {
-    // Add your submit logic here
-  };
-
   const { ref: headerRef, inView: headerInView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
