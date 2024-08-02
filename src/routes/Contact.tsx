@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -18,12 +18,14 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
 import { useInView } from "react-intersection-observer";
+import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
 
 const Contacto: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true); // Estado para manejar el loader
 
   const { ref: headerRef, inView: headerInView } = useInView({
     triggerOnce: true,
@@ -45,9 +47,21 @@ const Contacto: React.FC = () => {
     threshold: 0.1,
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false); // Simular tiempo de carga
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSocialClick = (url: string) => {
     window.open(url, "_blank");
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>

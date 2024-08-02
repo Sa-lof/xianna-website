@@ -26,6 +26,7 @@ import getOutfits from '../supabase/CatalogoServices/getOutfits';
 import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
 import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
 import supabase from '../supabaseClient';
+import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -49,7 +50,8 @@ const Catalog: React.FC = () => {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [styles, setStyles] = useState<string[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
-  const [session, setSession] = useState<any>(null); // Estado para manejar la sesión de usuario
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true); // Estado para manejar el loader
   const navigate = useNavigate();
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -79,7 +81,7 @@ const Catalog: React.FC = () => {
       setOccasions(fetchedOccasions.map(occasion => occasion.ocasion));
 
       const { data: { session } } = await supabase.auth.getSession();
-      setSession(session); // Guarda la sesión en el estado
+      setSession(session);
 
       if (session) {
         const user = session.user;
@@ -90,6 +92,8 @@ const Catalog: React.FC = () => {
           console.error('User email is undefined');
         }
       }
+
+      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
     };
 
     fetchData();
@@ -140,6 +144,10 @@ const Catalog: React.FC = () => {
     const ocasionMatch = selectedOcasiones.length === 0 || item.ocasiones.some(ocasion => selectedOcasiones.includes(ocasion));
     return estiloMatch && ocasionMatch;
   });
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>

@@ -21,6 +21,7 @@ import Footer from "../components/Footer/Footer";
 import SmallButton from "../components/SmallButton/SmallButton";
 import getOutfits from '../supabase/CatalogoServices/getOutfits';
 import { getPrendasByOutfitId } from '../supabase/CatalogoServices/getPrendasByOutfitId';
+import Loader from "../components/Loader/Loader";
 
 interface Outfit {
   id: number;
@@ -45,6 +46,7 @@ const CatalogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [catalog, setCatalog] = useState<Outfit | null>(null);
   const [prendas, setPrendas] = useState<Prenda[]>([]);
+  const [loading, setLoading] = useState(true); // Estado para manejar el loader
   const navigate = useNavigate();
   const pink = "#E61F93";
   const yellow = "#FDE12D";
@@ -85,10 +87,15 @@ const CatalogDetail: React.FC = () => {
           setPrendas(fetchedPrendas);
         }
       }
+      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
     };
 
     fetchData();
   }, [id]);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   if (!catalog) {
     return <Typography variant="h6">Catalog not found</Typography>;

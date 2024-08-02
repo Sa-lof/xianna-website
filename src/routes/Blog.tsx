@@ -6,6 +6,7 @@ import { useInView } from "react-intersection-observer";
 import BlogCard from "../components/BlogCard/BlogCard";
 import Footer from "../components/Footer/Footer";
 import getBlogs from "../supabase/BlogServices/getBlogs";
+import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -34,6 +35,7 @@ interface BlogWithExtras extends BlogData {
 const BlogComponent: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
   const [blogs, setBlogs] = useState<BlogWithExtras[]>([]);
+  const [loading, setLoading] = useState(true); // Estado para manejar el loader
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +54,7 @@ const BlogComponent: React.FC = () => {
         };
       });
       setBlogs(blogsWithExtras);
+      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
     };
     fetchBlogs();
   }, []);
@@ -79,6 +82,10 @@ const BlogComponent: React.FC = () => {
     selectedTab === "Todo"
       ? blogs
       : blogs.filter((blog) => blog.categoria === selectedTab);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>

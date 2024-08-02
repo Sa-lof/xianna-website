@@ -8,6 +8,7 @@ import UserDataForm from "../components/UserDataForm/UserDataForm";
 import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers";
 import getStyles from "../supabase/CuestionarioServices/getStyles"; // Ajusta la ruta según sea necesario
 import supabase from "../supabaseClient";
+import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 
@@ -42,6 +43,7 @@ const Form: React.FC = () => {
   const [userStyle, setUserStyle] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true); // Estado para manejar el loader
 
   const questionsPerPage = 3;
   const questionColors = ["#FFC0CB", "#FFD700", "#ADD8E6"];
@@ -76,8 +78,13 @@ const Form: React.FC = () => {
       }
     };
 
-    fetchQuestions();
-    fetchStyles();
+    const initialize = async () => {
+      await fetchQuestions();
+      await fetchStyles();
+      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
+    };
+
+    initialize();
   }, []);
 
   const totalSteps = Math.ceil(questions.length / questionsPerPage) + 1;
@@ -164,6 +171,10 @@ const Form: React.FC = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>

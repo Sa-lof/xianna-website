@@ -10,6 +10,7 @@ import Footer from "../components/Footer/Footer";
 import Rating from "../components/Rating/Rating";
 import LargeButton from "../components/LargeButton/LargeButton"; // Assuming you have this component
 import { fetchBlog, fetchUserEmail, fetchRating, submitRating } from "../supabase/BlogServices/BlogService";
+import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 
@@ -35,6 +36,7 @@ const BlogDetail: React.FC = () => {
   const [existingRating, setExistingRating] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showReRateMessage, setShowReRateMessage] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true); // Estado para manejar el loader
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +53,8 @@ const BlogDetail: React.FC = () => {
         setRating(userRating);
         setShowReRateMessage(true);
       }
+
+      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
     };
 
     initialize();
@@ -96,6 +100,10 @@ const BlogDetail: React.FC = () => {
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  if (loading) {
+    return <Loader />;
+  }
 
   if (!blog) {
     return <Typography variant="h6">Blog not found</Typography>;
