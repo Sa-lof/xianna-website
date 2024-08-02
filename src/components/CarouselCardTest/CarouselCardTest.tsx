@@ -72,11 +72,21 @@ const CarouselCardTest: React.FC = () => {
             >
               <Typography
                 variant="body1"
-                sx={{ fontWeight: "bold", fontSize: "32px" }}
+                sx={{ fontWeight: "bold", fontSize: {
+                  xs: '20px', // Tamaño de fuente para pantallas pequeñas
+                  sm: '24px', // Tamaño de fuente para pantallas medianas
+                  md: '28px', // Tamaño de fuente para pantallas grandes
+                  lg: '30px', // Tamaño de fuente para pantallas extra grandes
+              }, }}
               >
                 {testimonial.name}
               </Typography>
-              <Typography variant="body2" sx={{ fontSize: "24px" }}>
+              <Typography variant="body2" sx={{ fontSize: {
+                  xs: '18px', // Tamaño de fuente para pantallas pequeñas
+                  sm: '20px', // Tamaño de fuente para pantallas medianas
+                  md: '22px', // Tamaño de fuente para pantallas grandes
+                  lg: '24px', // Tamaño de fuente para pantallas extra grandes
+              }, }}>
                 {testimonial.opinion}
               </Typography>
             </Box>

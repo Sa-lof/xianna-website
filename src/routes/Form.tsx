@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Box, Grid, IconButton, Slide, Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { Typography, Box, Grid, IconButton, Slide, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import QuestionComponent from "../components/Question/Question";
 import LargeButton from "../components/LargeButton/LargeButton";
 import UserDataForm from "../components/UserDataForm/UserDataForm";
 import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers";
-import getStyles from "../supabase/CuestionarioServices/getStyles"; // Ajusta la ruta según sea necesario
+import getStyles from "../supabase/CuestionarioServices/getStyles";
 import supabase from "../supabaseClient";
 import Loader from "../components/Loader/Loader";
 
@@ -214,22 +214,81 @@ const Form: React.FC = () => {
           </IconButton>
         </Box>
         {hasSubmitted ? (
-          <Alert
-            severity="info"
-            action={
-              <Button color="inherit" size="small" onClick={handleRetakeForm}>
-                Volver a hacer
-              </Button>
-            }
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+              textAlign: "center",
+            }}
           >
-            Ya has contestado el formulario. Tu tipo de estilo es {userStyle}. ¿Quieres volver a hacerlo?
-          </Alert>
+            <Typography variant="h1" sx={{ fontWeight: "bold", mb: 2, fontSize: {
+                  xs: '24px', 
+                  sm: '28px',
+                  md: '32px',
+                  lg: '40px',
+                }, }}>
+              ¡Ya encontraste tu tipo de estilo!
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{
+                fontSize: {
+                  xs: '16px', // Tamaño de fuente para pantallas pequeñas
+                  sm: '18px', // Tamaño de fuente para pantallas medianas
+                  md: '20px', // Tamaño de fuente para pantallas grandes
+                  lg: '22px', // Tamaño de fuente para pantallas extra grandes
+                },
+                backgroundColor: pink,
+                color: "white",
+                mb: 2,
+                "&:hover": {
+                  backgroundColor: pink,
+                },
+              }}
+              onClick={() => navigate("/perfil")}
+            >
+              {userStyle}
+            </Button>
+            <Typography variant="body1" sx={{ mb: 2, fontSize: {
+                xs: '18px', 
+                sm: '20px',
+                md: '22px',
+                lg: '24px',
+              },}}>
+              Ya haz contestado este cuestionario, ¿quieres volver a hacerlo?
+            </Typography>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mt: 4,
+                mb: 4,
+              }}
+            >
+              <LargeButton
+                text="Volver a hacer"
+                link="#"
+                textColor="white"
+                arrowColor="white"
+                backgroundColor={pink}
+                onClick={handleRetakeForm}
+              />
+            </Box>
+          </Box>
         ) : (
           <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={7} lg={6}>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: "bold", fontSize: "64px" }}
+                sx={{ fontWeight: "bold", fontSize: {
+                  xs: '48px', 
+                  sm: '52px',
+                  md: '56px',
+                  lg: '64px',
+                }, }}
               >
                 Descubre tu verdadero estilo
               </Typography>
@@ -287,22 +346,45 @@ const Form: React.FC = () => {
             </Grid>
           </Grid>
         )}
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Registro requerido</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Debes registrarte para poder saber tus resultados.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => navigate("/register")} color="primary">
-              Registrarse
-            </Button>
-            <Button onClick={handleCloseDialog} color="primary" autoFocus>
-              Cancelar
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <Dialog
+  open={openDialog}
+  onClose={handleCloseDialog}
+  PaperProps={{
+    style: {
+      backgroundColor: pink,
+      borderRadius: "20px",
+      padding: "20px", // Add padding to the dialog content
+      display: "flex", // Ensure dialog content is centered
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  }}
+>
+  <DialogContent sx={{ textAlign: "center" }}>
+    <Typography variant="h5" sx={{ color: "white", fontWeight: "bold", mb: 2 }}>
+      ¡Conóce tus resultados!
+    </Typography>
+    <Typography variant="body1" sx={{ color: "white", mb: 3 }}>
+      Crea tu cuenta para poder descubrir tu estilo y recibir consejos para mejorarlo.
+    </Typography>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        mt: 2,
+      }}
+    >
+      <LargeButton
+        text="Registrarse"
+        link="/registro"
+        textColor="black"
+        arrowColor="black"
+        backgroundColor="white"
+      />
+    </Box>
+  </DialogContent>
+</Dialog>
+
       </Box>
     </Slide>
   );

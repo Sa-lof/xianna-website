@@ -11,7 +11,12 @@ const CatalogTitle: React.FC<{
   return (
     <Grid container spacing={2} alignItems="center" sx={{ marginBottom: 8 }}>
       <Grid item xs={12} md={10}>
-        <Typography variant="h1" sx={{ fontWeight: "bold", fontSize: "64px" }}>
+        <Typography variant="h1" sx={{ fontWeight: "bold", fontSize: {
+                  xs: '48px', 
+                  sm: '52px',
+                  md: '56px',
+                  lg: '64px',
+                }, }}>
           {title}
         </Typography>
       </Grid>

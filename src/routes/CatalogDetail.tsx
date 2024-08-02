@@ -177,7 +177,12 @@ const CatalogDetail: React.FC = () => {
               >
                 <Typography
                   variant="h2"
-                  sx={{ fontSize: "40px", fontWeight: "bold" }}
+                  sx={{ fontSize: {
+                    xs: '24px', 
+                    sm: '28px',
+                    md: '32px',
+                    lg: '40px',
+                  }, fontWeight: "bold" }}
                 >
                   Cuestionario de Estilo
                 </Typography>
@@ -195,7 +200,7 @@ const CatalogDetail: React.FC = () => {
                 <SmallButton
                   backgroundColor="white"
                   arrowColor="black"
-                  link="/style-questionnaire"
+                  link="/formulario"
                 />
               </Box>
             </Card>

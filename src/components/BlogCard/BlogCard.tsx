@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Box,
-} from "@mui/material";
+import { Card, CardContent, Typography, Chip, Box } from "@mui/material";
 import SmallButton from "../SmallButton/SmallButton";
 
 interface BlogCardProps {
@@ -30,30 +24,55 @@ const BlogCard: React.FC<BlogCardProps> = ({
   return (
     <Card
       className="flex flex-col h-full"
-      sx={{ borderRadius: "16px", overflow: "hidden", position: "relative", padding: 2 }}
+      sx={{
+        borderRadius: "16px",
+        overflow: "hidden",
+        position: "relative",
+        height: "400px", // Ajusta la altura según tus necesidades
+        padding: 0,
+      }}
     >
-      <CardContent className="p-0" sx={{ position: "relative" }}>
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-48 object-cover"
-          style={{ borderRadius: "inherit" }}
-        />
-        <Chip
-          label={category}
-          sx={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            backgroundColor: categoryColor,
-            borderRadius: "50px",
-            padding: "4px 8px",
-            color: "white",
-            fontWeight: "bold"
-          }}
-        />
-      </CardContent>
-      <CardContent>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "brightness(0.7)",
+          zIndex: 0,
+        }}
+      />
+      <Chip
+        label={category}
+        sx={{
+          backgroundColor: categoryColor,
+          borderRadius: "50px",
+          padding: "4px 8px",
+          color: "white",
+          fontWeight: "bold",
+          position: "absolute",
+          top: 16,
+          left: 16,
+          zIndex: 1,
+        }}
+      />
+      <CardContent
+        sx={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          color: "white",
+          padding: 2,
+          boxSizing: "border-box",
+          borderRadius: "0 0 16px 16px",
+          zIndex: 1,
+        }}
+      >
         <Typography
           variant="h6"
           sx={{ fontWeight: "bold", fontSize: "24px", marginBottom: 1 }}
@@ -77,3 +96,4 @@ const BlogCard: React.FC<BlogCardProps> = ({
 };
 
 export default BlogCard;
+

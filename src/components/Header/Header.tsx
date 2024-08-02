@@ -12,11 +12,21 @@ const Header: React.FC<{
       <Box>
         <Typography
           variant="h4"
-          sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "58px" }}
+          sx={{ fontWeight: "bold", marginBottom: 1, fontSize: {
+            xs: '46px', 
+            sm: '50px',
+            md: '54px',
+            lg: '58px',
+          }, }}
         >
           {title}
         </Typography>
-        <Typography variant="body1" sx={{ marginBottom: 4, fontSize: "32px" }}>
+        <Typography variant="body1" sx={{ marginBottom: 4, fontSize: {
+                xs: '26px', 
+                sm: '28px',
+                md: '30px',
+                lg: '32px',
+              }, }}>
           {description}
         </Typography>
         <Chip

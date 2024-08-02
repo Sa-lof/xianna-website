@@ -101,7 +101,8 @@ const Catalog: React.FC = () => {
 
   const handleButtonClick = () => {
     setSelectedTab("Todo");
-    window.location.reload();
+    setSelectedEstilos([]);
+    setSelectedOcasiones([]);
   };
 
   const handleEstiloChange = (event: SelectChangeEvent<string[]>) => {
@@ -192,6 +193,7 @@ const Catalog: React.FC = () => {
             marginBottom: 10,
             display: "flex",
             gap: 2,
+            flexWrap: 'wrap',
             alignItems: "center",
           }}
           ref={filterRef}
@@ -199,7 +201,6 @@ const Catalog: React.FC = () => {
           {filterInView && (
             <>
               <Button
-                onClick={handleButtonClick}
                 sx={{
                   textTransform: "none",
                   borderRadius: "16px",
@@ -215,16 +216,17 @@ const Catalog: React.FC = () => {
                       selectedTab === "Todo" ? pink : "lightgray",
                   },
                 }}
+                onClick={handleButtonClick}
               >
                 Todo
               </Button>
-              <FormControl sx={{ minWidth: 120 }}>
+              <FormControl sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                 <InputLabel>Estilo</InputLabel>
                 <Select
                   multiple
                   value={selectedEstilos}
                   onChange={handleEstiloChange}
-                  renderValue={(selected) => (selected as string[]).join(", ")}
+                  renderValue={(selected) => selected.length ? `${selected.length} seleccionado(s)` : "Ninguno"}
                   sx={{
                     borderRadius: "16px",
                     "& .MuiSelect-select": {
@@ -232,6 +234,12 @@ const Catalog: React.FC = () => {
                       fontSize: "16px",
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: pink,
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: pink,
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
                       borderColor: pink,
                     },
                   }}
@@ -246,13 +254,13 @@ const Catalog: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl sx={{ minWidth: 120 }}>
+              <FormControl sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                 <InputLabel>Ocasión</InputLabel>
                 <Select
                   multiple
                   value={selectedOcasiones}
                   onChange={handleOcasionChange}
-                  renderValue={(selected) => (selected as string[]).join(", ")}
+                  renderValue={(selected) => selected.length ? `${selected.length} seleccionado(s)` : "Ninguno"}
                   sx={{
                     borderRadius: "16px",
                     "& .MuiSelect-select": {
@@ -260,6 +268,12 @@ const Catalog: React.FC = () => {
                       fontSize: "16px",
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: pink,
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: pink,
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
                       borderColor: pink,
                     },
                   }}

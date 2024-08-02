@@ -52,12 +52,22 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
               <Typography
                 variant="h1"
                 className="ml-4"
-                sx={{ fontWeight: "bold", fontSize: "40px" }}
+                sx={{ fontWeight: "bold", fontSize: {
+                  xs: '24px', 
+                  sm: '28px',
+                  md: '32px',
+                  lg: '40px',
+                }, }}
               >
                 ¿Qué es Xianna?
               </Typography>
             </div>
-            <Typography variant="body1" sx={{ fontSize: "24px" }}>
+            <Typography variant="body1" sx={{ fontSize: {
+                xs: '18px', 
+                sm: '20px',
+                md: '22px',
+                lg: '24px',
+              }, }}>
               Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
               ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
             </Typography>
@@ -65,140 +75,175 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
         </Card>
       </Grid>
       <Grid item xs={12} md={3} sm={12}>
-        <Card
-          className="flex flex-col h-full"
-          sx={{
-            color: "white",
-            backgroundColor: yellow,
-            padding: 2,
-            position: "relative",
-          }}
-        >
-          <CardContent className="flex-grow flex justify-center items-center">
-            <Typography
-              variant="h2"
-              sx={{ fontSize: "40px", fontWeight: "bold" }}
-            >
-              Cuestionario de Estilo
-            </Typography>
-          </CardContent>
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 16,
-              right: 16,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <SmallButton
-              backgroundColor="white"
-              arrowColor="black"
-              link="/formulario"
-            />
-          </Box>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={3} sm={12}>
-        <Card
-          className="bg-blue-500 text-white flex flex-col items-center h-full"
-          sx={{ color: "white", backgroundColor: blue, padding: 2 }}
-        >
-          <Avatar
-            sx={{ bgcolor: blue[600], width: 100, height: 100 }}
-            src="profile.jpg"
-            alt="Nombre"
-          />
+      <Card
+        className="flex flex-col h-full"
+        sx={{
+          color: 'white',
+          backgroundColor: yellow,
+          padding: 2,
+          position: 'relative',
+        }}
+      >
+        <CardContent className="flex-grow flex justify-center items-center">
           <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", fontSize: "30px" }}
-            >
-              {userName}
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", fontSize: "20px" }}
-            >
-              {userStyle}
-            </Typography>
-          <Box
+            variant="h2"
             sx={{
-              display: "flex",
-              alignItems: "end",
-              justifyContent: "end",
-              marginTop: "auto",
+              fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              },
+              fontWeight: 'bold',
             }}
           >
-            <LargeButton
-              text="Ver pefil"
-              link="/perfil"
-              textColor="black"
-              arrowColor="black"
-              backgroundColor="white"
-            />
-          </Box>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={3} sm={12}>
-        <Card
-          className="flex flex-col h-full"
+            Cuestionario de Estilo
+          </Typography>
+        </CardContent>
+        <Box
           sx={{
-            position: "relative",
-            borderRadius: "16px",
-            overflow: "hidden",
+            position: 'absolute',
+            bottom: 16,
+            right: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <CardContent className="flex-grow p-0" sx={{ position: "relative" }}>
-            <img
-              src={placeholder1}
-              alt="Catálogo"
-              className="w-full h-full object-cover"
-              style={{
-                borderRadius: "inherit",
-                position: "absolute",
-                top: 0,
-                left: 0,
-              }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
-                borderRadius: "inherit",
-              }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: 16,
-                right: 16,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <LargeButton
-                text="Catálogo"
-                link="/catalogo"
-                textColor="black"
-                arrowColor="black"
-                backgroundColor="white"
-              />
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+          <SmallButton
+            backgroundColor="white"
+            arrowColor="black"
+            link="/formulario"
+          />
+        </Box>
+      </Card>
+    </Grid>
+    <Grid item xs={12} md={3} sm={12}>
+      <Card
+        className="bg-blue-500 text-white flex flex-col items-center h-full"
+        sx={{ color: 'white', backgroundColor: blue, padding: 2 }}
+      >
+        <Avatar
+          sx={{ bgcolor: blue[600], width: 100, height: 100 }}
+          src="profile.jpg"
+          alt="Nombre"
+        />
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 'bold',
+            fontSize: {
+              xs: '20px', // Tamaño de fuente para pantallas pequeñas
+              sm: '24px', // Tamaño de fuente para pantallas medianas
+              md: '28px', // Tamaño de fuente para pantallas grandes
+              lg: '30px', // Tamaño de fuente para pantallas extra grandes
+            },
+            textAlign: 'center',
+          }}
+        >
+          {userName}
+        </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 'bold',
+            fontSize: {
+              xs: '16px', // Tamaño de fuente para pantallas pequeñas
+              sm: '18px', // Tamaño de fuente para pantallas medianas
+              md: '20px', // Tamaño de fuente para pantallas grandes
+              lg: '22px', // Tamaño de fuente para pantallas extra grandes
+            },
+          }}
+        >
+          {userStyle}
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'end',
+            justifyContent: 'end',
+            marginTop: 'auto',
+          }}
+        >
+          <LargeButton
+            text="Ver perfil"
+            link="/perfil"
+            textColor="black"
+            arrowColor="black"
+            backgroundColor="white"
+          />
+        </Box>
+      </Card>
+    </Grid>
+    <Grid item xs={12} md={3} sm={12}>
+  <Card
+    className="flex flex-col h-full"
+    sx={{
+      position: "relative",
+      borderRadius: "16px",
+      overflow: "hidden",
+      height: { xs: "auto", md: "100%" }, // Ajuste de altura para pantallas pequeñas
+    }}
+  >
+    <CardContent className="flex-grow p-0" sx={{ position: "relative", height: { xs: "250px", md: "100%" } }}>
+      <img
+        src={placeholder1}
+        alt="Catálogo"
+        className="w-full object-cover"
+        style={{
+          borderRadius: "inherit",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%", // Asegura que la imagen cubra todo el contenedor
+          objectFit: "cover", // Ajusta la imagen para cubrir sin distorsión
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
+          borderRadius: "inherit",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <LargeButton
+          text="Catálogo"
+          link="/catalogo"
+          textColor="black"
+          arrowColor="black"
+          backgroundColor="white"
+        />
+      </Box>
+    </CardContent>
+  </Card>
+</Grid>
+
       <Grid item xs={12} md={3} sm={12}>
         <Card className="flex flex-col h-full" sx={{ padding: 2 }}>
           <CardContent className="flex-grow flex justify-center items-center p-3">
             <Typography
               variant="h5"
-              sx={{ fontSize: "40px", fontWeight: "bold", textAlign: "center" }}
+              sx={{ fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              }, fontWeight: "bold", textAlign: "center" }}
             >
               Lorem ipsum lorem ipsum lorem
             </Typography>
@@ -219,11 +264,21 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
           <CardContent className="flex-grow">
             <Typography
               variant="h6"
-              sx={{ fontWeight: "bold", fontSize: "40px" }}
+              sx={{ fontWeight: "bold", fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              }, }}
             >
               Blog Xianna
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "24px" }}>
+            <Typography variant="body1" sx={{ fontSize: {
+                  xs: '18px', 
+                  sm: '20px',
+                  md: '22px',
+                  lg: '24px',
+                }, }}>
               Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
               ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
             </Typography>
@@ -294,7 +349,12 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
             <Typography
               variant="h6"
               className="text-white"
-              sx={{ fontWeight: "bold", fontSize: "40px" }}
+              sx={{ fontWeight: "bold", fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+            }, }}
             >
               Contáctanos
             </Typography>

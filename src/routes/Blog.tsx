@@ -6,6 +6,7 @@ import { useInView } from "react-intersection-observer";
 import BlogCard from "../components/BlogCard/BlogCard";
 import Footer from "../components/Footer/Footer";
 import getBlogs from "../supabase/BlogServices/getBlogs";
+import getCategorias from "../supabase/BlogServices/getCategorias";
 import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
@@ -32,31 +33,43 @@ interface BlogWithExtras extends BlogData {
   categoryColor: string;
 }
 
+interface Categoria {
+  id: number;
+  categoria: string;
+}
+
 const BlogComponent: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Todo");
   const [blogs, setBlogs] = useState<BlogWithExtras[]>([]);
-  const [loading, setLoading] = useState(true); // Estado para manejar el loader
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      const blogsData = await getBlogs();
-      let sizeCounter = 0; // Contador para el patrón de tamaño
-      const blogsWithExtras = blogsData.map(blog => {
-        const size = sizeCounter % 5 === 3 ? 'large' : 'small'; // Aplicar patrón de tamaño
-        sizeCounter++;
-        const categoryColor = Math.random() > 0.5 ? pink : yellow; // Asignar color aleatorio
-        return {
-          ...blog,
-          size: size,
-          link: `/blog/${blog.id}`,
-          categoryColor: categoryColor,
-        };
-      });
-      setBlogs(blogsWithExtras);
-      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
+    const fetchBlogsAndCategorias = async () => {
+      try {
+        const [blogsData, categoriasData] = await Promise.all([getBlogs(), getCategorias()]);
+        let sizeCounter = 0;
+        const blogsWithExtras = blogsData.map(blog => {
+          const size = sizeCounter % 5 === 3 ? 'large' : 'small';
+          sizeCounter++;
+          const categoryColor = Math.random() > 0.5 ? pink : yellow;
+          return {
+            ...blog,
+            size: size,
+            link: `/blog/${blog.id}`,
+            categoryColor: categoryColor,
+          };
+        });
+        setBlogs(blogsWithExtras);
+        setCategorias(categoriasData);
+      } catch (error) {
+        console.error("Error fetching blogs or categories:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchBlogs();
+    fetchBlogsAndCategorias();
   }, []);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
@@ -93,10 +106,10 @@ const BlogComponent: React.FC = () => {
         sx={{
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          minHeight: "100vh",
+          paddingBottom: 10,
+          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
           paddingTop: 5,
         }}
       >
@@ -161,11 +174,13 @@ const BlogComponent: React.FC = () => {
               }}
             >
               <Tab label="Todo" value="Todo" />
-              <Tab label="Categoria1" value="Categoria1" />
-              <Tab label="Categoria2" value="Categoria2" />
-              <Tab label="Categoria3" value="Categoria3" />
-              <Tab label="Categoria4" value="Categoria4" />
-              <Tab label="Categoria5" value="Categoria5" />
+              {categorias.map((categoria) => (
+                <Tab
+                  key={categoria.id}
+                  label={categoria.categoria}
+                  value={categoria.categoria}
+                />
+              ))}
             </Tabs>
           )}
         </Box>
@@ -180,12 +195,12 @@ const BlogComponent: React.FC = () => {
                 key={blog.id}
               >
                 <BlogCard
-                  id={blog.id.toString()} // Convert id to string if necessary
+                  id={blog.id.toString()}
                   image={blog.image}
                   category={blog.category}
                   categoryColor={blog.categoryColor}
-                  title={blog.titulo} // Adjust field names
-                  description={blog.descripcion} // Adjust field names
+                  title={blog.titulo}
+                  description={blog.descripcion}
                   link={blog.link}
                 />
               </Grid>
