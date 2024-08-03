@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card, Button, SelectChangeEvent } from '@mui/material';
+import { Box, Typography, Grid, Card, SelectChangeEvent } from '@mui/material';
 import getUsers from '../../supabase/UsersServices/getUsers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import getFavorites from '../../supabase/InsightServices/getFavorites';
 import getOutfits from '../../supabase/InsightServices/getOutfits';
 import getBlogs from '../../supabase/BlogServices/getBlogs';
-import getCategorias from '../../supabase/InsightServices/getCategorias';
 import StyleChart from '../StyleChart_D/StyleChart';
 import BlogRatingChart from '../BlogRatingChart/BlogRatingChart';
 import Chart from 'react-apexcharts';
 import { Style } from '../../supabase/CatalogoServices/types';
+import Loader from '../../../src/components/Loader/Loader';
 
 interface User {
   id: number;
@@ -37,21 +37,6 @@ interface Outfit {
   id_estilo: number;
 }
 
-interface Blog {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  contenido: string;
-  id_categoria: number;
-  categoria: string;
-  image: string;
-}
-
-interface Categoria {
-  id: number;
-  categoria: string;
-}
-
 interface ChartData {
   categories: string[];
   series: number[];
@@ -62,9 +47,6 @@ const Insights: React.FC = () => {
   const [styles, setStyles] = useState<Style[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [selectedCategoria, setSelectedCategoria] = useState<string>('Todos');
   const [chartData, setChartData] = useState<ChartData>({ categories: [], series: [] });
   const [favoritesChartData, setFavoritesChartData] = useState<{ name: string, data: { x: string, y: number }[] }[]>([]);
   const [mostSavedOutfit, setMostSavedOutfit] = useState<string>('');
@@ -72,22 +54,37 @@ const Insights: React.FC = () => {
   const [ageRanges, setAgeRanges] = useState<string[]>(['0-100']);
   const [selectedStyles, setSelectedStyles] = useState<string[]>(['Todos']);
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const usersData = await getUsers();
       const stylesData = await getStyles();
       const favoritesData = await getFavorites();
       const outfitsData = await getOutfits();
       const blogsData = await getBlogs();
-      const categoriasData = await getCategorias();
 
       setUsers(usersData);
       setStyles(stylesData);
       setFavorites(favoritesData);
       setOutfits(outfitsData);
-      setBlogs(blogsData);
-      setCategorias(categoriasData);
+
+      // Determine the most rated category from the blogs data
+      const categoryCounts: { [key: string]: number } = {};
+      blogsData.forEach(blog => {
+        const category = blog.categoria;
+        if (!categoryCounts[category]) {
+          categoryCounts[category] = 0;
+        }
+        categoryCounts[category]++;
+      });
+      const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+      if (sortedCategories.length > 0) {
+        setMostRatedCategory(sortedCategories[0][0]);
+      }
+
+      setLoading(false);
     };
 
     fetchData();
@@ -152,10 +149,6 @@ const Insights: React.FC = () => {
     }
   };
 
-  const handleCategoriaChange = (event: SelectChangeEvent<string>) => {
-    setSelectedCategoria(event.target.value);
-  };
-
   const treemapChartOptions = {
     chart: {
       type: 'treemap' as const,
@@ -167,57 +160,60 @@ const Insights: React.FC = () => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 2, flexWrap: 'wrap' }}>
-        <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-          Insights
-        </Typography>
-        <Button variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginTop: { xs: 1, sm: 0 } }}>
-          Reporte
-        </Button>
-      </Box>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={4}>
-          <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px' }}>
-            <Typography variant="h6" fontWeight="bold">{users.length}</Typography>
-            <Typography variant="body1">Usuarios</Typography>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px' }}>
-            <Typography variant="h6" fontWeight="bold">Outfit más guardado</Typography>
-            <Typography variant="body1">{mostSavedOutfit}</Typography>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px' }}>
-            <Typography variant="h6" fontWeight="bold">Blog preferido</Typography>
-            <Typography variant="body1">{mostRatedCategory}</Typography>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={12} md={12} lg={6}>
-          <StyleChart 
-            data={chartData} 
-            totalUsers={totalUsers} 
-            ageRanges={ageRanges} 
-            selectedStyles={selectedStyles} 
-            styles={styles} 
-            handleAgeRangeChange={handleAgeRangeChange} 
-            handleStyleChange={handleStyleChange} 
-          />
-        </Grid>
-        <Grid item xs={12} sm={12} md={12} lg={6}>
-          <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
-            <Typography variant="h5" fontWeight="bold">Outfits favoritos</Typography>
-            <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height={350} />
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={12} md={12}>
-          <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
-            <Typography variant="h5" fontWeight="bold">Promedio de Calificaciones por Blog</Typography>
-            <BlogRatingChart />
-          </Card>
-        </Grid>
-      </Grid>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 2, flexWrap: 'wrap' }}>
+            <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+              Insights
+            </Typography>
+          </Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={12} md={4} lg={4}>
+              <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px', height: '100%' }}>
+                <Typography variant="h6" fontWeight="bold">{users.length}</Typography>
+                <Typography variant="body1">Usuarios</Typography>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={4} lg={4}>
+              <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px', height: '100%' }}>
+                <Typography variant="h6" fontWeight="bold">Outfit más guardado</Typography>
+                <Typography variant="body1">{mostSavedOutfit}</Typography>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={4} lg={4}>
+              <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px', height: '100%' }}>
+                <Typography variant="h6" fontWeight="bold">Blog preferido</Typography>
+                <Typography variant="body1">{mostRatedCategory}</Typography>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
+              <StyleChart 
+                data={chartData} 
+                totalUsers={totalUsers} 
+                ageRanges={ageRanges} 
+                selectedStyles={selectedStyles} 
+                styles={styles} 
+                handleAgeRangeChange={handleAgeRangeChange} 
+                handleStyleChange={handleStyleChange} 
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12} lg={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0', height: '100%' }}>
+                <Typography variant="h5" fontWeight="bold">Outfits favoritos</Typography>
+                <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height="350px" />
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+              <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
+                <Typography variant="h5" fontWeight="bold">Promedio de Calificaciones por Blog</Typography>
+                <BlogRatingChart />
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
     </Box>
   );
 };

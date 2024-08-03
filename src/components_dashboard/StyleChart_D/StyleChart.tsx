@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, Box, Typography, FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText, OutlinedInput, SelectChangeEvent } from '@mui/material';
 import Chart from 'react-apexcharts';
 
@@ -73,8 +73,6 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, totalUsers, ageRanges, se
             enabled: true,
             formatter: (val, opts) => {
               const name = opts.w.globals.labels[opts.seriesIndex];
-              const total = opts.w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
-              const percentage = ((opts.w.globals.series[opts.seriesIndex] / total) * 100).toFixed(1);
               return `${name}:${opts.w.globals.series[opts.seriesIndex]}`;
             }
           },

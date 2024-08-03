@@ -16,6 +16,7 @@ import deleteOutfit from '../../supabase/CatalogoServices/deleteOutfit';
 import deletePrenda from '../../supabase/CatalogoServices/deletePrenda';
 import { Outfit, Prenda, Style, Occasion } from "../../supabase/CatalogoServices/types";
 import * as XLSX from 'xlsx';
+import Loader from '../../../src/components/Loader/Loader'; // Importa el Loader
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Outfit[]>([]);
@@ -37,9 +38,11 @@ const CatalogoTable: React.FC = () => {
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'warning'>('success');
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedOutfitId, setSelectedOutfitId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // Inicia la carga
       const data = await getOutfits();
       setRows(data);
 
@@ -48,6 +51,7 @@ const CatalogoTable: React.FC = () => {
 
       const fetchedOccasions = await getOccasions();
       setOccasions(fetchedOccasions);
+      setLoading(false); // Termina la carga
     };
 
     fetchData();
@@ -63,6 +67,7 @@ const CatalogoTable: React.FC = () => {
   };
 
   const handleEditClick = async (outfit: Outfit) => {
+    setLoading(true);
     setSelectedOutfit(outfit);
     const prendasData = await getPrendasByOutfitId(outfit.id);
     setPrendas(prendasData);
@@ -70,9 +75,11 @@ const CatalogoTable: React.FC = () => {
     setSelectedPrendaFiles(prendasData.map(() => null));
     setSelectedCategories(outfit.ocasiones);
     setShowForm(true);
+    setLoading(false);
   };
 
   const handleAddClick = () => {
+    setLoading(true);
     setSelectedOutfit({
       id: 0,
       nombre: '',
@@ -88,6 +95,7 @@ const CatalogoTable: React.FC = () => {
     setSelectedPrendaFiles([]);
     setSelectedCategories([]);
     setShowForm(true);
+    setLoading(false);
   };
 
   const handleFormChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -168,6 +176,8 @@ const CatalogoTable: React.FC = () => {
       setToastOpen(true);
       return;
     }
+
+    setLoading(true);
 
     if (selectedOutfit) {
       const occasionIds = selectedOutfit.ocasiones.map((ocasion) => {
@@ -264,6 +274,8 @@ const CatalogoTable: React.FC = () => {
       const data = await getOutfits();
       setRows(data);
     }
+
+    setLoading(false);
   };
 
   const handleCancelClick = () => {
@@ -287,6 +299,7 @@ const CatalogoTable: React.FC = () => {
 
   const handleConfirmDelete = async () => {
     if (selectedOutfitId !== null) {
+      setLoading(true);
       try {
         await deleteOutfit(selectedOutfitId);
         const data = await getOutfits();
@@ -300,6 +313,7 @@ const CatalogoTable: React.FC = () => {
         setToastSeverity('error');
         setToastOpen(true);
       }
+      setLoading(false);
     }
     setConfirmDialogOpen(false);
   };
@@ -342,6 +356,10 @@ const CatalogoTable: React.FC = () => {
 
   return (
     <Box sx={{ padding: 2 }}>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
       {showForm ? (
         <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Button onClick={handleCancelClick} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
@@ -657,6 +675,8 @@ const CatalogoTable: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      </>
+      )}
     </Box>
   );
 };

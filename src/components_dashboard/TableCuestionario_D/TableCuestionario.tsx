@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, Grid, IconButton, Button, TextField, MenuItem } from '@mui/material';
+import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, Grid, IconButton, Button, TextField, MenuItem, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -9,8 +9,9 @@ import createQuestionWithAnswers from '../../supabase/CuestionarioServices/creat
 import deleteQuestionWithAnswers from '../../supabase/CuestionarioServices/deleteQuestionWithAnswers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import AddIcon from '@mui/icons-material/Add';
-import { Answer, Question, Estilo } from "../../supabase/CuestionarioServices/types";
+import { Answer, Question, Estilo } from '../../supabase/CuestionarioServices/types';
 import * as XLSX from 'xlsx';
+import Loader from '../../../src/components/Loader/Loader';
 
 const QuestionAnswerAccordion: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -18,13 +19,22 @@ const QuestionAnswerAccordion: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [deletedAnswers, setDeletedAnswers] = useState<Answer[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [questionToDelete, setQuestionToDelete] = useState<number | null>(null);
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'warning'>('success');
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const questionsData = await getQuestionsWithAnswers();
       setQuestions(questionsData);
       const stylesData = await getStyles();
       setStyles(stylesData);
+      setLoading(false);
     };
     fetchData();
   }, []);
@@ -45,18 +55,24 @@ const QuestionAnswerAccordion: React.FC = () => {
   };
 
   const handleEditClick = (question: Question) => {
+    setLoading(true);
     setEditingQuestion(question);
     setShowForm(true);
+    setLoading(false);
   };
 
   const validateForm = () => {
     if (!editingQuestion || !editingQuestion.pregunta) {
-      alert('Por favor, completa el campo de la pregunta.');
+      setToastMessage('Por favor, completa el campo de la pregunta.');
+      setToastSeverity('warning');
+      setToastOpen(true);
       return false;
     }
     for (const answer of editingQuestion.answers) {
       if (!answer.identificador || !answer.respuesta || !answer.id_estilo) {
-        alert('Por favor, completa todos los campos de las respuestas.');
+        setToastMessage('Por favor, completa todos los campos de las respuestas.');
+        setToastSeverity('warning');
+        setToastOpen(true);
         return false;
       }
     }
@@ -66,24 +82,57 @@ const QuestionAnswerAccordion: React.FC = () => {
   const handleSave = async () => {
     if (!validateForm()) return;
 
-    if (editingQuestion) {
-      if (editingQuestion.id === 0) {
-        await createQuestionWithAnswers(editingQuestion);
-      } else {
-        await updateQuestionWithAnswers(editingQuestion, deletedAnswers);
+    setLoading(true); 
+    try {
+      if (editingQuestion) {
+        if (editingQuestion.id === 0) {
+          await createQuestionWithAnswers(editingQuestion);
+          setToastMessage('Pregunta creada con éxito.');
+          setToastSeverity('success');
+        } else {
+          await updateQuestionWithAnswers(editingQuestion, deletedAnswers);
+          setToastMessage('Pregunta actualizada con éxito.');
+          setToastSeverity('success');
+        }
+        setShowForm(false);
+        setEditingQuestion(null);
+        setDeletedAnswers([]);
+        const data = await getQuestionsWithAnswers();
+        setQuestions(data);
       }
-      setShowForm(false);
-      setEditingQuestion(null);
-      setDeletedAnswers([]);
-      const data = await getQuestionsWithAnswers();
-      setQuestions(data);
+    } catch (error) {
+      console.error("Error saving question:", error);
+      setToastMessage('Hubo un error al guardar la pregunta.');
+      setToastSeverity('error');
     }
+    setToastOpen(true);
+    setLoading(false); 
   };
 
-  const handleDelete = async (questionId: number) => {
-    await deleteQuestionWithAnswers(questionId);
-    const data = await getQuestionsWithAnswers();
-    setQuestions(data);
+  const handleDelete = async () => {
+    if (questionToDelete !== null) {
+      setLoading(true);
+      try {
+        await deleteQuestionWithAnswers(questionToDelete);
+        const data = await getQuestionsWithAnswers();
+        setQuestions(data);
+        setToastMessage('Pregunta eliminada con éxito.');
+        setToastSeverity('success');
+      } catch (error) {
+        console.error('Error deleting question:', error);
+        setToastMessage('Hubo un error al eliminar la pregunta.');
+        setToastSeverity('error');
+      }
+      setLoading(false);
+    }
+    setToastOpen(true);
+    setQuestionToDelete(null);
+    setConfirmDialogOpen(false);
+  };
+
+  const handleOpenConfirmDialog = (questionId: number) => {
+    setQuestionToDelete(questionId);
+    setConfirmDialogOpen(true);
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number, field: string) => {
@@ -125,10 +174,10 @@ const QuestionAnswerAccordion: React.FC = () => {
       return acc;
     }, {} as { [key: number]: string });
 
-    const data: any[][] = [["Pregunta", "Identificador", "Respuesta", "Estilo"]];
+    const data: any[][] = [['Pregunta', 'Identificador', 'Respuesta', 'Estilo']];
     questions.forEach((question) => {
       const questionRows = question.answers.map((answer, index) => [
-        index === 0 ? question.pregunta : "",
+        index === 0 ? question.pregunta : '',
         answer.identificador,
         answer.respuesta,
         styleMap[answer.id_estilo] || answer.id_estilo
@@ -151,203 +200,260 @@ const QuestionAnswerAccordion: React.FC = () => {
     });
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Preguntas y Respuestas");
-    XLSX.writeFile(workbook, "questions_report.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Preguntas y Respuestas');
+    XLSX.writeFile(workbook, 'questions_report.xlsx');
+  };
+
+  const handleCloseToast = () => {
+    setToastOpen(false);
   };
 
   return (
     <Box sx={{ padding: 2 }}>
-      {showForm ? (
-        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
-            Regresar
-          </Button>
-          <Typography variant="h4" fontWeight="bold">
-            {editingQuestion?.id === 0 ? 'Agregar Pregunta' : 'Editar Pregunta'}
-          </Typography>
-          <TextField
-            label="Pregunta"
-            variant="outlined"
-            fullWidth
-            value={editingQuestion?.pregunta || ''}
-            onChange={(e) => setEditingQuestion(editingQuestion ? { ...editingQuestion, pregunta: e.target.value } : null)}
-            sx={{
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '24px',
-              },
-            }}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-            <Typography variant="h6" fontWeight="bold">
-              Respuestas
-            </Typography>
-            <IconButton onClick={handleAddAnswer} sx={{ 
-              mt: 2, 
-              backgroundColor: '#E61F93', 
-              color: 'white', 
-              width: 38, 
-              height: 38, 
-              borderRadius: '50%', 
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              } 
-            }}>
-              <AddIcon />
-            </IconButton>
-          </Box>
-          <Grid container spacing={2}>
-            {editingQuestion?.answers.map((answer, index) => (
-              <React.Fragment key={index}>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="Identificador"
-                    variant="outlined"
-                    fullWidth
-                    select
-                    value={answer.identificador}
-                    onChange={(e) => handleInputChange(e, index, 'identificador')}
-                    sx={{
-                      borderRadius: '24px',
-                      boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '24px',
-                      },
-                    }}
-                  >
-                    <MenuItem value="a">Identificador A</MenuItem>
-                    <MenuItem value="b">Identificador B</MenuItem>
-                    <MenuItem value="c">Identificador C</MenuItem>
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="Respuesta"
-                    variant="outlined"
-                    fullWidth
-                    value={answer.respuesta}
-                    onChange={(e) => handleInputChange(e, index, 'respuesta')}
-                    sx={{
-                      borderRadius: '24px',
-                      boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '24px',
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <TextField
-                    label="Tipo de estilo"
-                    variant="outlined"
-                    fullWidth
-                    select
-                    value={answer.id_estilo}
-                    onChange={(e) => handleInputChange(e, index, 'id_estilo')}
-                    sx={{
-                      borderRadius: '24px',
-                      boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '24px',
-                      },
-                    }}
-                  >
-                    {styles.map((style) => (
-                      <MenuItem key={style.id} value={style.id}>
-                        {style.tipo}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={1}>
-                  <IconButton onClick={() => handleDeleteAnswer(index)} sx={{ 
-                    mt: 2,  
-                    color: '#E61F93', 
-                    width: 38, 
-                    height: 38, 
-                    borderRadius: '50%', 
-                    '&:hover': {
-                      backgroundColor: 'white',
-                    } 
-                  }}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Grid>
-              </React.Fragment>
-            ))}
-          </Grid>
-          <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', marginTop: 2 }}>
-            Guardar
-          </Button>
-        </Box>
+      {loading ? (
+        <Loader />
       ) : (
         <>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 2, flexWrap: 'wrap' }}>
-            <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-              Formulario
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-                Reporte
+          {showForm ? (
+            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+                Regresar
               </Button>
-              <Button onClick={handleShowForm} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
-                Agregar
+              <Typography variant="h4" fontWeight="bold">
+                {editingQuestion?.id === 0 ? 'Agregar Pregunta' : 'Editar Pregunta'}
+              </Typography>
+              <TextField
+                label="Pregunta"
+                variant="outlined"
+                fullWidth
+                value={editingQuestion?.pregunta || ''}
+                onChange={(e) => setEditingQuestion(editingQuestion ? { ...editingQuestion, pregunta: e.target.value } : null)}
+                sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                <Typography variant="h6" fontWeight="bold">
+                  Respuestas
+                </Typography>
+                <IconButton
+                  onClick={handleAddAnswer}
+                  sx={{
+                    mt: 2,
+                    backgroundColor: '#E61F93',
+                    color: 'white',
+                    width: 38,
+                    height: 38,
+                    borderRadius: '50%',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    }
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Box>
+              <Grid container spacing={2}>
+                {editingQuestion?.answers.map((answer, index) => (
+                  <React.Fragment key={index}>
+                    <Grid item xs={12} sm={4}>
+                      <TextField
+                        label="Identificador"
+                        variant="outlined"
+                        fullWidth
+                        select
+                        value={answer.identificador}
+                        onChange={(e) => handleInputChange(e, index, 'identificador')}
+                        sx={{
+                          borderRadius: '24px',
+                          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '24px',
+                          },
+                        }}
+                      >
+                        <MenuItem value="a">Identificador A</MenuItem>
+                        <MenuItem value="b">Identificador B</MenuItem>
+                        <MenuItem value="c">Identificador C</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <TextField
+                        label="Respuesta"
+                        variant="outlined"
+                        fullWidth
+                        value={answer.respuesta}
+                        onChange={(e) => handleInputChange(e, index, 'respuesta')}
+                        sx={{
+                          borderRadius: '24px',
+                          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '24px',
+                          },
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        label="Tipo de estilo"
+                        variant="outlined"
+                        fullWidth
+                        select
+                        value={answer.id_estilo}
+                        onChange={(e) => handleInputChange(e, index, 'id_estilo')}
+                        sx={{
+                          borderRadius: '24px',
+                          boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '24px',
+                          },
+                        }}
+                      >
+                        {styles.map((style) => (
+                          <MenuItem key={style.id} value={style.id}>
+                            {style.tipo}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={1}>
+                      <IconButton
+                        onClick={() => handleDeleteAnswer(index)}
+                        sx={{
+                          mt: 2,
+                          color: '#E61F93',
+                          width: 38,
+                          height: 38,
+                          borderRadius: '50%',
+                          '&:hover': {
+                            backgroundColor: 'white',
+                          }
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Grid>
+                  </React.Fragment>
+                ))}
+              </Grid>
+              <Button
+                onClick={handleSave}
+                variant="contained"
+                sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', marginTop: 2 }}
+              >
+                Guardar
               </Button>
             </Box>
-          </Box>
-          {questions.map((question, index) => (
-            <Accordion key={index} sx={{ marginBottom: 2, borderRadius: 2 }}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index + 1}-content`}
-                id={`panel${index + 1}-header`}
-              >
-                <Grid container alignItems="center" spacing={2}>
-                  <Grid item>
-                    <Avatar sx={{ bgcolor: '#FDD835', fontWeight: 'bold' }}>{index + 1}</Avatar>
-                  </Grid>
-                  <Grid item xs>
-                    <Typography>
-                      {index + 1} {question.pregunta}
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <IconButton onClick={() => handleEditClick(question)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton onClick={() => handleDelete(question.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </AccordionSummary>
-              <AccordionDetails>
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ backgroundColor: '#FFEB3B', fontWeight: 'bold' }}>Identificador</TableCell>
-                        <TableCell sx={{ backgroundColor: '#FFEB3B', fontWeight: 'bold' }}>Respuesta</TableCell>
-                        <TableCell sx={{ backgroundColor: '#FFEB3B', fontWeight: 'bold' }}>Tipo</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {question.answers.map((answer, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{answer.identificador}</TableCell>
-                          <TableCell>{answer.respuesta}</TableCell>
-                          <TableCell>{styles.find(style => style.id === answer.id_estilo)?.tipo || answer.id_estilo}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </AccordionDetails>
-            </Accordion>
-          ))}
+          ) : (
+            <>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 2, flexWrap: 'wrap' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+                  Formulario
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Button
+                    onClick={handleDownloadExcel}
+                    variant="contained"
+                    sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}
+                  >
+                    Reporte
+                  </Button>
+                  <Button
+                    onClick={handleShowForm}
+                    variant="contained"
+                    sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}
+                  >
+                    Agregar
+                  </Button>
+                </Box>
+              </Box>
+              {questions.map((question, index) => (
+                <Accordion key={index} sx={{ marginBottom: 2, borderRadius: 2 }}>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls={`panel${index + 1}-content`}
+                    id={`panel${index + 1}-header`}
+                  >
+                    <Grid container alignItems="center" spacing={2}>
+                      <Grid item>
+                        <Avatar sx={{ bgcolor: '#FDD835', fontWeight: 'bold' }}>{index + 1}</Avatar>
+                      </Grid>
+                      <Grid item xs>
+                        <Typography>
+                          {index + 1} {question.pregunta}
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <IconButton onClick={() => handleEditClick(question)}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton onClick={() => handleOpenConfirmDialog(question.id)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TableContainer component={Paper}>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell sx={{ backgroundColor: '#FFEB3B', fontWeight: 'bold' }}>Identificador</TableCell>
+                            <TableCell sx={{ backgroundColor: '#FFEB3B', fontWeight: 'bold' }}>Respuesta</TableCell>
+                            <TableCell sx={{ backgroundColor: '#FFEB3B', fontWeight: 'bold' }}>Tipo</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {question.answers.map((answer, idx) => (
+                            <TableRow key={idx}>
+                              <TableCell>{answer.identificador}</TableCell>
+                              <TableCell>{answer.respuesta}</TableCell>
+                              <TableCell>{styles.find(style => style.id === answer.id_estilo)?.tipo || answer.id_estilo}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </>
+          )}
         </>
       )}
+      <Snackbar 
+        open={toastOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseToast} 
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
+          {toastMessage}
+        </Alert>
+      </Snackbar>
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+      >
+        <DialogTitle>Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar esta pregunta?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDialogOpen(false)} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            Cancelar
+          </Button>
+          <Button onClick={handleDelete} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

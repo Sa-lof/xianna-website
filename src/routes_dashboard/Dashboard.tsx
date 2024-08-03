@@ -6,6 +6,7 @@ import BlogsTable from "../components_dashboard/TableBlogs_D/TableBlogs";
 import CuestionarioTable from "../components_dashboard/TableCuestionario_D/TableCuestionario";
 import UsersTable from "../components_dashboard/TableUsers_D/TableUsers";
 import Insights from "../components_dashboard/Insights_D/Insights";
+import Loader from "../components/Loader/Loader";
 import { Box, IconButton, Drawer, useMediaQuery } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import '../../src/App.css';
@@ -16,11 +17,14 @@ const Dashboard: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const isSmallScreen = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
   const sidebarWidth = 250;
+  const [loading, setLoading] = useState(true); // Estado de carga
 
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
       navigate('/dashboard/login');
+    } else {
+      setLoading(false); // Deja de cargar una vez que se confirma la autenticación
     }
   }, [navigate]);
 
@@ -73,7 +77,7 @@ const Dashboard: React.FC = () => {
           overflowY: 'auto',
         }}
       >
-        {renderTable()}
+        {loading ? <Loader /> : renderTable()}
       </Box>
     </Box>
   );

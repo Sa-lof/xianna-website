@@ -20,6 +20,7 @@ import deleteBlog from '../../supabase/BlogServices/deleteBlog';
 import deleteBlogFolder from '../../supabase/BlogServices/deleteBlogFolder';
 import getCategorias from '../../supabase/BlogServices/getCategorias';
 import * as XLSX from 'xlsx';
+import Loader from '../../../src/components/Loader/Loader'; // Importa el Loader
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Blog[]>([]);
@@ -36,6 +37,7 @@ const CatalogoTable: React.FC = () => {
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error' | 'warning'>('success');
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedBlogId, setSelectedBlogId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false); // Agrega estado de carga
 
   const fetchBlogs = async () => {
     try {
@@ -49,11 +51,14 @@ const CatalogoTable: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const [blogs, categoriasData] = await Promise.all([getBlogs(), getCategorias()]);
         setRows(blogs);
         setCategorias(categoriasData);
       } catch (error) {
         console.error('There was an error fetching the data!', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -70,24 +75,31 @@ const CatalogoTable: React.FC = () => {
   };
 
   const handleShowForm = async (blog?: Blog) => {
-    if (blog) {
-      const images = await getBlogImages(blog.id);
-      setCurrentBlog({ ...blog, images });
-    } else {
-      setCurrentBlog({
-        titulo: '',
-        descripcion: '',
-        contenido: '',
-        id_categoria: 0,
-        image: '',
-        name: '',
-        category: '',
-        rating: 0,
-        persons: 0,
-        images: []
-      });
+    try {
+      setLoading(true);
+      if (blog) {
+        const images = await getBlogImages(blog.id);
+        setCurrentBlog({ ...blog, images });
+      } else {
+        setCurrentBlog({
+          titulo: '',
+          descripcion: '',
+          contenido: '',
+          id_categoria: 0,
+          image: '',
+          name: '',
+          category: '',
+          rating: 0,
+          persons: 0,
+          images: []
+        });
+      }
+      setShowForm(true);
+    } catch (error) {
+      console.error('There was an error showing the form!', error);
+    } finally {
+      setLoading(false);
     }
-    setShowForm(true);
   };
 
   const handleHideForm = () => {
@@ -131,22 +143,27 @@ const CatalogoTable: React.FC = () => {
   };
 
   const handleDeleteBlog = async () => {
-    if (selectedBlogId !== null) {
-      const success = await deleteBlog(selectedBlogId);
-      const folderDeleted = await deleteBlogFolder(selectedBlogId);
+    setLoading(true);
+    try {
+      if (selectedBlogId !== null) {
+        const success = await deleteBlog(selectedBlogId);
+        const folderDeleted = await deleteBlogFolder(selectedBlogId);
   
-      if (success && folderDeleted) {
-        setRows((prevRows) => prevRows.filter((row) => row.id !== selectedBlogId));
-        setToastMessage('Blog borrado con éxito.');
-        setToastSeverity('success');
-      } else {
-        setToastMessage('Hubo un error al eliminar el blog o sus calificaciones.');
-        setToastSeverity('error');
-        console.error('There was an error deleting the blog or its folder!');
+        if (success && folderDeleted) {
+          setRows((prevRows) => prevRows.filter((row) => row.id !== selectedBlogId));
+          setToastMessage('Blog borrado con éxito.');
+          setToastSeverity('success');
+        } else {
+          setToastMessage('Hubo un error al eliminar el blog o sus calificaciones.');
+          setToastSeverity('error');
+          console.error('There was an error deleting the blog or its folder!');
+        }
+        setToastOpen(true);
       }
-      setToastOpen(true);
+      setConfirmDialogOpen(false);
+    } finally {
+      setLoading(false);
     }
-    setConfirmDialogOpen(false);
   };
 
   const validateForm = () => {
@@ -165,8 +182,9 @@ const CatalogoTable: React.FC = () => {
       return;
     }
 
-    if (currentBlog) {
-      try {
+    setLoading(true);
+    try {
+      if (currentBlog) {
         let updatedImages = [...currentBlog.images!];
         if (imageFiles.length > 0) {
           const newImages = await postBlogImages(currentBlog.id!, imageFiles.map(({ file }) => file));
@@ -214,13 +232,15 @@ const CatalogoTable: React.FC = () => {
           }
         }
         handleHideForm();
-        fetchBlogs();
-      } catch (error) {
-        setToastMessage('Hubo un error al guardar el blog.');
-        setToastSeverity('error');
-        setToastOpen(true);
-        console.error('There was an error saving the blog!', error);
+        await fetchBlogs();
       }
+    } catch (error) {
+      setToastMessage('Hubo un error al guardar el blog.');
+      setToastSeverity('error');
+      setToastOpen(true);
+      console.error('There was an error saving the blog!', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -313,246 +333,252 @@ const CatalogoTable: React.FC = () => {
       </Box>
     ) : null
   );
-  
+
   return (
     <Box sx={{ padding: 2 }}>
-      {showForm ? (
-        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
-            Regresar
-          </Button>
-          <Typography variant="h4" fontWeight="bold">
-            Blogs
-          </Typography>
-          <TextField
-            label="Título del blog"
-            name="titulo"
-            variant="outlined"
-            fullWidth
-            value={currentBlog?.titulo || ''}
-            onChange={handleInputChange}
-            sx={{
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '24px',
-              },
-            }}
-          />
-          <TextField
-            label="Categoría"
-            name="id_categoria"
-            variant="outlined"
-            select
-            value={currentBlog?.id_categoria || ''}
-            onChange={handleInputChange}
-            sx={{
-              minWidth: '200px',
-              flexGrow: 1,
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '24px',
-              },
-            }}
-          >
-            {categorias.map((categoria) => (
-              <MenuItem key={categoria.id} value={categoria.id}>{categoria.categoria}</MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            label="Descripción"
-            name="descripcion"
-            variant="outlined"
-            multiline
-            rows={4}
-            value={currentBlog?.descripcion || ''}
-            onChange={handleInputChange}
-            sx={{
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '24px',
-              },
-            }}
-          />
-          <TextField
-            label="Contenido del blog"
-            name="contenido"
-            variant="outlined"
-            multiline
-            rows={6}
-            value={currentBlog?.contenido || ''}
-            onChange={handleInputChange}
-            sx={{
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '24px',
-              },
-            }}
-          />
-          <Typography variant="h6" fontWeight="bold">
-            Galería de imágenes
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
-            {currentBlog?.images?.map((image, index) => (
-              <Box key={index} sx={{ position: 'relative' }}>
-                <Avatar src={image} alt={`image-${index}`} sx={{ width: 150, height: 150, borderRadius: '12px' }} />
-                <IconButton sx={{ position: 'absolute', top: 0, right: 0, color:'#E61F93'}} onClick={() => handleDeleteImage(image)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            ))}
-            {imageFiles.map((imageFile, index) => (
-              <Box key={index} sx={{ position: 'relative' }}>
-                <Avatar src={imageFile.preview} alt={`new-image-${index}`} sx={{ width: 150, height: 150, borderRadius: '12px' }} />
-                <IconButton sx={{ position: 'absolute', top: 0, right: 0, color:'#E61F93'}} onClick={() => setImageFiles(imageFiles.filter((_, i) => i !== index))}>
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            ))}
-            {uploadFields.map((field, index) => (
-              <UploadButton key={index} index={index} />
-            ))}
-            <IconButton onClick={handleAddUploadField} sx={{ 
-              backgroundColor: '#E61F93', 
-              color: 'white', 
-              width: 38, 
-              height: 38, 
-              borderRadius: '50%', 
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              } 
-            }}>
-              <AddIcon />
-            </IconButton>
-          </Box>
-  
-          <Button
-            variant="contained"
-            onClick={handleSave}
-            sx={{
-              backgroundColor: '#E61F93',
-              borderRadius: '24px',
-              boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)'
-            }}
-          >
-            Guardar
-          </Button>
-        </Box>
+      {loading ? (
+        <Loader />
       ) : (
         <>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 2, flexWrap: 'wrap' }}>
-            <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-              Blogs
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-                Reporte
+          {showForm ? (
+            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+                Regresar
               </Button>
-              <Button onClick={() => handleShowForm()} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
-                Agregar
+              <Typography variant="h4" fontWeight="bold">
+                Blogs
+              </Typography>
+              <TextField
+                label="Título del blog"
+                name="titulo"
+                variant="outlined"
+                fullWidth
+                value={currentBlog?.titulo || ''}
+                onChange={handleInputChange}
+                sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+              <TextField
+                label="Categoría"
+                name="id_categoria"
+                variant="outlined"
+                select
+                value={currentBlog?.id_categoria || ''}
+                onChange={handleInputChange}
+                sx={{
+                  minWidth: '200px',
+                  flexGrow: 1,
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              >
+                {categorias.map((categoria) => (
+                  <MenuItem key={categoria.id} value={categoria.id}>{categoria.categoria}</MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                label="Descripción"
+                name="descripcion"
+                variant="outlined"
+                multiline
+                rows={4}
+                value={currentBlog?.descripcion || ''}
+                onChange={handleInputChange}
+                sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+              <TextField
+                label="Contenido del blog"
+                name="contenido"
+                variant="outlined"
+                multiline
+                rows={6}
+                value={currentBlog?.contenido || ''}
+                onChange={handleInputChange}
+                sx={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '24px',
+                  },
+                }}
+              />
+              <Typography variant="h6" fontWeight="bold">
+                Galería de imágenes
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
+                {currentBlog?.images?.map((image, index) => (
+                  <Box key={index} sx={{ position: 'relative' }}>
+                    <Avatar src={image} alt={`image-${index}`} sx={{ width: 150, height: 150, borderRadius: '12px' }} />
+                    <IconButton sx={{ position: 'absolute', top: 0, right: 0, color:'#E61F93'}} onClick={() => handleDeleteImage(image)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                ))}
+                {imageFiles.map((imageFile, index) => (
+                  <Box key={index} sx={{ position: 'relative' }}>
+                    <Avatar src={imageFile.preview} alt={`new-image-${index}`} sx={{ width: 150, height: 150, borderRadius: '12px' }} />
+                    <IconButton sx={{ position: 'absolute', top: 0, right: 0, color:'#E61F93'}} onClick={() => setImageFiles(imageFiles.filter((_, i) => i !== index))}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                ))}
+                {uploadFields.map((field, index) => (
+                  <UploadButton key={index} index={index} />
+                ))}
+                <IconButton onClick={handleAddUploadField} sx={{ 
+                  backgroundColor: '#E61F93', 
+                  color: 'white', 
+                  width: 38, 
+                  height: 38, 
+                  borderRadius: '50%', 
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  } 
+                }}>
+                  <AddIcon />
+                </IconButton>
+              </Box>
+  
+              <Button
+                variant="contained"
+                onClick={handleSave}
+                sx={{
+                  backgroundColor: '#E61F93',
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)'
+                }}
+              >
+                Guardar
               </Button>
             </Box>
-          </Box>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell style={{ textAlign: 'center', width: '25%' }}>Blog</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Calificación</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Personas</TableCell>
-                  <TableCell style={{ textAlign: 'center', width: '30%' }}>Descripción</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>
-                      <Box display="flex" alignItems="center">
-                        <Avatar 
-                          src={row.image} 
-                          alt={row.name} 
-                          sx={{ 
-                            width: 56, 
-                            height: 56, 
-                            margin: '8px', 
-                            borderRadius: '5px',
-                          }} 
-                        />
-                        <Box>
-                          <Typography variant="body1" fontWeight="bold">{row.name}</Typography>
-                          <Typography variant="body2" sx={{ backgroundColor: '#F8BBD0', borderRadius: '12px', padding: '4px 8px', display: 'inline-block', color: 'white', fontWeight: 'bold' }}>
-                            {row.category}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>
-                      <StarIcon sx={{ color: 'black' }} /> {row.rating}
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                      {row.persons}
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center', whiteSpace: 'normal', wordWrap: 'break-word', width: '20%' }}>
-                      {row.descripcion}
-                    </TableCell>
-                    <TableCell style={{ textAlign: 'center' }}>
-                      <IconButton onClick={() => handleShowForm(row)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleOpenConfirmDialog(row.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 15]}
-              component="div"
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
+          ) : (
+            <>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 2, flexWrap: 'wrap' }}>
+                <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+                  Blogs
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+                    Reporte
+                  </Button>
+                  <Button onClick={() => handleShowForm()} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
+                    Agregar
+                  </Button>
+                </Box>
+              </Box>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell style={{ textAlign: 'center', width: '25%' }}>Blog</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>Calificación</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>Personas</TableCell>
+                      <TableCell style={{ textAlign: 'center', width: '30%' }}>Descripción</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>Acciones</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell>
+                          <Box display="flex" alignItems="center">
+                            <Avatar 
+                              src={row.image} 
+                              alt={row.name} 
+                              sx={{ 
+                                width: 56, 
+                                height: 56, 
+                                margin: '8px', 
+                                borderRadius: '5px',
+                              }} 
+                            />
+                            <Box>
+                              <Typography variant="body1" fontWeight="bold">{row.name}</Typography>
+                              <Typography variant="body2" sx={{ backgroundColor: '#F8BBD0', borderRadius: '12px', padding: '4px 8px', display: 'inline-block', color: 'white', fontWeight: 'bold' }}>
+                                {row.category}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell style={{ textAlign: 'center' }}>
+                          <StarIcon sx={{ color: 'black' }} /> {row.rating}
+                        </TableCell>
+                        <TableCell style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                          {row.persons}
+                        </TableCell>
+                        <TableCell style={{ textAlign: 'center', whiteSpace: 'normal', wordWrap: 'break-word', width: '20%' }}>
+                          {row.descripcion}
+                        </TableCell>
+                        <TableCell style={{ textAlign: 'center' }}>
+                          <IconButton onClick={() => handleShowForm(row)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton onClick={() => handleOpenConfirmDialog(row.id)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 15]}
+                  component="div"
+                  count={rows.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </TableContainer>
+            </>
+          )}
+          <Snackbar 
+            open={toastOpen} 
+            autoHideDuration={6000} 
+            onClose={handleCloseToast} 
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
+              {toastMessage}
+            </Alert>
+          </Snackbar>
+  
+          <Dialog
+            open={confirmDialogOpen}
+            onClose={handleCloseConfirmDialog}
+          >
+            <DialogTitle>Confirmar eliminación</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                ¿Estás seguro de que deseas eliminar este blog?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseConfirmDialog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+                Cancelar
+              </Button>
+              <Button onClick={handleDeleteBlog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+                Eliminar
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
-      <Snackbar 
-        open={toastOpen} 
-        autoHideDuration={6000} 
-        onClose={handleCloseToast} 
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
-          {toastMessage}
-        </Alert>
-      </Snackbar>
-
-      <Dialog
-        open={confirmDialogOpen}
-        onClose={handleCloseConfirmDialog}
-      >
-        <DialogTitle>Confirmar eliminación</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            ¿Estás seguro de que deseas eliminar este blog?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-            Cancelar
-          </Button>
-          <Button onClick={handleDeleteBlog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-            Eliminar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
