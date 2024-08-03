@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Avatar, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
+import logo from '../../assets/logo/xianna.png';
 
 const menuItems = [
   { text: 'insights', key: 'insights' },
@@ -34,9 +35,9 @@ const Sidebar: React.FC<{ selectedKey: string, onSelect: (key: string) => void }
     >
       <Box sx={{ marginBottom: '20px' }}>
         <img
-          src="https://your-logo-url.com/logo.png"
+          src={logo}
           alt="Xianna Logo"
-          style={{ width: '100px', marginBottom: '10px' }}
+          style={{ width: '200px', marginBottom: '30px', marginTop: '30px' }}
         />
         <Avatar
           src="https://your-profile-image-url.com/profile.jpg"

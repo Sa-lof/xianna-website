@@ -57,6 +57,32 @@ const BlogChart: React.FC<BlogChartProps> = ({ data, selectedCategoria, categori
           xaxis: {
             categories: data.categories,
           },
+          yaxis: {
+            min: 1,
+            max: 5,
+            tickAmount: 4, // Number of ticks on the y-axis
+            labels: {
+              formatter: function (val: number) {
+                return val.toFixed(0); // Show axis labels without decimals
+              }
+            }
+          },
+          plotOptions: {
+            bar: {
+              dataLabels: {
+                position: 'center', // show data labels in the center of the bar
+              }
+            }
+          },
+          dataLabels: {
+            enabled: true,
+            formatter: function (val: number) {
+              return val.toFixed(1); // Reduce values to one decimal
+            },
+            style: {
+              colors: ['#fff']
+            }
+          },
           title: {
             text: 'Calificaciones de Blogs',
             align: 'center',

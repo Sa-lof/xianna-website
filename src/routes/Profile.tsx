@@ -8,9 +8,11 @@ import {
   IconButton,
   Slide,
   Fade,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
@@ -20,6 +22,7 @@ import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
 import { updateUserProfile } from "../supabase/UsersServices/updateUserProfile";
 import { User } from "../supabase/UsersServices/types";
 import Loader from "../components/Loader/Loader"; // Import the Loader component
+import supabase from "../supabaseClient";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -47,8 +50,18 @@ const Profile: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchUserProfile(setUser).finally(() => setIsLoading(false)); // Set loading to false after data is fetched
-  }, []);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/"); // Redirigir a la página de inicio de sesión si no hay sesión
+        return;
+      }
+      await fetchUserProfile(setUser);
+      setIsLoading(false); // Set loading to false after data is fetched
+    };
+
+    checkUser();
+  }, [navigate]);
 
   const handleModalOpen = () => {
     setModalOpen(true);
@@ -65,6 +78,32 @@ const Profile: React.FC = () => {
     } else {
       setUser(updatedUser);
       handleModalClose();
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error logging out:', error);
+    } else {
+      setUser({
+        name: "",
+        email: "",
+        city: "",
+        sex: "",
+        age: 0,
+        profession: "",
+        bodyType: "",
+        size: "",
+        country: "",
+        styleType: "",
+        styleDescription: "",
+        colors: [],
+        outfits: [],
+        basicItems: [],
+        tips: [],
+      });
+      navigate("/"); // Navigate to the login page
     }
   };
 
@@ -351,6 +390,16 @@ const Profile: React.FC = () => {
               </Card>
             </Grid>
           </Grid>
+          <Box sx={{ textAlign: "center", marginTop: 4 }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<LogoutIcon />}
+              onClick={handleLogout}
+            >
+              Cerrar Sesión
+            </Button>
+          </Box>
           <Footer />
           <EditProfileModal
             open={isModalOpen}

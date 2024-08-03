@@ -5,10 +5,9 @@ import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import getFavorites from '../../supabase/InsightServices/getFavorites';
 import getOutfits from '../../supabase/InsightServices/getOutfits';
 import getBlogs from '../../supabase/BlogServices/getBlogs';
-import getBlogRatings from '../../supabase/InsightServices/getBlogRatings';
 import getCategorias from '../../supabase/InsightServices/getCategorias';
 import StyleChart from '../StyleChart_D/StyleChart';
-import BlogChart from '../BlogChart_D/BlogChart';
+import BlogRatingChart from '../BlogRatingChart/BlogRatingChart';
 import Chart from 'react-apexcharts';
 import { Style } from '../../supabase/CatalogoServices/types';
 
@@ -48,12 +47,6 @@ interface Blog {
   image: string;
 }
 
-interface BlogRating {
-  id: number;
-  blog: number;
-  calificacion: number;
-}
-
 interface Categoria {
   id: number;
   categoria: string;
@@ -73,12 +66,10 @@ const Insights: React.FC = () => {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [blogRatings, setBlogRatings] = useState<BlogRating[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [selectedCategoria, setSelectedCategoria] = useState<string>('Todos');
   const [chartData, setChartData] = useState<ChartData>({ categories: [], series: [] });
   const [favoritesChartData, setFavoritesChartData] = useState<{ name: string, data: { x: string, y: number }[] }[]>([]);
-  const [blogRatingsChartData, setBlogRatingsChartData] = useState<ChartData>({ categories: [], series: [] });
   const [mostSavedOutfit, setMostSavedOutfit] = useState<string>('');
   const [mostRatedCategory, setMostRatedCategory] = useState<string>('');
   const [ageRanges, setAgeRanges] = useState<string[]>(['0-100']);
@@ -91,7 +82,6 @@ const Insights: React.FC = () => {
       const favoritesData = await getFavorites();
       const outfitsData = await getOutfits();
       const blogsData = await getBlogs();
-      const blogRatingsData = await getBlogRatings();
       const categoriasData = await getCategorias();
 
       setUsers(usersData);
@@ -99,7 +89,6 @@ const Insights: React.FC = () => {
       setFavorites(favoritesData);
       setOutfits(outfitsData);
       setBlogs(blogsData);
-      setBlogRatings(blogRatingsData);
       setCategorias(categoriasData);
     };
 
@@ -151,33 +140,6 @@ const Insights: React.FC = () => {
       setMostSavedOutfit(mostSaved.nombre);
     }
   }, [favorites, outfits]);
-
-  useEffect(() => {
-    if (blogs.length > 0 && blogRatings.length > 0) {
-      const filteredBlogs = selectedCategoria === 'Todos' ? blogs : blogs.filter(blog => blog.categoria === selectedCategoria);
-      const blogRatingCounts = filteredBlogs.map(blog => ({
-        titulo: blog.titulo,
-        avgRating: blogRatings.filter(rating => rating.blog === blog.id).reduce((acc, curr) => acc + curr.calificacion, 0) / blogRatings.filter(rating => rating.blog === blog.id).length,
-      }));
-
-      setBlogRatingsChartData({
-        categories: blogRatingCounts.map(item => item.titulo),
-        series: [{
-          name: 'Calificación promedio',
-          data: blogRatingCounts.map(item => item.avgRating),
-        }],
-      });
-
-      const categoryRatingCounts = categorias.map(categoria => ({
-        categoria: categoria.categoria,
-        ratingCount: blogRatingCounts.filter(blog => blogs.find(b => b.titulo === blog.titulo)?.categoria === categoria.categoria)
-                                     .reduce((acc, blog) => acc + blog.avgRating, 0),
-      }));
-
-      const mostRated = categoryRatingCounts.reduce((prev, current) => (prev.ratingCount > current.ratingCount) ? prev : current, categoryRatingCounts[0]);
-      setMostRatedCategory(mostRated.categoria);
-    }
-  }, [blogs, blogRatings, categorias, selectedCategoria]);
 
   const handleAgeRangeChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
@@ -253,12 +215,10 @@ const Insights: React.FC = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={12} md={12}>
-          <BlogChart
-            data={blogRatingsChartData}
-            selectedCategoria={selectedCategoria}
-            categorias={categorias}
-            handleCategoriaChange={handleCategoriaChange}
-          />
+          <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
+            <Typography variant="h5" fontWeight="bold">Promedio de Calificaciones por Blog</Typography>
+            <BlogRatingChart />
+          </Card>
         </Grid>
       </Grid>
     </Box>
