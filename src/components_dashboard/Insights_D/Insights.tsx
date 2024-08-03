@@ -54,10 +54,7 @@ interface Categoria {
 
 interface ChartData {
   categories: string[];
-  series: {
-    name: string;
-    data: number[];
-  }[];
+  series: number[];
 }
 
 const Insights: React.FC = () => {
@@ -74,6 +71,7 @@ const Insights: React.FC = () => {
   const [mostRatedCategory, setMostRatedCategory] = useState<string>('');
   const [ageRanges, setAgeRanges] = useState<string[]>(['0-100']);
   const [selectedStyles, setSelectedStyles] = useState<string[]>(['Todos']);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,11 +111,9 @@ const Insights: React.FC = () => {
 
       setChartData({
         categories: styleCounts.map(item => item.style),
-        series: [{
-          name: 'Usuarios',
-          data: styleCounts.map(item => item.count),
-        }],
+        series: styleCounts.map(item => item.count),
       });
+      setTotalUsers(filteredUsers.length);
     }
   }, [users, styles, ageRanges, selectedStyles]);
 
@@ -198,9 +194,10 @@ const Insights: React.FC = () => {
             <Typography variant="body1">{mostRatedCategory}</Typography>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={12} md={6}>
+        <Grid item xs={12} sm={12} md={12} lg={6}>
           <StyleChart 
             data={chartData} 
+            totalUsers={totalUsers} 
             ageRanges={ageRanges} 
             selectedStyles={selectedStyles} 
             styles={styles} 
@@ -208,7 +205,7 @@ const Insights: React.FC = () => {
             handleStyleChange={handleStyleChange} 
           />
         </Grid>
-        <Grid item xs={12} sm={12} md={6}>
+        <Grid item xs={12} sm={12} md={12} lg={6}>
           <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
             <Typography variant="h5" fontWeight="bold">Outfits favoritos</Typography>
             <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height={350} />

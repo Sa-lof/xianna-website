@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import Chart from 'react-apexcharts';
-import getBlogRatingsPerUsers from '../../supabase/InsightServices/getBlogRatingsPerUsers';
+import { getBlogRatingsPerUsers, getCategories } from '../../supabase/InsightServices/getBlogRatingsPerUsers';
 
 interface ChartData {
   series: { name: string; data: number[] }[];
   categories: string[];
   blogNames: { [key: string]: string };
+}
+
+interface Category {
+  id: number;
+  categoria: string;
 }
 
 const BlogRatingChart: React.FC = () => {
@@ -19,9 +25,22 @@ const BlogRatingChart: React.FC = () => {
     blogNames: {}
   });
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | 'Todos'>('Todos');
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const categoriesData = await getCategories();
+      setCategories([{ id: 0, categoria: 'Todos' }, ...categoriesData]);
+    };
+
+    fetchCategories();
+  }, []);
+
   useEffect(() => {
     const fetchAndProcessData = async () => {
-      const averageRatings = await getBlogRatingsPerUsers();
+      const categoryId = selectedCategory !== 'Todos' ? selectedCategory : undefined;
+      const averageRatings = await getBlogRatingsPerUsers(categoryId);
 
       const blogNames: { [key: string]: string } = {};
       averageRatings.forEach(r => {
@@ -40,7 +59,7 @@ const BlogRatingChart: React.FC = () => {
     };
 
     fetchAndProcessData();
-  }, []);
+  }, [selectedCategory]);
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -91,8 +110,26 @@ const BlogRatingChart: React.FC = () => {
     }
   };
 
+  const handleCategoryChange = (event: SelectChangeEvent<number | 'Todos'>) => {
+    setSelectedCategory(event.target.value as number | 'Todos');
+  };
+
   return (
     <div>
+      <FormControl variant="outlined" fullWidth margin="normal">
+        <InputLabel>Categoría</InputLabel>
+        <Select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          label="Categoría"
+        >
+          {categories.map(category => (
+            <MenuItem key={category.id} value={category.id}>
+              {category.categoria}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <Chart
         options={options}
         series={chartData.series}

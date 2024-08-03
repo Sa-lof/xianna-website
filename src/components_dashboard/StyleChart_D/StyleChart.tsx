@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Box, Typography, FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText, OutlinedInput, SelectChangeEvent } from '@mui/material';
 import Chart from 'react-apexcharts';
 
 interface ChartData {
   categories: string[];
-  series: {
-    name: string;
-    data: number[];
-  }[];
+  series: number[];
 }
 
 interface StyleChartProps {
   data: ChartData;
+  totalUsers: number;
   ageRanges: string[];
   selectedStyles: string[];
   styles: { id: number; tipo: string; descripcion: string }[];
@@ -19,7 +17,7 @@ interface StyleChartProps {
   handleStyleChange: (event: SelectChangeEvent<string[]>) => void;
 }
 
-const StyleChart: React.FC<StyleChartProps> = ({ data, ageRanges, selectedStyles, styles, handleAgeRangeChange, handleStyleChange }) => {
+const StyleChart: React.FC<StyleChartProps> = ({ data, totalUsers, ageRanges, selectedStyles, styles, handleAgeRangeChange, handleStyleChange }) => {
   return (
     <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -33,30 +31,12 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, ageRanges, selectedStyles
             input={<OutlinedInput label="Rango de Edad" />}
             renderValue={(selected) => selected.join(', ')}
           >
-            <MenuItem value="0-100">
-              <Checkbox checked={ageRanges.indexOf('0-100') > -1} />
-              <ListItemText primary="Todos" />
-            </MenuItem>
-            <MenuItem value="0-18">
-              <Checkbox checked={ageRanges.indexOf('0-18') > -1} />
-              <ListItemText primary="0-18" />
-            </MenuItem>
-            <MenuItem value="19-25">
-              <Checkbox checked={ageRanges.indexOf('19-25') > -1} />
-              <ListItemText primary="19-25" />
-            </MenuItem>
-            <MenuItem value="26-35">
-              <Checkbox checked={ageRanges.indexOf('26-35') > -1} />
-              <ListItemText primary="26-35" />
-            </MenuItem>
-            <MenuItem value="36-50">
-              <Checkbox checked={ageRanges.indexOf('36-50') > -1} />
-              <ListItemText primary="36-50" />
-            </MenuItem>
-            <MenuItem value="51-100">
-              <Checkbox checked={ageRanges.indexOf('51-100') > -1} />
-              <ListItemText primary="51+" />
-            </MenuItem>
+            {['0-100', '0-18', '19-25', '26-35', '36-50', '51-100'].map(range => (
+              <MenuItem key={range} value={range}>
+                <Checkbox checked={ageRanges.indexOf(range) > -1} />
+                <ListItemText primary={range === '51-100' ? '51+' : range} />
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         <FormControl variant="outlined" sx={{ width: '45%' }}>
@@ -86,14 +66,39 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, ageRanges, selectedStyles
       <Chart
         options={{
           chart: {
-            type: 'bar',
+            type: 'donut',
           },
-          xaxis: {
-            categories: data.categories,
+          labels: data.categories,
+          dataLabels: {
+            enabled: true,
+            formatter: (val, opts) => {
+              const name = opts.w.globals.labels[opts.seriesIndex];
+              const total = opts.w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
+              const percentage = ((opts.w.globals.series[opts.seriesIndex] / total) * 100).toFixed(1);
+              return `${name}:${opts.w.globals.series[opts.seriesIndex]}`;
+            }
+          },
+          legend: {
+            show: true,
+            position: 'right',
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                labels: {
+                  show: true,
+                  total: {
+                    show: true,
+                    label: 'Total',
+                    formatter: () => `${totalUsers} Usuarios`,
+                  }
+                }
+              }
+            }
           },
         }}
         series={data.series}
-        type="bar"
+        type="donut"
         height="350"
       />
     </Card>

@@ -9,6 +9,12 @@ interface BlogRating {
 interface Blog {
   id: number;
   titulo: string;
+  id_categoria: number;
+}
+
+interface Category {
+  id: number;
+  categoria: string;
 }
 
 interface AverageRating {
@@ -19,28 +25,37 @@ interface AverageRating {
   overallAvg: number;
 }
 
-const getBlogRatingsPerUsers = async (): Promise<AverageRating[]> => {
-  const { data: ratingsData, error: ratingsError } = await supabase
-    .from('blogs_calificados')
-    .select('blog, calificacion, usuario');
-
-  if (ratingsError) {
-    console.error('Error fetching blog ratings:', ratingsError);
-    return [];
+const getBlogRatingsPerUsers = async (categoryId?: number): Promise<AverageRating[]> => {
+  const blogsQuery = supabase.from('blogs').select('id, titulo, id_categoria');
+  
+  if (categoryId && categoryId !== 0) {
+    blogsQuery.eq('id_categoria', categoryId);
   }
 
-  const { data: blogsData, error: blogsError } = await supabase
-    .from('blogs')
-    .select('id, titulo');
+  const { data: blogsData, error: blogsError } = await blogsQuery;
 
   if (blogsError) {
     console.error('Error fetching blogs:', blogsError);
     return [];
   }
 
-  const blogMap = new Map<number, string>();
+  const blogIds = (blogsData as Blog[]).map(blog => blog.id);
+
+  if (blogIds.length === 0) return [];
+
+  const { data: ratingsData, error: ratingsError } = await supabase
+    .from('blogs_calificados')
+    .select('blog, calificacion, usuario')
+    .in('blog', blogIds);
+
+  if (ratingsError) {
+    console.error('Error fetching blog ratings:', ratingsError);
+    return [];
+  }
+
+  const blogMap = new Map<number, { titulo: string, categoria: number }>();
   (blogsData as Blog[]).forEach(blog => {
-    blogMap.set(blog.id, blog.titulo);
+    blogMap.set(blog.id, { titulo: blog.titulo, categoria: blog.id_categoria });
   });
 
   const blogRatings: Record<number, { registered: number[]; unregistered: number[] }> = {};
@@ -68,14 +83,29 @@ const getBlogRatingsPerUsers = async (): Promise<AverageRating[]> => {
 
     return {
       blog: Number(blog),
-      blogName: blogMap.get(Number(blog)) || 'Unknown',
+      blogName: blogMap.get(Number(blog))?.titulo || 'Unknown',
       registeredAvg,
       unregisteredAvg,
       overallAvg,
     };
   });
 
-  return averageRatings;
+  return averageRatings
+    .sort((a, b) => b.overallAvg - a.overallAvg)
+    .slice(0, 5);
 };
 
-export default getBlogRatingsPerUsers;
+const getCategories = async (): Promise<Category[]> => {
+  const { data, error } = await supabase
+    .from('categoria_blog')
+    .select('id, categoria');
+
+  if (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  return data as Category[];
+};
+
+export { getBlogRatingsPerUsers, getCategories };
