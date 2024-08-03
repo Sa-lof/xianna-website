@@ -1,4 +1,14 @@
+[build]
+  functions = "netlify/functions"
+
 [[headers]]
-for = "/*"
-[headers.values]
-  Content-Security-Policy = "default-src 'self'; connect-src 'self' https://ulafgjbgmgqqjxayohmg.supabase.co"
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://xiannawebsite.netlify.app"
+    Access-Control-Allow-Methods = "GET, POST, PATCH, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, apikey"
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://ulafgjbgmgqqjxayohmg.supabase.co"
