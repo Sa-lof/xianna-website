@@ -1,6 +1,9 @@
 /*
-X-Frame-Options: SAMEORIGIN
-X-XSS-Protection: 1; mode=block
-X-Content-Type-Options: nosniff
-Referrer-Policy: no-referrer-when-downgrade
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: https://ulafgjbgmgqqjxayohmg.supabase.co; connect-src 'self' https://ulafgjbgmgqqjxayohmg.supabase.co;
+  Access-Control-Allow-Origin: https://xiannawebsite.netlify.app
+  Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization, apikey
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer-when-downgrade
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: https://ulafgjbgmgqqjxayohmg.supabase.co; connect-src 'self' https://ulafgjbgmgqqjxayohmg.supabase.co;
