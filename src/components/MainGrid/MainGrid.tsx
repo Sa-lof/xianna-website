@@ -38,12 +38,22 @@ const MainGrid: React.FC = () => {
               <Typography
                 variant="h1"
                 className="ml-4"
-                sx={{ fontWeight: "bold", fontSize: "40px" }}
+                sx={{ fontWeight: "bold", fontSize: {
+                  xs: '24px', 
+                  sm: '28px',
+                  md: '32px',
+                  lg: '40px',
+                },}}
               >
                 ¿Qué es Xianna?
               </Typography>
             </div>
-            <Typography variant="body1" sx={{ fontSize: "24px" }}>
+            <Typography variant="body1" sx={{ fontSize: {
+                xs: '18px', 
+                sm: '20px',
+                md: '22px',
+                lg: '24px',
+              }, }}>
               Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
               ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
             </Typography>
@@ -63,7 +73,12 @@ const MainGrid: React.FC = () => {
           <CardContent className="flex-grow flex justify-center items-center">
             <Typography
               variant="h2"
-              sx={{ fontSize: "40px", fontWeight: "bold" }}
+              sx={{ fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              }, fontWeight: "bold" }}
             >
               Cuestionario de Estilo
             </Typography>
@@ -94,7 +109,12 @@ const MainGrid: React.FC = () => {
           <CardContent className="flex-grow flex justify-center items-center">
             <Typography
               variant="h3"
-              sx={{ fontSize: "40px", fontWeight: "bold", textAlign: "center" }}
+              sx={{ fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              }, fontWeight: "bold", textAlign: "center" }}
             >
               Forma parte de Xianna
             </Typography>
@@ -115,9 +135,10 @@ const MainGrid: React.FC = () => {
             position: "relative",
             borderRadius: "16px",
             overflow: "hidden",
+            height: { xs: "auto", md: "100%" },
           }}
         >
-          <CardContent className="flex-grow p-0" sx={{ position: "relative" }}>
+          <CardContent className="flex-grow p-0" sx={{ position: "relative", height: { xs: "250px", md: "100%" } }}>
             <img
               src={placeholder1}
               alt="Catálogo"
@@ -127,6 +148,9 @@ const MainGrid: React.FC = () => {
                 position: "absolute",
                 top: 0,
                 left: 0,
+                width: "100%",
+                height: "100%", // Asegura que la imagen cubra todo el contenedor
+                objectFit: "cover", // Ajusta la imagen para cubrir sin distorsión
               }}
             />
             <Box
@@ -166,7 +190,12 @@ const MainGrid: React.FC = () => {
           <CardContent className="flex-grow flex justify-center items-center p-3">
             <Typography
               variant="h5"
-              sx={{ fontSize: "40px", fontWeight: "bold", textAlign: "center" }}
+              sx={{ fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              }, fontWeight: "bold", textAlign: "center" }}
             >
               Lorem ipsum lorem ipsum lorem
             </Typography>
@@ -187,11 +216,21 @@ const MainGrid: React.FC = () => {
           <CardContent className="flex-grow">
             <Typography
               variant="h6"
-              sx={{ fontWeight: "bold", fontSize: "40px" }}
+              sx={{ fontWeight: "bold", fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+              }, }}
             >
               Blog Xianna
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "24px" }}>
+            <Typography variant="body1" sx={{ fontSize: {
+                  xs: '18px', 
+                  sm: '20px',
+                  md: '22px',
+                  lg: '24px',
+                }, }}>
               Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
               ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
             </Typography>
@@ -262,7 +301,12 @@ const MainGrid: React.FC = () => {
             <Typography
               variant="h6"
               className="text-white"
-              sx={{ fontWeight: "bold", fontSize: "40px" }}
+              sx={{ fontWeight: "bold", fontSize: {
+                xs: '24px', 
+                sm: '28px',
+                md: '32px',
+                lg: '40px',
+            }, }}
             >
               Contáctanos
             </Typography>
