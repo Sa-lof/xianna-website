@@ -50,18 +50,20 @@ const Clothes: React.FC<ClothesProps> = ({ items }) => {
                 {item.title}
               </Typography>
             </CardContent>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: "auto",
-                position: "absolute",
-                bottom: 16,
-                right: 16,
-              }}
-            >
-              <SmallButton link={item.link} backgroundColor="white" arrowColor="black" />
-            </Box>
+            {item.link && ( // Solo muestra el botón si hay un link
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: "auto",
+                  position: "absolute",
+                  bottom: 16,
+                  right: 16,
+                }}
+              >
+                <SmallButton link={item.link} backgroundColor="white" arrowColor="black" />
+              </Box>
+            )}
           </Card>
         </Grid>
       ))}

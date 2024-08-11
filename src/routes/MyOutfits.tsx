@@ -167,7 +167,6 @@ const MyOutfits: React.FC = () => {
     return <Loader />; // Show loader while loading
   }
 
-  // Paginated outfits
   const paginatedOutfits = user.outfits.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
@@ -202,6 +201,7 @@ const MyOutfits: React.FC = () => {
           >
             <ArrowBackIcon sx={{ fontSize: 40, color: "white" }} />
           </IconButton>
+
           <Grid container spacing={4} mb={5}>
             <Grid item xs={12} md={4}>
               <Card
@@ -220,7 +220,11 @@ const MyOutfits: React.FC = () => {
                 />
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "25px" }}
+                  sx={{
+                    fontWeight: "bold",
+                    marginBottom: 1,
+                    fontSize: "25px",
+                  }}
                 >
                   {user.name}
                 </Typography>
@@ -262,60 +266,122 @@ const MyOutfits: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography
-                variant="h5"
-                sx={{ fontWeight: "bold", marginBottom: 2 }}
-              >
-                Mis Outfits
-              </Typography>
-              <Grid container spacing={2}>
-                {paginatedOutfits.map((outfit: Outfit) => (
-                  <Grid item xs={12} sm={6} md={4} key={outfit.id}>
-                    <Box sx={{ position: "relative" }}>
-                      <CatalogCard
-                        id={outfit.id.toString()}
-                        image={outfit.imagen}
-                        title={outfit.nombre}
-                        link={`/catalogo/${outfit.id}`}
-                      />
-                      <IconButton
-                        sx={{
-                          position: "absolute",
-                          top: 10,
-                          right: 10,
-                          color: "yellow",
-                          backgroundColor: "rgba(0, 0, 0, 0.5)",
-                          borderRadius: "50%",
-                        }}
-                        onClick={() => handleRemoveFavorite(outfit.id)}
-                      >
-                        <StarIcon />
-                      </IconButton>
-                    </Box>
-                  </Grid>
-                ))}
-              </Grid>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-                <Pagination
-                  count={Math.ceil(user.outfits.length / itemsPerPage)}
-                  page={page}
-                  onChange={handleChangePage}
-                  renderItem={(item) => (
-                    <PaginationItem
-                      {...item}
-                      sx={{
-                        "&.Mui-selected": {
-                          backgroundColor: pink,
-                          color: "white",
-                        },
-                        "& .MuiPaginationItem-root": {
-                          color: pink,
-                        },
-                      }}
+              {user.outfits.length === 0 ? (
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography
+                    variant="h1"
+                    sx={{
+                      fontWeight: "bold",
+                      mb: 2,
+                      fontSize: {
+                        xs: "20px", // Tamaño de fuente para pantallas pequeñas
+                        sm: "24px", // Tamaño de fuente para pantallas medianas
+                        md: "28px", // Tamaño de fuente para pantallas grandes
+                        lg: "30px", // Tamaño de fuente para pantallas extra grandes
+                      },
+                    }}
+                  >
+                    ¡Aún no tienes outfits favoritos!
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      mb: 2,
+                      fontSize: {
+                        xs: "16px", // Tamaño de fuente para pantallas pequeñas
+                        sm: "18px", // Tamaño de fuente para pantallas medianas
+                        md: "20px", // Tamaño de fuente para pantallas grandes
+                        lg: "22px", // Tamaño de fuente para pantallas extra grandes
+                      },
+                    }}
+                  >
+                    Navega en nuestro catálogo y guarda los que más te gusten
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      mt: 4,
+                      mb: 4,
+                    }}
+                  >
+                    <LargeButton
+                      text="Ver catálogo"
+                      link="/catalogo"
+                      textColor="white"
+                      arrowColor="white"
+                      backgroundColor={pink}
+                      onClick={() => navigate("/catalogo")}
                     />
-                  )}
-                />
-              </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: "bold", marginBottom: 2 }}
+                  >
+                    Mis Outfits
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {paginatedOutfits.map((outfit: Outfit) => (
+                      <Grid item xs={12} sm={6} md={4} key={outfit.id}>
+                        <Box sx={{ position: "relative" }}>
+                          <CatalogCard
+                            id={outfit.id.toString()}
+                            image={outfit.imagen}
+                            title={outfit.nombre}
+                            link={`/catalogo/${outfit.id}`}
+                          />
+                          <IconButton
+                            sx={{
+                              position: "absolute",
+                              top: 10,
+                              right: 10,
+                              color: "yellow",
+                              backgroundColor: "rgba(0, 0, 0, 0.5)",
+                              borderRadius: "50%",
+                            }}
+                            onClick={() => handleRemoveFavorite(outfit.id)}
+                          >
+                            <StarIcon />
+                          </IconButton>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                  <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                    <Pagination
+                      count={Math.ceil(user.outfits.length / itemsPerPage)}
+                      page={page}
+                      onChange={handleChangePage}
+                      renderItem={(item) => (
+                        <PaginationItem
+                          {...item}
+                          sx={{
+                            "&.Mui-selected": {
+                              backgroundColor: pink,
+                              color: "white",
+                            },
+                            "& .MuiPaginationItem-root": {
+                              color: pink,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+                </>
+              )}
             </Grid>
           </Grid>
           <Footer />

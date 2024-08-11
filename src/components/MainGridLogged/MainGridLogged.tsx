@@ -24,7 +24,7 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
     const fetchStyles = async () => {
       const styles = await getStyles();
       const style = styles.find(s => s.id === userStyleId);
-      setUserStyle(style ? style.tipo : "Desconocido");
+      setUserStyle(style ? style.tipo : "");
     };
 
     fetchStyles();

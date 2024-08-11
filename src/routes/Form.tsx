@@ -97,7 +97,7 @@ const Form: React.FC = () => {
         setOpenDialog(true);
       } else {
         await updateUserDetails();
-        navigate("/some-link"); // Reemplaza con el enlace real
+        navigate("/perfil"); // Reemplaza con el enlace real
       }
     }
   };

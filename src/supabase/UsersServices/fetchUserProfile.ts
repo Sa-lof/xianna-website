@@ -13,7 +13,34 @@ export const fetchUserProfile = async (setUser: React.Dispatch<React.SetStateAct
       .eq('correo', userEmail)
       .single();
 
+    if (error) {
+      console.error('Error fetching user details:', error);
+      return;
+    }
+
     if (userDetails) {
+      if (!userDetails.tipo_estilo) {
+        console.warn('tipo_estilo is null or undefined:', userDetails.tipo_estilo);
+        setUser({
+          name: userDetails.nombre,
+          email: userEmail,
+          city: userDetails.ciudad,
+          sex: userDetails.sexo,
+          age: userDetails.edad,
+          profession: userDetails.profesion,
+          bodyType: userDetails.tipo_cuerpo,
+          size: userDetails.talla,
+          country: userDetails.country,
+          styleType: '', // Handle missing style type gracefully
+          styleDescription: '', // Handle missing style description gracefully
+          colors: userDetails.colors || [],
+          outfits: [],
+          basicItems: [],
+          tips: userDetails.tips || [],
+        });
+        return;
+      }
+
       const { data: styleData, error: styleError } = await supabase
         .from('estilos')
         .select('tipo, descripcion')
@@ -45,8 +72,6 @@ export const fetchUserProfile = async (setUser: React.Dispatch<React.SetStateAct
           tips: userDetails.tips || [],
         });
       }
-    } else {
-      console.error('Error fetching user details:', error);
     }
   }
 };

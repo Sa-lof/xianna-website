@@ -8,6 +8,8 @@ import {
   FormControl,
   InputLabel,
   Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 
@@ -38,6 +40,10 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     sex: false,
   });
 
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState<"success" | "error">("error");
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -65,9 +71,17 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
 
     const hasErrors = Object.values(newErrors).some((error) => error);
 
-    if (!hasErrors) {
+    if (hasErrors) {
+      setMessage("Todos los campos son obligatorios");
+      setSeverity("error");
+      setOpen(true);
+    } else {
       onSubmit(formData);
     }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   return (
@@ -82,7 +96,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         value={formData.name}
         onChange={handleInputChange}
         error={errors.name}
-        helperText={errors.name ? "Este campo es obligatorio" : ""}
         InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
@@ -109,7 +122,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         value={formData.age}
         onChange={handleInputChange}
         error={errors.age}
-        helperText={errors.age ? "Este campo es obligatorio" : ""}
         InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
@@ -136,7 +148,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         value={formData.profession}
         onChange={handleInputChange}
         error={errors.profession}
-        helperText={errors.profession ? "Este campo es obligatorio" : ""}
         InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
@@ -163,7 +174,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         value={formData.bodyType}
         onChange={handleInputChange}
         error={errors.bodyType}
-        helperText={errors.bodyType ? "Este campo es obligatorio" : ""}
         InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
@@ -190,7 +200,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         value={formData.size}
         onChange={handleInputChange}
         error={errors.size}
-        helperText={errors.size ? "Este campo es obligatorio" : ""}
         InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
@@ -217,7 +226,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         value={formData.country}
         onChange={handleInputChange}
         error={errors.country}
-        helperText={errors.country ? "Este campo es obligatorio" : ""}
         InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
@@ -290,6 +298,16 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
           Siguiente
         </Button>
       </Box>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
+          {message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -55,8 +55,8 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
       setOpen(true);
       return;
     }
-
-    const { error } = await supabase.auth.signUp({
+  
+    const {error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -65,16 +65,27 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
         },
       },
     });
-
+  
     if (error) {
       setMessage(error.message);
       setSeverity("error");
     } else {
-      setSeverity("success");
-      navigate("/");
+      // Inserta el registro en la tabla `user_details` usando el correo como llave foránea
+      const { error: insertError } = await supabase
+        .from('user_details')
+        .insert([{ correo: email, nombre: name}]); // Ajusta los campos según sea necesario
+  
+      if (insertError) {
+        setMessage(insertError.message);
+        setSeverity("error");
+      } else {
+        setSeverity("success");
+        navigate("/");
+      }
     }
     setOpen(true);
   };
+  
 
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithPassword({

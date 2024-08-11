@@ -8,21 +8,18 @@ import {
   IconButton,
   Slide,
   Fade,
-  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
 import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
-import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
-import { updateUserProfile } from "../supabase/UsersServices/updateUserProfile";
-import { User } from "../supabase/UsersServices/types";
-import Loader from "../components/Loader/Loader"; // Import the Loader component
+import Loader from "../components/Loader/Loader";
 import supabase from "../supabaseClient";
+import { User } from "../supabase/UsersServices/types";
+import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -46,7 +43,7 @@ const Profile: React.FC = () => {
     basicItems: [],
     tips: [],
   });
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
@@ -57,11 +54,15 @@ const Profile: React.FC = () => {
         return;
       }
       await fetchUserProfile(setUser);
+      console.log(user); // Verifica que los datos sean correctos
       setIsLoading(false); // Set loading to false after data is fetched
     };
-
+  
     checkUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
+  
+  
 
   const handleModalOpen = () => {
     setModalOpen(true);
@@ -72,7 +73,20 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = async (updatedUser: User) => {
-    const { error } = await updateUserProfile(updatedUser);
+    const { error } = await supabase
+      .from('user_details')
+      .update({
+        nombre: updatedUser.name,
+        ciudad: updatedUser.city,
+        sexo: updatedUser.sex,
+        edad: updatedUser.age,
+        profesion: updatedUser.profession,
+        tipo_cuerpo: updatedUser.bodyType,
+        talla: updatedUser.size,
+        country: updatedUser.country,
+      })
+      .eq('correo', updatedUser.email);
+
     if (error) {
       console.error('Error updating user details:', error);
     } else {
@@ -193,6 +207,21 @@ const Profile: React.FC = () => {
                   link="/mis-outfits"
                   text="Mis outfits"
                 />
+                <Box sx={{ textAlign: "center", marginTop: 4 }}>
+      <LargeButton
+        text="Cerrar Sesión"
+        link="/logout" // Aquí puedes poner la ruta que desees
+        textColor="white"
+        arrowColor="white"
+        backgroundColor={pink}
+        onClick={handleLogout}
+        sx={{
+          padding: "5px 30px",
+          fontSize: "15px",
+          minWidth: "200px",
+        }}
+      />
+    </Box>
                 <IconButton
                   sx={{
                     position: "absolute",
@@ -210,196 +239,235 @@ const Profile: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Card
-                sx={{
-                  padding: 3,
-                  marginBottom: 4,
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
-                >
-                  Tu estilo
-                </Typography>
-                <Typography variant="body2" sx={{ marginBottom: 2 }}>
-                  {user.styleType}
-                </Typography>
-                <Typography variant="body2" sx={{ marginBottom: 2 }}>
-                  {user.styleDescription}
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  {user.colors.map((color, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        backgroundColor: color,
-                        borderRadius: 1,
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Card>
-              <Card
-                sx={{
-                  padding: 3,
-                  marginBottom: 4,
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
-                >
-                  Outfits para ti
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    overflowX: "auto",
-                    padding: 1,
-                  }}
-                >
-                  {user.outfits.map((outfit) => (
-                    <Box
-                      key={outfit.id}
-                      sx={{
-                        minWidth: "200px",
-                        marginRight: 2,
-                      }}
+              {user.styleType ? (
+                <>
+                  <Card
+                    sx={{
+                      padding: 3,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{ fontWeight: "bold", marginBottom: 2 }}
                     >
-                      <CatalogCard
-                        id={outfit.id.toString()}
-                        image={outfit.imagen}
-                        title={outfit.nombre}
-                        link={`/catalogo/${outfit.id}`}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              </Card>
-              <Card
-                sx={{
-                  padding: 3,
-                  marginBottom: 4,
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
-                >
-                  Prendas básicas
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    overflowX: "auto",
-                    padding: 1,
-                  }}
-                >
-                  {user.basicItems.map((item) => (
-                    <Box
-                      key={item.id}
-                      sx={{
-                        minWidth: "200px",
-                        marginRight: 2,
-                      }}
-                    >
-                      <Card
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "flex-end",
-                          padding: 2,
-                          cursor: "pointer",
-                          width: "200px",
-                          height: "300px",
-                          position: "relative",
-                          overflow: "hidden",
-                        }}
-                        onClick={() => window.open(item.link, "_blank")}
-                      >
-                        <img
-                          src={item.imagen}
-                          alt={item.nombre}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            zIndex: 1,
+                      Tu estilo
+                    </Typography>
+                    <Typography variant="body2" sx={{ marginBottom: 2 }}>
+                      {user.styleType}
+                    </Typography>
+                    <Typography variant="body2" sx={{ marginBottom: 2 }}>
+                      {user.styleDescription}
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      {user.colors.map((color, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            width: 50,
+                            height: 50,
+                            backgroundColor: color,
+                            borderRadius: 1,
                           }}
                         />
+                      ))}
+                    </Box>
+                  </Card>
+                  <Card
+                    sx={{
+                      padding: 3,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{ fontWeight: "bold", marginBottom: 2 }}
+                    >
+                      Outfits para ti
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        overflowX: "auto",
+                        padding: 1,
+                      }}
+                    >
+                      {user.outfits.map((outfit) => (
                         <Box
+                          key={outfit.id}
                           sx={{
-                            position: "absolute",
-                            bottom: 0,
-                            width: "100%",
-                            zIndex: 2,
-                            textAlign: "right",
-                            color: "white",
-                            fontWeight: "bold",
-                            padding: "10px 0",
-                            paddingRight:"15%"
+                            minWidth: "200px",
+                            marginRight: 2,
                           }}
                         >
-                          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "24px" }}>
-                            {item.nombre}
-                          </Typography>
+                          <CatalogCard
+                            id={outfit.id.toString()}
+                            image={outfit.imagen}
+                            title={outfit.nombre}
+                            link={`/catalogo/${outfit.id}`}
+                          />
                         </Box>
-                      </Card>
+                      ))}
                     </Box>
-                  ))}
-                </Box>
-              </Card>
-              <Card
-                sx={{
-                  padding: 3,
-                  marginBottom: 4,
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
-                >
-                  Consejos de estilo
-                </Typography>
-                <Grid container spacing={2}>
-                  {user.tips.map((tip, index) => (
-                    <Grid item xs={12} md={4} key={index}>
-                      <Card
-                        sx={{
-                          padding: 2,
-                          textAlign: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: "bold", marginBottom: 1 }}
+                  </Card>
+                  <Card
+                    sx={{
+                      padding: 3,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{ fontWeight: "bold", marginBottom: 2 }}
+                    >
+                      Prendas básicas
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        overflowX: "auto",
+                        padding: 1,
+                      }}
+                    >
+                      {user.basicItems.map((item) => (
+                        <Box
+                          key={item.id}
+                          sx={{
+                            minWidth: "200px",
+                            marginRight: 2,
+                          }}
                         >
-                          {`0${index + 1}`}
-                        </Typography>
-                        <Typography variant="body2">{tip}</Typography>
-                      </Card>
+                          <Card
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "flex-end",
+                              padding: 2,
+                              cursor: "pointer",
+                              width: "200px",
+                              height: "300px",
+                              position: "relative",
+                              overflow: "hidden",
+                            }}
+                            onClick={() => window.open(item.link, "_blank")}
+                          >
+                            <img
+                              src={item.imagen}
+                              alt={item.nombre}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 1,
+                              }}
+                            />
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                bottom: 0,
+                                width: "100%",
+                                zIndex: 2,
+                                textAlign: "right",
+                                color: "white",
+                                fontWeight: "bold",
+                                padding: "10px 0",
+                                paddingRight: "15%"
+                              }}
+                            >
+                              <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "24px" }}>
+                                {item.nombre}
+                              </Typography>
+                            </Box>
+                          </Card>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Card>
+                  <Card
+                    sx={{
+                      padding: 3,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{ fontWeight: "bold", marginBottom: 2 }}
+                    >
+                      Consejos de estilo
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {user.tips.map((tip, index) => (
+                        <Grid item xs={12} md={4} key={index}>
+                          <Card
+                            sx={{
+                              padding: 2,
+                              textAlign: "center",
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              sx={{ fontWeight: "bold", marginBottom: 1 }}
+                            >
+                              {`0${index + 1}`}
+                            </Typography>
+                            <Typography variant="body2">{tip}</Typography>
+                          </Card>
+                        </Grid>
+                      ))}
                     </Grid>
-                  ))}
-                </Grid>
-              </Card>
+                  </Card>
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    backgroundColor: "#fff",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography variant="h1" sx={{ fontWeight: "bold", mb: 2, fontSize: {
+                        xs: '20px', // Tamaño de fuente para pantallas pequeñas
+                        sm: '24px', // Tamaño de fuente para pantallas medianas
+                        md: '28px', // Tamaño de fuente para pantallas grandes
+                        lg: '30px', // Tamaño de fuente para pantallas extra grandes
+                      }, }}>
+                    ¡Aún no encuentras tu tipo de estilo!
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 2, fontSize: {
+                      xs: '16px', // Tamaño de fuente para pantallas pequeñas
+                      sm: '18px', // Tamaño de fuente para pantallas medianas
+                      md: '20px', // Tamaño de fuente para pantallas grandes
+                      lg: '22px', // Tamaño de fuente para pantallas extra grandes
+                    },}}>
+                    Responde un cuestionario rápido y descúbrelo.
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      mt: 4,
+                      mb: 4,
+                    }}
+                  >
+                    <LargeButton
+                      text="Responder"
+                      link="/formulario"
+                      textColor="white"
+                      arrowColor="white"
+                      backgroundColor={pink}
+                      onClick={() => navigate("/formulario")}
+                    />
+                  </Box>
+                </Box>
+              )}
             </Grid>
           </Grid>
-          <Box sx={{ textAlign: "center", marginTop: 4 }}>
-            <Button
-              variant="contained"
-              color="secondary"
-              startIcon={<LogoutIcon />}
-              onClick={handleLogout}
-            >
-              Cerrar Sesión
-            </Button>
-          </Box>
           <Footer />
           <EditProfileModal
             open={isModalOpen}
