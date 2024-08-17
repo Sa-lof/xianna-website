@@ -20,8 +20,9 @@ import LargeButton from "../components/LargeButton/LargeButton";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
 import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import { getFavorites, getOutfitsByIds, removeFavorite } from "../supabase/UsersServices/getFavorites";
-import supabase from "../supabaseClient";
-import Loader from "../components/Loader/Loader"; // Import the Loader component
+import { getUserSession } from "../supabase/ProfileServices/getUserSession";
+import { getUserDetails } from "../supabase/ProfileServices/getUserDetails";
+import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -61,35 +62,25 @@ const MyOutfits: React.FC = () => {
     country: "",
     outfits: [],
   });
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const itemsPerPage = 9;
 
   useEffect(() => {
     const fetchUserOutfits = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (session) {
+      try {
+        const session = await getUserSession();
         const userEmail = session.user.email;
+  
         if (!userEmail) {
-          console.error("User email is undefined");
-          return;
+          throw new Error("User email is undefined");
         }
-        
-        const { data: userDetails, error } = await supabase
-          .from('user_details')
-          .select('*')
-          .eq('correo', userEmail)
-          .single();
-
-        if (error) {
-          console.error('Error fetching user details:', error);
-          return;
-        }
-
+  
+        const userDetails = await getUserDetails(userEmail);
         const favoriteOutfitIds = await getFavorites(userEmail);
         const favoriteOutfits = await getOutfitsByIds(favoriteOutfitIds);
-
+  
         setUser({
           name: userDetails.nombre,
           email: userDetails.correo,
@@ -102,29 +93,38 @@ const MyOutfits: React.FC = () => {
           country: userDetails.country,
           outfits: favoriteOutfits,
         });
-
-        setIsLoading(false); // Set loading to false after data is fetched
-      } else {
-        console.error('Error fetching session:', error);
+  
+        setIsLoading(false);
+      } catch (error) {
+        console.error((error as Error).message);
+        setIsLoading(false);
       }
     };
-
+  
     fetchUserOutfits();
   }, []);
+  
 
   const handleRemoveFavorite = async (outfitId: number) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      const userEmail: string = session.user.email || "";
-      const success = await removeFavorite(userEmail, outfitId);
-      if (success) {
-        setUser((prevState) => ({
-          ...prevState,
-          outfits: prevState.outfits.filter((outfit) => outfit.id !== outfitId),
-        }));
+    try {
+      const session = await getUserSession();
+      const userEmail = session.user.email;
+  
+      if (!userEmail) {
+        throw new Error("User email is undefined");
       }
+  
+      await removeFavorite(userEmail, outfitId);
+  
+      setUser((prevState) => ({
+        ...prevState,
+        outfits: prevState.outfits.filter((outfit) => outfit.id !== outfitId),
+      }));
+    } catch (error) {
+      console.error((error as Error).message);
     }
   };
+  
 
   const handleModalOpen = () => {
     setModalOpen(true);
@@ -135,27 +135,16 @@ const MyOutfits: React.FC = () => {
   };
 
   const handleSave = async (updatedUser: User) => {
-    // Save the updated user data to Supabase
-    const { error } = await supabase
-      .from('user_details')
-      .update({
-        nombre: updatedUser.name,
-        ciudad: updatedUser.city,
-        sexo: updatedUser.sex,
-        edad: updatedUser.age,
-        profesion: updatedUser.profession,
-        tipo_cuerpo: updatedUser.bodyType,
-        talla: updatedUser.size,
-        country: updatedUser.country,
-        // Add more fields if necessary
-      })
-      .eq('correo', updatedUser.email);
-
-    if (error) {
-      console.error('Error updating user details:', error);
-    } else {
+    try {
+      await getUserDetails(updatedUser.email);
       setUser(updatedUser);
       handleModalClose();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error("An unexpected error occurred");
+      }
     }
   };
 
@@ -164,7 +153,7 @@ const MyOutfits: React.FC = () => {
   };
 
   if (isLoading) {
-    return <Loader />; // Show loader while loading
+    return <Loader />;
   }
 
   const paginatedOutfits = user.outfits.slice((page - 1) * itemsPerPage, page * itemsPerPage);
@@ -282,10 +271,10 @@ const MyOutfits: React.FC = () => {
                       fontWeight: "bold",
                       mb: 2,
                       fontSize: {
-                        xs: "20px", // Tamaño de fuente para pantallas pequeñas
-                        sm: "24px", // Tamaño de fuente para pantallas medianas
-                        md: "28px", // Tamaño de fuente para pantallas grandes
-                        lg: "30px", // Tamaño de fuente para pantallas extra grandes
+                        xs: "20px", 
+                        sm: "24px", 
+                        md: "28px", 
+                        lg: "30px", 
                       },
                     }}
                   >
@@ -296,10 +285,10 @@ const MyOutfits: React.FC = () => {
                     sx={{
                       mb: 2,
                       fontSize: {
-                        xs: "16px", // Tamaño de fuente para pantallas pequeñas
-                        sm: "18px", // Tamaño de fuente para pantallas medianas
-                        md: "20px", // Tamaño de fuente para pantallas grandes
-                        lg: "22px", // Tamaño de fuente para pantallas extra grandes
+                        xs: "16px", 
+                        sm: "18px",
+                        md: "20px",
+                        lg: "22px",
                       },
                     }}
                   >

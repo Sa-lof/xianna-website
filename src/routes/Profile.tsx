@@ -17,9 +17,10 @@ import LargeButton from "../components/LargeButton/LargeButton";
 import EditProfileModal from "../components/EditProfileModal/EditProfileModal";
 import CatalogCard from "../components/CatalogCard/CatalogCard";
 import Loader from "../components/Loader/Loader";
-import supabase from "../supabaseClient";
 import { User } from "../supabase/UsersServices/types";
-import { fetchUserProfile } from "../supabase/UsersServices/fetchUserProfile";
+import { checkUserSession } from "../supabase/ProfileServices/checkUserSession";
+import { updateUserProfile } from "../supabase/ProfileServices/updateUserService";
+import { logoutUser } from "../supabase/ProfileServices/logoutService";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -47,21 +48,8 @@ const Profile: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/"); // Redirigir a la página de inicio de sesión si no hay sesión
-        return;
-      }
-      await fetchUserProfile(setUser);
-      console.log(user); // Verifica que los datos sean correctos
-      setIsLoading(false); // Set loading to false after data is fetched
-    };
-  
-    checkUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    checkUserSession(navigate, setUser, setIsLoading);
   }, [navigate]);
-  
   
 
   const handleModalOpen = () => {
@@ -73,33 +61,18 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = async (updatedUser: User) => {
-    const { error } = await supabase
-      .from('user_details')
-      .update({
-        nombre: updatedUser.name,
-        ciudad: updatedUser.city,
-        sexo: updatedUser.sex,
-        edad: updatedUser.age,
-        profesion: updatedUser.profession,
-        tipo_cuerpo: updatedUser.bodyType,
-        talla: updatedUser.size,
-        country: updatedUser.country,
-      })
-      .eq('correo', updatedUser.email);
-
-    if (error) {
-      console.error('Error updating user details:', error);
-    } else {
+    try {
+      await updateUserProfile(updatedUser);
       setUser(updatedUser);
       handleModalClose();
+    } catch (error) {
+      console.error((error as Error).message);
     }
   };
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error logging out:', error);
-    } else {
+    try {
+      await logoutUser();
       setUser({
         name: "",
         email: "",
@@ -117,12 +90,14 @@ const Profile: React.FC = () => {
         basicItems: [],
         tips: [],
       });
-      navigate("/"); // Navigate to the login page
+      navigate("/");
+    } catch (error) {
+      console.error((error as Error).message);
     }
   };
 
   if (isLoading) {
-    return <Loader />; // Show loader while loading
+    return <Loader />;
   }
 
   return (
@@ -210,7 +185,7 @@ const Profile: React.FC = () => {
                 <Box sx={{ textAlign: "center", marginTop: 4 }}>
       <LargeButton
         text="Cerrar Sesión"
-        link="/logout" // Aquí puedes poner la ruta que desees
+        link="/logout"
         textColor="white"
         arrowColor="white"
         backgroundColor={pink}
@@ -431,18 +406,18 @@ const Profile: React.FC = () => {
                   }}
                 >
                   <Typography variant="h1" sx={{ fontWeight: "bold", mb: 2, fontSize: {
-                        xs: '20px', // Tamaño de fuente para pantallas pequeñas
-                        sm: '24px', // Tamaño de fuente para pantallas medianas
-                        md: '28px', // Tamaño de fuente para pantallas grandes
-                        lg: '30px', // Tamaño de fuente para pantallas extra grandes
+                        xs: '20px', 
+                        sm: '24px',
+                        md: '28px',
+                        lg: '30px',
                       }, }}>
                     ¡Aún no encuentras tu tipo de estilo!
                   </Typography>
                   <Typography variant="body1" sx={{ mb: 2, fontSize: {
-                      xs: '16px', // Tamaño de fuente para pantallas pequeñas
-                      sm: '18px', // Tamaño de fuente para pantallas medianas
-                      md: '20px', // Tamaño de fuente para pantallas grandes
-                      lg: '22px', // Tamaño de fuente para pantallas extra grandes
+                      xs: '16px', 
+                      sm: '18px', 
+                      md: '20px', 
+                      lg: '22px', 
                     },}}>
                     Responde un cuestionario rápido y descúbrelo.
                   </Typography>

@@ -18,8 +18,7 @@ import Footer from "../components/Footer/Footer";
 import LargeButton from "../components/LargeButton/LargeButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import supabase from "../supabaseClient";
-
+import { registerUser, loginUser } from '../supabase/UsersServices/loginService';
 import loginImage from "../assets/login/login.jpg";
 import logo from "../assets/logo/xianna.png";
 import { ArrowBack } from "@mui/icons-material";
@@ -49,54 +48,28 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
   };
 
   const handleRegister = async () => {
-    if (password !== confirmPassword) {
-      setMessage("Las contraseñas no coinciden.");
-      setSeverity("error");
-      setOpen(true);
-      return;
-    }
-  
-    const {error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
-        },
-      },
-    });
-  
-    if (error) {
-      setMessage(error.message);
-      setSeverity("error");
-    } else {
-      // Inserta el registro en la tabla `user_details` usando el correo como llave foránea
-      const { error: insertError } = await supabase
-        .from('user_details')
-        .insert([{ correo: email, nombre: name}]); // Ajusta los campos según sea necesario
-  
-      if (insertError) {
-        setMessage(insertError.message);
+    try {
+      if (password !== confirmPassword) {
+        setMessage("Las contraseñas no coinciden.");
         setSeverity("error");
-      } else {
-        setSeverity("success");
-        navigate("/");
+        setOpen(true);
+        return;
       }
+  
+      await registerUser(email, password, name);
+      setSeverity("success");
+      navigate("/");
+    } catch (error) {
+      setMessage((error as Error).message);
+      setSeverity("error");
+    } finally {
+      setOpen(true);
     }
-    setOpen(true);
   };
   
-
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setMessage(error.message);
-      setSeverity("error");
-    } else {
+    try {
+      await loginUser(email, password);
       setSeverity("success");
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith('rating-')) {
@@ -104,9 +77,13 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
         }
       });
       navigate("/");
+    } catch (error) {
+      setMessage((error as Error).message);
+      setSeverity("error");
+    } finally {
+      setOpen(true);
     }
-    setOpen(true);
-  };
+  };  
 
   return (
     <div
@@ -303,9 +280,9 @@ const Signup: React.FC = () => {
             flexDirection: "column",
             minHeight: "100vh",
             backgroundColor: "#fff",
-            paddingBottom: 5, // Responsive padding
-            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+            paddingBottom: 5,
+            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
             paddingTop: 2,
           }}
         >
@@ -343,13 +320,13 @@ const Signup: React.FC = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 padding: 3,
-                position: "relative", // Add relative positioning
+                position: "relative",
               }}
             >
               <Box
                 sx={{
-                  display: { xs: "none", md: "block" }, // Hide on mobile view
-                  position: "absolute", // Use absolute positioning
+                  display: { xs: "none", md: "block" },
+                  position: "absolute",
                   top: 0,
                   left: 0,
                   margin: 2,

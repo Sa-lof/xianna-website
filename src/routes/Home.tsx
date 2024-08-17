@@ -4,7 +4,8 @@ import MainGridLogged from "../components/MainGridLogged/MainGridLogged";
 import { Box, Slide } from "@mui/material";
 import Footer from "../components/Footer/Footer";
 import Loader from "../components/Loader/Loader";
-import supabase from "../supabaseClient";
+import { checkSession } from "../supabase/ProfileServices/checkSession";
+import { getUserDetailsByEmail } from "../supabase/ProfileServices/getUserDetailsByEmail";
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -13,31 +14,37 @@ const Home: React.FC = () => {
   const [userStyle, setUserStyle] = useState<string | number>("");
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      
-      if (session) {
-        const user = session.user;
-        const { data: userDetails, error } = await supabase
-          .from('user_details')
-          .select('nombre, tipo_estilo')
-          .eq('correo', user.email)
-          .single();
+    const initialize = async () => {
+      try {
+        const session = await checkSession();
+        setIsAuthenticated(!!session);
         
-        if (userDetails) {
+        if (session) {
+          const user = session.user;
+          const userEmail = user.email;
+  
+          if (!userEmail) {
+            throw new Error("User email is undefined");
+          }
+  
+          const userDetails = await getUserDetailsByEmail(userEmail);
+  
           setUserName(userDetails.nombre);
           setUserStyle(userDetails.tipo_estilo);
-        } else {
-          console.error('Error fetching user details:', error);
         }
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error.message);
+        } else {
+          console.error("An unexpected error occurred");
+        }
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
-
-    checkSession();
-  }, []);
+  
+    initialize();
+  }, []);  
 
   if (loading) {
     return <Loader />;
@@ -47,9 +54,9 @@ const Home: React.FC = () => {
     <Slide direction="down" in={!loading} mountOnEnter unmountOnExit timeout={2000}>
       <Box
         sx={{
-          paddingBottom: 4, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+          paddingBottom: 4, 
+          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, 
+          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, 
           paddingTop: 8,
         }}
       >
