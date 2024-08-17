@@ -7,8 +7,10 @@ import LargeButton from "../components/LargeButton/LargeButton";
 import UserDataForm from "../components/UserDataForm/UserDataForm";
 import getQuestionsWithAnswers from "../supabase/CuestionarioServices/getQuestionsWithAnswers";
 import getStyles from "../supabase/CuestionarioServices/getStyles";
-import supabase from "../supabaseClient";
 import Loader from "../components/Loader/Loader";
+import { checkSession} from '../supabase/ProfileServices/checkSession';
+import { getUserDetails } from '../supabase/ProfileServices/getUserDetails2';
+import { updateUserDetails } from '../supabase/ProfileServices/updateUserDetails2';
 
 const pink = "#E61F93";
 
@@ -60,23 +62,22 @@ const Form: React.FC = () => {
       await checkSubmission(fetchedStyles); // Pasar los estilos obtenidos a checkSubmission
     };
 
-    const checkSubmission = async (styles: Estilo[]) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsAuthenticated(true);
-        const user = session.user;
-        const { data: userDetails } = await supabase
-          .from('user_details')
-          .select('tipo_estilo')
-          .eq('correo', user.email)
-          .single();
-        if (userDetails && userDetails.tipo_estilo) {
-          setHasSubmitted(true);
-          const userStyle = styles.find(style => style.id === userDetails.tipo_estilo);
-          setUserStyle(userStyle ? userStyle.tipo : "Desconocido");
+    const checkSubmission = async (styles: any[]) => {
+      try {
+        const session = await checkSession();
+        if (session) {
+          setIsAuthenticated(true);
+          const userDetails = await getUserDetails(session.user.email);
+          if (userDetails && userDetails.tipo_estilo) {
+            setHasSubmitted(true);
+            const userStyle = styles.find(style => style.id === userDetails.tipo_estilo);
+            setUserStyle(userStyle ? userStyle.tipo : "Desconocido");
+          }
         }
+      } catch (error) {
+        console.error('Error checking submission', error);
       }
-    };
+    };    
 
     const initialize = async () => {
       await fetchQuestions();
@@ -96,7 +97,7 @@ const Form: React.FC = () => {
       if (!isAuthenticated) {
         setOpenDialog(true);
       } else {
-        await updateUserDetails();
+        await updateUserData();
         navigate("/perfil"); // Reemplaza con el enlace real
       }
     }
@@ -133,35 +134,37 @@ const Form: React.FC = () => {
     return styles[randomIndex].id;
   };
 
-  const updateUserDetails = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      const user = session.user;
-
-      // Mapea las respuestas seleccionadas a los campos de user_details
-      const updatedDetails = {
-        tipo_estilo: getRandomStyleId(), // Asigna un estilo aleatorio
-        sexo: userData.sex,
-        edad: userData.age,
-        profesion: userData.profession,
-        talla: userData.size,
-        tipo_cuerpo: userData.bodyType,
-        nombre: userData.name,
-        ciudad: userData.country,
-      };
-
-      const { error } = await supabase
-        .from('user_details')
-        .update(updatedDetails)
-        .eq('correo', user.email);
-
-      if (error) {
-        console.error('Error updating user details:', error);
-      } else {
-        console.log('User details updated successfully');
+  const updateUserData = async () => {
+    try {
+      const session = await checkSession();
+      if (session) {
+        const user = session.user;
+  
+        if (!user.email) {
+          console.error('User email is undefined');
+          return;
+        }
+  
+        const updatedDetails = {
+          tipo_estilo: getRandomStyleId(),
+          sexo: userData.sex,
+          edad: userData.age,
+          profesion: userData.profession,
+          talla: userData.size,
+          tipo_cuerpo: userData.bodyType,
+          nombre: userData.name,
+          ciudad: userData.country,
+        };
+  
+        const success = await updateUserDetails(user.email, updatedDetails);
+        if (success) {
+          console.log('User details updated successfully');
+        }
       }
+    } catch (error) {
+      console.error('Error updating user details:', error);
     }
-  };
+  };  
 
   const handleRetakeForm = () => {
     setHasSubmitted(false);

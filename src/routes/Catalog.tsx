@@ -25,8 +25,8 @@ import Footer from "../components/Footer/Footer";
 import getOutfits from '../supabase/CatalogoServices/getOutfits';
 import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesAndOccasions';
 import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
-import supabase from '../supabaseClient';
 import Loader from "../components/Loader/Loader";
+import { checkSession} from '../supabase/ProfileServices/checkSession';
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -73,28 +73,32 @@ const Catalog: React.FC = () => {
     const fetchData = async () => {
       const fetchedOutfits = await getOutfits();
       setOutfits(fetchedOutfits);
-
+    
       const fetchedStyles = await getStyles();
       setStyles(fetchedStyles.map(style => style.tipo));
-
+    
       const fetchedOccasions = await getOccasions();
       setOccasions(fetchedOccasions.map(occasion => occasion.ocasion));
-
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-
-      if (session) {
-        const user = session.user;
-        if (user.email) {
-          const favoritos = await getFavorites(user.email);
-          setMyOutfits(favoritos);
-        } else {
-          console.error('User email is undefined');
+    
+      try {
+        const session = await checkSession(); // Uso del servicio
+        setSession(session);
+    
+        if (session) {
+          const user = session.user;
+          if (user.email) {
+            const favoritos = await getFavorites(user.email);
+            setMyOutfits(favoritos);
+          } else {
+            console.error('User email is undefined');
+          }
         }
+      } catch (error) {
+        console.error('Error fetching session', error);
       }
-
+    
       setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
-    };
+    };    
 
     fetchData();
   }, []);
