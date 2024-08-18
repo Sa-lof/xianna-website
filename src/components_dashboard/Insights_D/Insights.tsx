@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Card, SelectChangeEvent } from '@mui/material';
+import { Box, Typography, Grid, Card, Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, Checkbox, ListItemText } from '@mui/material';
 import getUsers from '../../supabase/UsersServices/getUsers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
 import getFavorites from '../../supabase/InsightServices/getFavorites';
@@ -55,6 +55,10 @@ const Insights: React.FC = () => {
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [pyramidData, setPyramidData] = useState<{ categories: string[], series: { name: string, data: number[] }[] }>({ categories: [], series: [] });
+
+  const [selectedProfession, setSelectedProfession] = useState<string[]>([]);
+  const [selectedSize, setSelectedSize] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,7 +120,31 @@ const Insights: React.FC = () => {
       });
       setTotalUsers(filteredUsers.length);
     }
-  }, [users, styles, ageRanges, selectedStyles]);  
+  }, [users, styles, ageRanges, selectedStyles]);
+
+  useEffect(() => {
+    const filteredUsers = users.filter(user => {
+      const professionMatches = selectedProfession.length === 0 || selectedProfession.includes(user.profesion);
+      const sizeMatches = selectedSize.length === 0 || selectedSize.includes(user.talla);
+      return professionMatches && sizeMatches;
+    });
+
+    const bodyTypeCounts = {
+      Rectangular: filteredUsers.filter(user => user.tipo_cuerpo === 'Rectangular').length,
+      Circular: filteredUsers.filter(user => user.tipo_cuerpo === 'Circular').length,
+      Triangular: filteredUsers.filter(user => user.tipo_cuerpo === 'Triangular').length,
+    };
+
+    setPyramidData({
+      categories: ['Rectangular', 'Circular', 'Triangular'],
+      series: [
+        {
+          name: 'Usuarios',
+          data: [bodyTypeCounts.Rectangular, bodyTypeCounts.Circular, bodyTypeCounts.Triangular],
+        }
+      ],
+    });
+  }, [users, selectedProfession, selectedSize]);
 
   useEffect(() => {
     if (favorites.length > 0 && outfits.length > 0) {
@@ -149,6 +177,16 @@ const Insights: React.FC = () => {
     setSelectedStyles(selected);
   };
 
+  const handleProfessionChange = (event: SelectChangeEvent<string[]>) => {
+    const { value } = event.target;
+    setSelectedProfession(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const handleSizeChange = (event: SelectChangeEvent<string[]>) => {
+    const { value } = event.target;
+    setSelectedSize(typeof value === 'string' ? value.split(',') : value);
+  };
+
   const treemapChartOptions = {
     chart: {
       type: 'treemap' as const,
@@ -163,6 +201,33 @@ const Insights: React.FC = () => {
       }
     }
   };
+
+  const pyramidChartOptions = {
+    chart: {
+      type: 'bar' as const,
+      stacked: true,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        distributed: true,
+      },
+    },
+    xaxis: {
+      categories: pyramidData.categories,
+    },
+    tooltip: {
+      y: {
+        formatter: function (val: number) {
+          return Math.abs(val).toString();
+        }
+      }
+    },
+    colors: ['#FDE12D', '#00D1ED', '#FAACC1', '#E61F93'],
+    title: {
+      text: 'Distribución de Usuarios por Tipo de Cuerpo',
+    },
+  };  
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -184,14 +249,14 @@ const Insights: React.FC = () => {
             </Grid>
             <Grid item xs={12} sm={12} md={4} lg={4}>
               <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px', height: '100%' }}>
-                <Typography variant="h6" fontWeight="bold">Outfit más guardado</Typography>
-                <Typography variant="body1">{mostSavedOutfit}</Typography>
+                <Typography variant="h6" fontWeight="bold">{mostSavedOutfit}</Typography>
+                <Typography variant="body1">Outfit más guardado</Typography>
               </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={4} lg={4}>
               <Card sx={{ padding: 2, textAlign: 'center', borderRadius: '16px', height: '100%' }}>
-                <Typography variant="h6" fontWeight="bold">Blog preferido</Typography>
-                <Typography variant="body1">{mostRatedCategory}</Typography>
+                <Typography variant="h6" fontWeight="bold">{mostRatedCategory}</Typography>
+                <Typography variant="body1">Blog preferido</Typography>
               </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6}>
@@ -215,6 +280,54 @@ const Insights: React.FC = () => {
               <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
                 <Typography variant="h5" fontWeight="bold">Promedio de Calificaciones por Blog</Typography>
                 <BlogRatingChart />
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6}>
+              <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
+                <Typography variant="h5" fontWeight="bold">Distribución de Usuarios por Tipo de Cuerpo</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2,}}>
+                <FormControl fullWidth sx={{ mb: 2, width: '45%', paddingTop:'5%'}}>
+                  <InputLabel>Profesión</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedProfession}
+                    onChange={handleProfessionChange}
+                    renderValue={(selected) => selected.join(', ')}
+                  >
+                    <MenuItem value="Ingeniero">
+                      <Checkbox checked={selectedProfession.indexOf('Ingeniero') > -1} />
+                      <ListItemText primary="Ingeniero" />
+                    </MenuItem>
+                    <MenuItem value="Doctor">
+                      <Checkbox checked={selectedProfession.indexOf('Doctor') > -1} />
+                      <ListItemText primary="Doctor" />
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth sx={{ mb: 2,  width: '45%', paddingTop:'5%' }}>
+                  <InputLabel>Talla</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedSize}
+                    onChange={handleSizeChange}
+                    renderValue={(selected) => selected.join(', ')}
+                  >
+                    <MenuItem value="Chica">
+                      <Checkbox checked={selectedSize.indexOf('Chica') > -1} />
+                      <ListItemText primary="Chica" />
+                    </MenuItem>
+                    <MenuItem value="Mediana">
+                      <Checkbox checked={selectedSize.indexOf('Mediana') > -1} />
+                      <ListItemText primary="Mediana" />
+                    </MenuItem>
+                    <MenuItem value="Grande">
+                      <Checkbox checked={selectedSize.indexOf('Grande') > -1} />
+                      <ListItemText primary="Grande" />
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                </Box>  
+                <Chart options={pyramidChartOptions} series={pyramidData.series} type="bar" height={400} />
               </Card>
             </Grid>
           </Grid>
