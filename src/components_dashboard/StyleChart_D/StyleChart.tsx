@@ -47,12 +47,8 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, totalUsers, ageRanges, se
             value={selectedStyles}
             onChange={handleStyleChange}
             input={<OutlinedInput label="Estilo" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => selected.map(id => styles.find(style => style.id.toString() === id)?.tipo).join(', ')}
           >
-            <MenuItem value="Todos">
-              <Checkbox checked={selectedStyles.indexOf('Todos') > -1} />
-              <ListItemText primary="Todos" />
-            </MenuItem>
             {styles.map(style => (
               <MenuItem key={style.id} value={style.id.toString()}>
                 <Checkbox checked={selectedStyles.indexOf(style.id.toString()) > -1} />
@@ -68,12 +64,13 @@ const StyleChart: React.FC<StyleChartProps> = ({ data, totalUsers, ageRanges, se
           chart: {
             type: 'donut',
           },
+          colors: ['#E61F93', '#FDE12D', '#00D1ED', '#FAACC1'],
           labels: data.categories,
           dataLabels: {
             enabled: true,
             formatter: (val, opts) => {
               const name = opts.w.globals.labels[opts.seriesIndex];
-              return `${name}:${opts.w.globals.series[opts.seriesIndex]}`;
+              return `${name}: ${opts.w.globals.series[opts.seriesIndex]}`;
             }
           },
           legend: {

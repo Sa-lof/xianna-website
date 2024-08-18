@@ -52,7 +52,7 @@ const Insights: React.FC = () => {
   const [mostSavedOutfit, setMostSavedOutfit] = useState<string>('');
   const [mostRatedCategory, setMostRatedCategory] = useState<string>('');
   const [ageRanges, setAgeRanges] = useState<string[]>(['0-100']);
-  const [selectedStyles, setSelectedStyles] = useState<string[]>(['Todos']);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -97,22 +97,26 @@ const Insights: React.FC = () => {
           const [min, max] = range.split('-').map(Number);
           return user.edad >= min && user.edad <= max;
         });
-        const isInSelectedStyles = selectedStyles.includes('Todos') || selectedStyles.includes(user.tipo_estilo.toString());
+  
+        // Asegúrate de que user.tipo_estilo no sea null antes de usar toString
+        const isInSelectedStyles = selectedStyles.length === 0 || 
+                                    (user.tipo_estilo !== null && selectedStyles.includes(user.tipo_estilo.toString()));
+  
         return isInAgeRange && isInSelectedStyles;
       });
-
+  
       const styleCounts = styles.map(style => ({
         style: style.tipo,
         count: filteredUsers.filter(user => user.tipo_estilo === style.id).length,
       }));
-
+  
       setChartData({
         categories: styleCounts.map(item => item.style),
         series: styleCounts.map(item => item.count),
       });
       setTotalUsers(filteredUsers.length);
     }
-  }, [users, styles, ageRanges, selectedStyles]);
+  }, [users, styles, ageRanges, selectedStyles]);  
 
   useEffect(() => {
     if (favorites.length > 0 && outfits.length > 0) {
@@ -142,19 +146,21 @@ const Insights: React.FC = () => {
   const handleStyleChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
     const selected = typeof value === 'string' ? value.split(',') : value;
-    if (selected.includes('Todos')) {
-      setSelectedStyles(['Todos']);
-    } else {
-      setSelectedStyles(selected);
-    }
+    setSelectedStyles(selected);
   };
 
   const treemapChartOptions = {
     chart: {
       type: 'treemap' as const,
     },
+    colors: ['#E61F93', '#FDE12D', '#00D1ED', '#FAACC1'],
     title: {
       text: 'Usuarios que guardaron el outfit'
+    },
+    plotOptions: {
+      treemap: {
+        distributed: true,
+      }
     }
   };
 
@@ -200,9 +206,9 @@ const Insights: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0', height: '100%' }}>
+              <Card sx={{ height: '100%', padding:'5%', borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
                 <Typography variant="h5" fontWeight="bold">Outfits favoritos</Typography>
-                <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height="350px" />
+                <Chart options={treemapChartOptions} series={favoritesChartData} type="treemap" height="95%" />
               </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={12}>

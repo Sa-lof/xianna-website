@@ -65,6 +65,7 @@ const BlogRatingChart: React.FC = () => {
     chart: {
       type: 'bar' as const
     },
+    colors: ['#FAACC1', '#FDE12D', '#00D1ED', '#FAACC1'],
     plotOptions: {
       bar: {
         horizontal: false,
