@@ -116,31 +116,37 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         }}
       />
       <TextField
-        label="Edad"
-        name="age"
-        fullWidth
-        value={formData.age}
-        onChange={handleInputChange}
-        error={errors.age}
-        InputLabelProps={{ style: { color: pink } }}
-        sx={{
-          backgroundColor: "white",
-          borderRadius: 1,
-          mb: 4,
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: pink,
-              borderRadius: 5,
-            },
-            "&:hover fieldset": {
-              borderColor: pink,
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: pink,
-            },
-          },
-        }}
-      />
+  label="Edad"
+  name="age"
+  fullWidth
+  value={formData.age}
+  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      handleInputChange(e);
+    }
+  }}
+  error={errors.age}
+  InputLabelProps={{ style: { color: pink } }}
+  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+  sx={{
+    backgroundColor: "white",
+    borderRadius: 1,
+    mb: 4,
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: pink,
+        borderRadius: 5,
+      },
+      "&:hover fieldset": {
+        borderColor: pink,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: pink,
+      },
+    },
+  }}
+/>
       <TextField
         label="Profesión"
         name="profession"
@@ -167,58 +173,78 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
           },
         }}
       />
-      <TextField
-        label="Tipo de Cuerpo"
-        name="bodyType"
-        fullWidth
-        value={formData.bodyType}
-        onChange={handleInputChange}
-        error={errors.bodyType}
-        InputLabelProps={{ style: { color: pink } }}
-        sx={{
-          backgroundColor: "white",
-          borderRadius: 1,
-          mb: 4,
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: pink,
-              borderRadius: 5,
-            },
-            "&:hover fieldset": {
-              borderColor: pink,
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: pink,
-            },
-          },
-        }}
-      />
-      <TextField
-        label="Talla"
-        name="size"
-        fullWidth
-        value={formData.size}
-        onChange={handleInputChange}
-        error={errors.size}
-        InputLabelProps={{ style: { color: pink } }}
-        sx={{
-          backgroundColor: "white",
-          borderRadius: 1,
-          mb: 4,
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: pink,
-              borderRadius: 5,
-            },
-            "&:hover fieldset": {
-              borderColor: pink,
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: pink,
-            },
-          },
-        }}
-      />
+      <FormControl
+  fullWidth
+  error={errors.bodyType}
+  sx={{
+    backgroundColor: "white",
+    borderRadius: 1,
+    mb: 4,
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: pink,
+        borderRadius: 5,
+      },
+      "&:hover fieldset": {
+        borderColor: pink,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: pink,
+      },
+    },
+  }}
+>
+  <InputLabel sx={{ color: pink }}>Tipo de Cuerpo</InputLabel>
+  <Select
+    name="bodyType"
+    value={formData.bodyType}
+    onChange={handleSelectChange}
+    label="Tipo de Cuerpo"
+  >
+    <MenuItem value="Delgado">Delgado</MenuItem>
+    <MenuItem value="Atlético">Atlético</MenuItem>
+    <MenuItem value="Robusto">Robusto</MenuItem>
+    <MenuItem value="Musculoso">Musculoso</MenuItem>
+  </Select>
+</FormControl>
+
+<FormControl
+  fullWidth
+  error={errors.size}
+  sx={{
+    backgroundColor: "white",
+    borderRadius: 1,
+    mb: 4,
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: pink,
+        borderRadius: 5,
+      },
+      "&:hover fieldset": {
+        borderColor: pink,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: pink,
+      },
+    },
+  }}
+>
+  <InputLabel sx={{ color: pink }}>Talla</InputLabel>
+  <Select
+    name="size"
+    value={formData.size}
+    onChange={handleSelectChange}
+    label="Talla"
+  >
+    <MenuItem value="XS">XS</MenuItem>
+    <MenuItem value="S">S</MenuItem>
+    <MenuItem value="M">M</MenuItem>
+    <MenuItem value="L">L</MenuItem>
+    <MenuItem value="XL">XL</MenuItem>
+    <MenuItem value="XXL">XXL</MenuItem>
+  </Select>
+</FormControl>
+
       <TextField
         label="País"
         name="country"

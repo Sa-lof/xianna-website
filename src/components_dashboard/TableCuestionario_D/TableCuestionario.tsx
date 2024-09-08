@@ -279,6 +279,14 @@ const QuestionAnswerAccordion: React.FC = () => {
                         <MenuItem value="a">Identificador A</MenuItem>
                         <MenuItem value="b">Identificador B</MenuItem>
                         <MenuItem value="c">Identificador C</MenuItem>
+                        <MenuItem value="d">Identificador D</MenuItem>
+                        <MenuItem value="e">Identificador E</MenuItem>
+                        <MenuItem value="f">Identificador F</MenuItem>
+                        <MenuItem value="g">Identificador G</MenuItem>
+                        <MenuItem value="h">Identificador H</MenuItem>
+                        <MenuItem value="i">Identificador I</MenuItem>
+                        <MenuItem value="j">Identificador J</MenuItem>
+                        <MenuItem value="k">Identificador K</MenuItem>
                       </TextField>
                     </Grid>
                     <Grid item xs={12} sm={4}>

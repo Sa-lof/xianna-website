@@ -21,6 +21,8 @@ import deleteBlogFolder from '../../supabase/BlogServices/deleteBlogFolder';
 import getCategorias from '../../supabase/BlogServices/getCategorias';
 import * as XLSX from 'xlsx';
 import Loader from '../../../src/components/Loader/Loader'; // Importa el Loader
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const CatalogoTable: React.FC = () => {
   const [rows, setRows] = useState<Blog[]>([]);
@@ -334,6 +336,17 @@ const CatalogoTable: React.FC = () => {
     ) : null
   );
 
+  const handleQuillChange = (value: string) => {
+    if (currentBlog) {
+      setCurrentBlog({
+        ...currentBlog,
+        contenido: value,
+      });
+    } else {
+      setCurrentBlog({ contenido: value });
+    }
+  };
+
   return (
     <Box sx={{ padding: 2 }}>
       {loading ? (
@@ -400,22 +413,27 @@ const CatalogoTable: React.FC = () => {
                   },
                 }}
               />
-              <TextField
-                label="Contenido del blog"
-                name="contenido"
-                variant="outlined"
-                multiline
-                rows={6}
-                value={currentBlog?.contenido || ''}
-                onChange={handleInputChange}
-                sx={{
-                  borderRadius: '24px',
-                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '24px',
-                  },
-                }}
-              />
+              <ReactQuill
+  theme="snow"
+  value={currentBlog?.contenido || ''}
+  onChange={handleQuillChange}
+  modules={{
+    toolbar: [
+      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['bold', 'italic', 'underline'],
+      ['link', 'blockquote', 'code-block'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }],
+      ['clean'] // remove formatting button
+    ],
+  }}
+  style={{
+    borderRadius: '24px',
+    boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+  }}
+/>
+
               <Typography variant="h6" fontWeight="bold">
                 Galería de imágenes
               </Typography>

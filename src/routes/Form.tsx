@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Box, Grid, IconButton, Slide, Button, Dialog, DialogContent } from "@mui/material";
+import { Typography, Box, Grid, IconButton, Slide, Dialog, DialogContent, Snackbar, Alert} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import QuestionComponent from "../components/Question/Question";
@@ -47,6 +47,10 @@ const Form: React.FC = () => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [loading, setLoading] = useState(true); // Estado para manejar el loader
 
+  // Estados para manejar el Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
   const questionsPerPage = 3;
   const questionColors = ["#FFC0CB", "#FFD700", "#ADD8E6"];
 
@@ -91,6 +95,19 @@ const Form: React.FC = () => {
   const totalSteps = Math.ceil(questions.length / questionsPerPage) + 1;
 
   const handleNext = async () => {
+    const currentQuestions = getQuestionsForCurrentStep();
+    
+    // Verificar que todas las preguntas actuales tengan una respuesta seleccionada
+    const allAnswered = currentQuestions.every(
+      (q) => selectedAnswers[q.id] && selectedAnswers[q.id] !== ""
+    );
+  
+    if (!allAnswered) {
+      setSnackbarMessage("Por favor, responde todas las preguntas antes de continuar.");
+      setOpenSnackbar(true); // Mostrar la alerta
+      return;
+    }
+  
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -101,7 +118,7 @@ const Form: React.FC = () => {
         navigate("/perfil"); // Reemplaza con el enlace real
       }
     }
-  };
+  };  
 
   const handleBack = () => {
     if (currentStep > 0) {
@@ -128,6 +145,10 @@ const Form: React.FC = () => {
     return questions.slice(startIndex, endIndex);
   };
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   const getRandomStyleId = (): number => {
     if (styles.length === 0) return 1; // Default value if styles are not loaded
     const randomIndex = Math.floor(Math.random() * styles.length);
@@ -145,8 +166,30 @@ const Form: React.FC = () => {
           return;
         }
   
+        // Verificar si userData tiene todos los campos necesarios
+        if (!userData || !userData.sex || !userData.age || !userData.profession || !userData.size || !userData.bodyType || !userData.name || !userData.country) {
+          console.error('User data is incomplete');
+          return;
+        }
+  
+        // Calcular la opción más seleccionada
+        const styleCount: Record<number, number> = {};
+  
+        Object.values(selectedAnswers).forEach((answer) => {
+          const answerObj = questions.flatMap(q => q.answers).find(a => a.respuesta === answer);
+          if (answerObj) {
+            const styleId = answerObj.id_estilo;
+            styleCount[styleId] = (styleCount[styleId] || 0) + 1;
+          }
+        });
+  
+        const mostSelectedStyleId = parseInt(Object.entries(styleCount).reduce(
+          (acc, [styleId, count]) => count > acc.count ? { styleId: Number(styleId), count } : acc,
+          { styleId: 0, count: 0 }
+        ).styleId.toString(), 10);
+  
         const updatedDetails = {
-          tipo_estilo: getRandomStyleId(),
+          tipo_estilo: mostSelectedStyleId,
           sexo: userData.sex,
           edad: userData.age,
           profesion: userData.profession,
@@ -164,7 +207,7 @@ const Form: React.FC = () => {
     } catch (error) {
       console.error('Error updating user details:', error);
     }
-  };  
+  };    
 
   const handleRetakeForm = () => {
     setHasSubmitted(false);
@@ -226,60 +269,66 @@ const Form: React.FC = () => {
               textAlign: "center",
             }}
           >
-            <Typography variant="h1" sx={{ fontWeight: "bold", mb: 2, fontSize: {
+            <Typography variant="h1" sx={{ mb: 2, fontSize: {
+                  xs: '18px', 
+                  sm: '20px',
+                  md: '22px',
+                  lg: '24px',
+                }, }}>
+              Tu tipo de estilo es:
+            </Typography>
+            <Typography variant="h1" sx={{ fontWeight: "bold", fontSize: {
                   xs: '24px', 
                   sm: '28px',
                   md: '32px',
                   lg: '40px',
                 }, }}>
-              ¡Ya encontraste tu tipo de estilo!
-            </Typography>
-            <Button
-              variant="contained"
-              sx={{
-                fontSize: {
-                  xs: '16px', // Tamaño de fuente para pantallas pequeñas
-                  sm: '18px', // Tamaño de fuente para pantallas medianas
-                  md: '20px', // Tamaño de fuente para pantallas grandes
-                  lg: '22px', // Tamaño de fuente para pantallas extra grandes
-                },
-                backgroundColor: pink,
-                color: "white",
-                mb: 2,
-                "&:hover": {
-                  backgroundColor: pink,
-                },
-              }}
-              onClick={() => navigate("/perfil")}
-            >
               {userStyle}
-            </Button>
-            <Typography variant="body1" sx={{ mb: 2, fontSize: {
-                xs: '18px', 
-                sm: '20px',
-                md: '22px',
-                lg: '24px',
-              },}}>
-              Ya haz contestado este cuestionario, ¿quieres volver a hacerlo?
             </Typography>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                mt: 4,
-                mb: 4,
-              }}
-            >
-              <LargeButton
-                text="Volver a hacer"
-                link="#"
-                textColor="white"
-                arrowColor="white"
-                backgroundColor={pink}
-                onClick={handleRetakeForm}
-              />
-            </Box>
+            <Grid container>
+  <Grid item xs={12} sm={12} md={6} lg={6}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: { xs: "center", md: "flex-end" }, // centrado en pantallas pequeñas, alineado a la derecha en grandes
+        mt: 4,
+        mb: 4,
+      }}
+    >
+      <LargeButton
+        text="Volver a hacer el test"
+        link="#"
+        textColor="white"
+        arrowColor="white"
+        backgroundColor={pink}
+        onClick={handleRetakeForm}
+      />
+    </Box>
+  </Grid>
+  <Grid item xs={12} sm={12} md={6} lg={6}>
+    <Box
+      sx={{
+        display: "flex",
+        pl:"2%",
+        justifyContent: { xs: "center", md: "flex-start"}, // centrado en pantallas pequeñas, alineado a la izquierda en grandes
+        mt: 4,
+        mb: 4,
+      }}
+    >
+      <LargeButton
+        text="Conocer más sobre mi estilo"
+        link="/perfil"
+        textColor="black"
+        arrowColor="black"
+        backgroundColor="white"
+        sx={{
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // sombra al botón
+        }}
+      />
+    </Box>
+  </Grid>
+</Grid>
+            
           </Box>
         ) : (
           <Grid container spacing={2}>
@@ -387,6 +436,16 @@ const Form: React.FC = () => {
     </Box>
   </DialogContent>
 </Dialog>
+<Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
 
       </Box>
     </Slide>
