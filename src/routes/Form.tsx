@@ -28,19 +28,12 @@ interface Question {
   answers: Answer[];
 }
 
-interface Estilo {
-  id: number;
-  tipo: string;
-  descripcion: string;
-}
-
 const Form: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [userData, setUserData] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
-  const [styles, setStyles] = useState<Estilo[]>([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [userStyle, setUserStyle] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -62,7 +55,6 @@ const Form: React.FC = () => {
 
     const fetchStyles = async () => {
       const fetchedStyles = await getStyles();
-      setStyles(fetchedStyles);
       await checkSubmission(fetchedStyles); // Pasar los estilos obtenidos a checkSubmission
     };
 
@@ -147,12 +139,6 @@ const Form: React.FC = () => {
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
-  };
-
-  const getRandomStyleId = (): number => {
-    if (styles.length === 0) return 1; // Default value if styles are not loaded
-    const randomIndex = Math.floor(Math.random() * styles.length);
-    return styles[randomIndex].id;
   };
 
   const updateUserData = async () => {
