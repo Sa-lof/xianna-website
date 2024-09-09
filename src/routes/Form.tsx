@@ -28,12 +28,19 @@ interface Question {
   answers: Answer[];
 }
 
+interface Estilo {
+  id: number;
+  tipo: string;
+  descripcion: string;
+}
+
 const Form: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [userData, setUserData] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
+  const [styles, setStyles] = useState<Estilo[]>([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [userStyle, setUserStyle] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -55,6 +62,7 @@ const Form: React.FC = () => {
 
     const fetchStyles = async () => {
       const fetchedStyles = await getStyles();
+      setStyles(fetchedStyles);
       await checkSubmission(fetchedStyles); // Pasar los estilos obtenidos a checkSubmission
     };
 
@@ -141,26 +149,28 @@ const Form: React.FC = () => {
     setOpenSnackbar(false);
   };
 
+  const getRandomStyleId = (): number => {
+    if (styles.length === 0) return 1; // Default value if styles are not loaded
+    const randomIndex = Math.floor(Math.random() * styles.length);
+    return styles[randomIndex].id;
+  };
+
   const updateUserData = async () => {
     try {
       const session = await checkSession();
       if (session) {
         const user = session.user;
-  
         if (!user.email) {
           console.error('User email is undefined');
           return;
         }
   
-        // Verificar si userData tiene todos los campos necesarios
         if (!userData || !userData.sex || !userData.age || !userData.profession || !userData.size || !userData.bodyType || !userData.name || !userData.country) {
           console.error('User data is incomplete');
           return;
         }
   
-        // Calcular la opción más seleccionada
         const styleCount: Record<number, number> = {};
-  
         Object.values(selectedAnswers).forEach((answer) => {
           const answerObj = questions.flatMap(q => q.answers).find(a => a.respuesta === answer);
           if (answerObj) {
@@ -169,10 +179,15 @@ const Form: React.FC = () => {
           }
         });
   
-        const mostSelectedStyleId = parseInt(Object.entries(styleCount).reduce(
+        let mostSelectedStyleId = parseInt(Object.entries(styleCount).reduce(
           (acc, [styleId, count]) => count > acc.count ? { styleId: Number(styleId), count } : acc,
           { styleId: 0, count: 0 }
         ).styleId.toString(), 10);
+  
+        // Si no se encontró un estilo mayoritario, usa uno aleatorio
+        if (!mostSelectedStyleId || isNaN(mostSelectedStyleId)) {
+          mostSelectedStyleId = getRandomStyleId();
+        }
   
         const updatedDetails = {
           tipo_estilo: mostSelectedStyleId,
@@ -193,7 +208,7 @@ const Form: React.FC = () => {
     } catch (error) {
       console.error('Error updating user details:', error);
     }
-  };    
+  };     
 
   const handleRetakeForm = () => {
     setHasSubmitted(false);
