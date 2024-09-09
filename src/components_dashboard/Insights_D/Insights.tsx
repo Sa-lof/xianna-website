@@ -59,6 +59,29 @@ const Insights: React.FC = () => {
 
   const [selectedProfession, setSelectedProfession] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState<string[]>([]);
+  const [mostPopularStyle, setMostPopularStyle] = useState<string | null>(null);
+  const [mostPopularBodyTypeOverall, setMostPopularBodyTypeOverall] = useState<string | null>(null);
+  const [mostPopularCity, setMostPopularCity] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (users.length > 0) {
+      const cityCounts: { [key: string]: number } = {};
+      users.forEach(user => {
+        if (cityCounts[user.ciudad]) {
+          cityCounts[user.ciudad]++;
+        } else {
+          cityCounts[user.ciudad] = 1;
+        }
+      });
+  
+      const mostPopularCity = Object.keys(cityCounts).reduce((a, b) =>
+        cityCounts[a] > cityCounts[b] ? a : b
+      );
+  
+      setMostPopularCity(mostPopularCity); // Establecer la ciudad más popular
+    }
+  }, [users]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +125,6 @@ const Insights: React.FC = () => {
           return user.edad >= min && user.edad <= max;
         });
   
-        // Asegúrate de que user.tipo_estilo no sea null antes de usar toString
         const isInSelectedStyles = selectedStyles.length === 0 || 
                                     (user.tipo_estilo !== null && selectedStyles.includes(user.tipo_estilo.toString()));
   
@@ -114,13 +136,41 @@ const Insights: React.FC = () => {
         count: filteredUsers.filter(user => user.tipo_estilo === style.id).length,
       }));
   
+      const mostPopularStyle = styleCounts.reduce((max, style) => style.count > max.count ? style : max, styleCounts[0]);
+      
       setChartData({
         categories: styleCounts.map(item => item.style),
         series: styleCounts.map(item => item.count),
       });
       setTotalUsers(filteredUsers.length);
+      setMostPopularStyle(mostPopularStyle.style); // Establecer el estilo más popular
     }
   }, [users, styles, ageRanges, selectedStyles]);
+  
+  useEffect(() => {
+    const filteredUsers = users.filter(user => {
+      const professionMatches = selectedProfession.length === 0 || selectedProfession.includes(user.profesion);
+      const sizeMatches = selectedSize.length === 0 || selectedSize.includes(user.talla);
+      return professionMatches && sizeMatches;
+    });
+  
+    const bodyTypeCounts = {
+      Delgado: filteredUsers.filter(user => user.tipo_cuerpo === 'Delgado').length,
+      Atlético: filteredUsers.filter(user => user.tipo_cuerpo === 'Atlético').length,
+      Robusto: filteredUsers.filter(user => user.tipo_cuerpo === 'Robusto').length,
+      Musculoso: filteredUsers.filter(user => user.tipo_cuerpo === 'Musculoso').length
+    };
+  
+    setPyramidData({
+      categories: ['Delgado', 'Atlético', 'Robusto', 'Musculoso'],
+      series: [
+        {
+          name: 'Usuarios',
+          data: [bodyTypeCounts.Delgado, bodyTypeCounts.Atlético, bodyTypeCounts.Robusto, bodyTypeCounts.Musculoso],
+        }
+      ],
+    });
+  }, [users, selectedProfession, selectedSize]);
 
   useEffect(() => {
     const filteredUsers = users.filter(user => {
@@ -130,17 +180,17 @@ const Insights: React.FC = () => {
     });
 
     const bodyTypeCounts = {
-      Rectangular: filteredUsers.filter(user => user.tipo_cuerpo === 'Rectangular').length,
-      Circular: filteredUsers.filter(user => user.tipo_cuerpo === 'Circular').length,
-      Triangular: filteredUsers.filter(user => user.tipo_cuerpo === 'Triangular').length,
+      Delgado: filteredUsers.filter(user => user.tipo_cuerpo === 'Delgado').length,
+      Atlético: filteredUsers.filter(user => user.tipo_cuerpo === 'Atlético').length,
+      Robusto: filteredUsers.filter(user => user.tipo_cuerpo === 'Robusto').length,
     };
 
     setPyramidData({
-      categories: ['Rectangular', 'Circular', 'Triangular'],
+      categories: ['Delgado', 'Atlético', 'Robusto', 'Musculoso'],
       series: [
         {
           name: 'Usuarios',
-          data: [bodyTypeCounts.Rectangular, bodyTypeCounts.Circular, bodyTypeCounts.Triangular],
+          data: [bodyTypeCounts.Delgado, bodyTypeCounts.Atlético, bodyTypeCounts.Robusto],
         }
       ],
     });
@@ -152,19 +202,44 @@ const Insights: React.FC = () => {
         nombre: outfit.nombre,
         count: favorites.filter(favorite => favorite.outfit === outfit.id).length,
       }));
-
+  
+      // Ordenar por la cantidad de veces que se ha guardado cada outfit
+      const sortedOutfits = outfitCounts.sort((a, b) => b.count - a.count);
+  
+      // Tomar solo los 4 primeros
+      const top4Outfits = sortedOutfits.slice(0, 10);
+  
       setFavoritesChartData([{
         name: 'Número de veces guardado',
-        data: outfitCounts.map(item => ({
+        data: top4Outfits.map(item => ({
           x: item.nombre,
           y: item.count
         })),
       }]);
-
-      const mostSaved = outfitCounts.reduce((prev, current) => (prev.count > current.count) ? prev : current, outfitCounts[0]);
+  
+      const mostSaved = top4Outfits.reduce((prev, current) => (prev.count > current.count) ? prev : current, top4Outfits[0]);
       setMostSavedOutfit(mostSaved.nombre);
     }
-  }, [favorites, outfits]);
+  }, [favorites, outfits]);  
+
+  useEffect(() => {
+    if (users.length > 0) {
+      // Contar la cantidad de usuarios por tipo de cuerpo
+      const bodyTypeCounts = {
+        Delgado: users.filter(user => user.tipo_cuerpo === 'Delgado').length,
+        Atlético: users.filter(user => user.tipo_cuerpo === 'Atlético').length,
+        Robusto: users.filter(user => user.tipo_cuerpo === 'Robusto').length,
+        Musculoso: users.filter(user => user.tipo_cuerpo === 'Musculoso').length
+      };
+  
+      // Encontrar el tipo de cuerpo más popular
+      const mostPopularBodyTypeOverall = (Object.keys(bodyTypeCounts) as Array<keyof typeof bodyTypeCounts>).reduce(
+        (a, b) => bodyTypeCounts[a] > bodyTypeCounts[b] ? a : b
+      );
+  
+      setMostPopularBodyTypeOverall(mostPopularBodyTypeOverall); // Establecer el tipo de cuerpo más popular
+    }
+  }, [users]);  
 
   const handleAgeRangeChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
@@ -224,9 +299,6 @@ const Insights: React.FC = () => {
       }
     },
     colors: ['#FDE12D', '#00D1ED', '#FAACC1', '#E61F93'],
-    title: {
-      text: 'Distribución de Usuarios por Tipo de Cuerpo',
-    },
   };  
 
   return (
@@ -278,57 +350,137 @@ const Insights: React.FC = () => {
             </Grid>
             <Grid item xs={12} sm={12} md={12}>
               <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
-                <Typography variant="h5" fontWeight="bold">Promedio de Calificaciones por Blog</Typography>
                 <BlogRatingChart />
               </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6}>
-              <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
-                <Typography variant="h5" fontWeight="bold">Distribución de Usuarios por Tipo de Cuerpo</Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2,}}>
-                <FormControl fullWidth sx={{ mb: 2, width: '45%', paddingTop:'5%'}}>
-                  <InputLabel>Profesión</InputLabel>
-                  <Select
-                    multiple
-                    value={selectedProfession}
-                    onChange={handleProfessionChange}
-                    renderValue={(selected) => selected.join(', ')}
-                  >
-                    <MenuItem value="Ingeniero">
-                      <Checkbox checked={selectedProfession.indexOf('Ingeniero') > -1} />
-                      <ListItemText primary="Ingeniero" />
-                    </MenuItem>
-                    <MenuItem value="Doctor">
-                      <Checkbox checked={selectedProfession.indexOf('Doctor') > -1} />
-                      <ListItemText primary="Doctor" />
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ mb: 2,  width: '45%', paddingTop:'5%' }}>
-                  <InputLabel>Talla</InputLabel>
-                  <Select
-                    multiple
-                    value={selectedSize}
-                    onChange={handleSizeChange}
-                    renderValue={(selected) => selected.join(', ')}
-                  >
-                    <MenuItem value="Chica">
-                      <Checkbox checked={selectedSize.indexOf('Chica') > -1} />
-                      <ListItemText primary="Chica" />
-                    </MenuItem>
-                    <MenuItem value="Mediana">
-                      <Checkbox checked={selectedSize.indexOf('Mediana') > -1} />
-                      <ListItemText primary="Mediana" />
-                    </MenuItem>
-                    <MenuItem value="Grande">
-                      <Checkbox checked={selectedSize.indexOf('Grande') > -1} />
-                      <ListItemText primary="Grande" />
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-                </Box>  
-                <Chart options={pyramidChartOptions} series={pyramidData.series} type="bar" height={400} />
-              </Card>
+  <Card sx={{ padding: 2, borderRadius: '16px', backgroundColor: '#f0f0f0' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1}}>
+      <FormControl fullWidth sx={{ mb: 2, width: '45%' }}>
+        <InputLabel>Profesión</InputLabel>
+        <Select
+          multiple
+          value={selectedProfession}
+          onChange={handleProfessionChange}
+          renderValue={(selected) => selected.join(', ')}
+        >
+          <MenuItem value="Ingeniero">
+            <Checkbox checked={selectedProfession.indexOf('Ingeniero') > -1} />
+            <ListItemText primary="Ingeniero" />
+          </MenuItem>
+          <MenuItem value="Doctor">
+            <Checkbox checked={selectedProfession.indexOf('Doctor') > -1} />
+            <ListItemText primary="Doctor" />
+          </MenuItem>
+          <MenuItem value="Abogada">
+            <Checkbox checked={selectedProfession.indexOf('Abogada') > -1} />
+            <ListItemText primary="Abogada" />
+          </MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth sx={{ mb: 2, width: '45%' }}>
+        <InputLabel>Talla</InputLabel>
+        <Select
+          multiple
+          value={selectedSize}
+          onChange={handleSizeChange}
+          renderValue={(selected) => selected.join(', ')}
+        >
+          <MenuItem value="XS">
+            <Checkbox checked={selectedSize.indexOf('XS') > -1} />
+            <ListItemText primary="XS" />
+          </MenuItem>
+          <MenuItem value="S">
+            <Checkbox checked={selectedSize.indexOf('S') > -1} />
+            <ListItemText primary="S" />
+          </MenuItem>
+          <MenuItem value="M">
+            <Checkbox checked={selectedSize.indexOf('M') > -1} />
+            <ListItemText primary="M" />
+          </MenuItem>
+          <MenuItem value="L">
+            <Checkbox checked={selectedSize.indexOf('L') > -1} />
+            <ListItemText primary="L" />
+          </MenuItem>
+          <MenuItem value="XL">
+            <Checkbox checked={selectedSize.indexOf('XL') > -1} />
+            <ListItemText primary="XL" />
+          </MenuItem>
+          <MenuItem value="XXL">
+            <Checkbox checked={selectedSize.indexOf('XXL') > -1} />
+            <ListItemText primary="XXL" />
+          </MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
+    <Typography variant="h5" fontWeight="bold">Distribución de Usuarios por Tipo de Cuerpo</Typography>
+    <Chart options={pyramidChartOptions} series={pyramidData.series} type="bar" height={400} />
+  </Card>
+</Grid>
+
+            <Grid item xs={12} sm={12} md={6} lg={6}>
+            <Grid item xs={12} sm={12} md={12} lg={12} sx={{ marginBottom: '10%' }}>
+  <Card
+    sx={{
+      padding: 2,
+      textAlign: 'center',
+      borderRadius: '16px',
+      height: '150px',
+      display: 'flex',               // Flexbox para centrar
+      justifyContent: 'center',      // Centra horizontalmente
+      alignItems: 'center'           // Centra verticalmente
+    }}
+  >
+    <Box>
+      <Typography variant="h6" fontWeight="bold">
+        {mostPopularStyle}
+      </Typography>
+      <Typography variant="body1">Estilo más popular en usuarios</Typography>
+    </Box>
+  </Card>
+</Grid>
+
+<Grid item xs={12} sm={12} md={12} lg={12} sx={{ marginBottom: '10%' }}>
+  <Card
+    sx={{
+      padding: 2,
+      textAlign: 'center',
+      borderRadius: '16px',
+      height: '150px',
+      display: 'flex',               // Flexbox para centrar
+      justifyContent: 'center',      // Centra horizontalmente
+      alignItems: 'center'           // Centra verticalmente
+    }}
+  >
+    <Box>
+      <Typography variant="h6" fontWeight="bold">
+        {mostPopularBodyTypeOverall}
+      </Typography>
+      <Typography variant="body1">Tipo de cuerpo más popular</Typography>
+    </Box>
+  </Card>
+</Grid>
+
+<Grid item xs={12} sm={12} md={12} lg={12} sx={{ marginBottom: '10%' }}>
+  <Card
+    sx={{
+      padding: 2,
+      textAlign: 'center',
+      borderRadius: '16px',
+      height: '150px',
+      display: 'flex',               // Flexbox para centrar
+      justifyContent: 'center',      // Centra horizontalmente
+      alignItems: 'center'           // Centra verticalmente
+    }}
+  >
+    <Box>
+      <Typography variant="h6" fontWeight="bold">
+        {mostPopularCity}
+      </Typography>
+      <Typography variant="body1">Origen más popular en usuarios</Typography>
+    </Box>
+  </Card>
+</Grid>
             </Grid>
           </Grid>
         </>

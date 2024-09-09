@@ -62,7 +62,9 @@ const Question: React.FC<QuestionProps> = ({
       </Box>
 
       <FormControl fullWidth sx={{ mt: 1 }}>
-        <InputLabel>Selecciona una respuesta</InputLabel>
+      <InputLabel shrink={localSelectedResponse !== ""}>
+        {localSelectedResponse === "" ? "Selecciona una respuesta" : ""}
+      </InputLabel>
         <Select
           labelId={`response-label-${questionNumber}`}
           value={localSelectedResponse}
@@ -70,8 +72,12 @@ const Question: React.FC<QuestionProps> = ({
           label="Respuesta"
           sx={{
             backgroundColor: "white",
+            borderColor: "white",
             borderRadius: "16px",
             fontWeight: "bold",
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "transparent", // Borde transparente por defecto
+            },
             "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
               borderColor: "white",
             },
@@ -80,6 +86,7 @@ const Question: React.FC<QuestionProps> = ({
             },
             "& .MuiSelect-select": {
               borderRadius: "16px",
+              borderColor: "white",
             },
           }}
         >

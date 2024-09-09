@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Typography } from '@mui/material';
 import Chart from 'react-apexcharts';
 import { getBlogRatingsPerUsers, getCategories } from '../../supabase/InsightServices/getBlogRatingsPerUsers';
 
@@ -41,25 +41,31 @@ const BlogRatingChart: React.FC = () => {
     const fetchAndProcessData = async () => {
       const categoryId = selectedCategory !== 'Todos' ? selectedCategory : undefined;
       const averageRatings = await getBlogRatingsPerUsers(categoryId);
-
+  
+      // Ordenar los blogs por el promedio general
+      const sortedRatings = averageRatings.sort((a, b) => b.overallAvg - a.overallAvg);
+  
+      // Tomar solo los 4 primeros
+      const top4Ratings = sortedRatings.slice(0, 10);
+  
       const blogNames: { [key: string]: string } = {};
-      averageRatings.forEach(r => {
+      top4Ratings.forEach(r => {
         blogNames[`Blog ${r.blog}`] = r.blogName;
       });
-
+  
       setChartData({
         series: [
-          { name: 'Usuarios Registrados', data: averageRatings.map(r => r.registeredAvg) },
-          { name: 'Usuarios No Registrados', data: averageRatings.map(r => r.unregisteredAvg) },
-          { name: 'Promedio General', data: averageRatings.map(r => r.overallAvg) }
+          { name: 'Usuarios Registrados', data: top4Ratings.map(r => r.registeredAvg) },
+          { name: 'Usuarios No Registrados', data: top4Ratings.map(r => r.unregisteredAvg) },
+          { name: 'Promedio General', data: top4Ratings.map(r => r.overallAvg) }
         ],
-        categories: averageRatings.map(r => `Blog ${r.blog}`),
+        categories: top4Ratings.map(r => `Blog ${r.blog}`),
         blogNames: blogNames
       });
     };
-
+  
     fetchAndProcessData();
-  }, [selectedCategory]);
+  }, [selectedCategory]);  
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -131,6 +137,7 @@ const BlogRatingChart: React.FC = () => {
           ))}
         </Select>
       </FormControl>
+      <Typography variant="h5" fontWeight="bold">Promedio de Calificaciones por Blog</Typography>
       <Chart
         options={options}
         series={chartData.series}

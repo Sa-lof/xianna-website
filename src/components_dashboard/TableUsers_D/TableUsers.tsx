@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, Paper, IconButton, Grid, Button } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, Paper, Grid, Button } from '@mui/material';
+import * as XLSX from 'xlsx';  // Importamos XLSX para generar el Excel
 import getUsers from '../../supabase/UsersServices/getUsers';
 import getStyles from '../../supabase/CuestionarioServices/getStyles';
+import logo2 from '../../assets/logo/x.png';
 
 interface User {
   id: number;
@@ -12,8 +13,8 @@ interface User {
   tipo_estilo: number;
   profesion: string;
   edad: number;
-  talla:string;
-  tipo_cuerpo:string;
+  talla: string;
+  tipo_cuerpo: string;
   avatar?: string;
 }
 
@@ -44,6 +45,28 @@ const UserProfile = () => {
     return style ? style.tipo : 'Desconocido';
   };
 
+  const handleDownloadReport = () => {
+    // Mapeamos los datos de los usuarios en un formato para el Excel
+    const data = users.map(user => ({
+      Nombre: user.nombre,
+      Correo: user.correo,
+      Ciudad: user.ciudad,
+      Profesión: user.profesion,
+      Edad: user.edad,
+      Talla: user.talla,
+      'Tipo de cuerpo': user.tipo_cuerpo,
+      'Tipo de estilo': getStyleName(user.tipo_estilo),
+    }));
+
+    // Creamos un libro de trabajo
+    const ws = XLSX.utils.json_to_sheet(data); // Creamos la hoja a partir de los datos
+    const wb = XLSX.utils.book_new();          // Creamos un nuevo libro
+    XLSX.utils.book_append_sheet(wb, ws, 'Usuarios'); // Añadimos la hoja al libro
+
+    // Generamos el archivo y lo descargamos
+    XLSX.writeFile(wb, 'reporte_usuarios.xlsx');
+  };
+
   if (!selectedUser) return <div>Loading...</div>;
 
   return (
@@ -52,23 +75,27 @@ const UserProfile = () => {
         <Typography variant="h4" fontWeight="bold" sx={{ flex: '1 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
           Usuarios
         </Typography>
-        <Button variant="contained" sx={{borderRadius:'20px', backgroundColor:'#E61F93', flex: '0 1 auto', marginTop: { xs: 1, sm: 0 } }}>
+        <Button
+          variant="contained"
+          sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginTop: { xs: 1, sm: 0 } }}
+          onClick={handleDownloadReport}  // Evento de clic para descargar el reporte
+        >
           Reporte
         </Button>
       </Box>
-      <Box sx={{ display: 'flex', overflowX: 'auto', flexDirection: 'row'}}>
+      <Box sx={{ display: 'flex', overflowX: 'auto', flexDirection: 'row' }}>
         <Box sx={{ minWidth: { xs: '250px', md: '300px' }, maxHeight: '80vh', overflowY: 'auto', bgcolor: 'background.paper', flexShrink: 0 }}>
           <List>
             {users.map((user) => (
               <ListItem
                 key={user.id}
                 button
-                selected={selectedUser.id === user.id}
+                selected={selectedUser?.id === user.id}
                 onClick={() => setSelectedUser(user)}
                 sx={{
                   borderRadius: 2,
                   marginBottom: 1,
-                  backgroundColor: selectedUser.id === user.id ? '#FAACC1' : 'inherit',
+                  backgroundColor: selectedUser?.id === user.id ? '#FAACC1' : 'inherit',
                   '&.Mui-selected': {
                     backgroundColor: '#FAACC1',
                     color: '#FFFFFF',
@@ -80,12 +107,12 @@ const UserProfile = () => {
                     backgroundColor: '#FAACC1',
                   },
                   '.MuiListItemText-secondary': {
-                    color: selectedUser.id === user.id ? '#FFFFFF' : 'inherit',
+                    color: selectedUser?.id === user.id ? '#FFFFFF' : 'inherit',
                   },
                 }}
               >
                 <ListItemAvatar>
-                  <Avatar src={user.avatar} />
+                  <Avatar src={logo2} />
                 </ListItemAvatar>
                 <ListItemText primary={user.nombre} secondary={getStyleName(user.tipo_estilo)} />
               </ListItem>
@@ -99,19 +126,17 @@ const UserProfile = () => {
                 <Typography variant="h5" color={"white"} fontWeight="bold">
                   {selectedUser.nombre}
                 </Typography>
-                <IconButton>
-                  <DeleteIcon/>
-                </IconButton>
               </Grid>
               <Grid item xs={12} display="flex" alignItems="center">
-                <Avatar src={selectedUser.avatar} sx={{ width: 56, height: 56, marginRight: 2 }} />
+                <Avatar src={logo2} sx={{ width: 56, height: 56, marginRight: 2 }} />
                 <Typography color={"white"} variant="body1" fontWeight="bold">
                   {selectedUser.correo}
                 </Typography>
               </Grid>
+              {/* Otros detalles del usuario */}
               <Grid item xs={4}>
                 <Typography variant="body1" color={"white"} fontWeight="bold">Tipo de estilo</Typography>
-                <Typography variant="body2" color={"white"} >{getStyleName(selectedUser.tipo_estilo)}</Typography>
+                <Typography variant="body2" color={"white"}>{getStyleName(selectedUser.tipo_estilo)}</Typography>
               </Grid>
               <Grid item xs={4}>
                 <Typography variant="body1" color={"white"} fontWeight="bold">Profesión</Typography>

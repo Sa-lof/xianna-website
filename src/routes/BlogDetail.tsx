@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Typography, IconButton, Slide, Fade } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Slide, Fade, Snackbar, Alert } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
@@ -8,7 +8,7 @@ import Content from "../components/Content/Content";
 import BlogImages from "../components/BlogImages/BlogImages";
 import Footer from "../components/Footer/Footer";
 import Rating from "../components/Rating/Rating";
-import LargeButton from "../components/LargeButton/LargeButton"; // Assuming you have this component
+import LargeButton from "../components/LargeButton/LargeButton";
 import { fetchBlog, fetchUserEmail, fetchRating, submitRating } from "../supabase/BlogServices/BlogService";
 import Loader from "../components/Loader/Loader";
 
@@ -36,7 +36,12 @@ const BlogDetail: React.FC = () => {
   const [existingRating, setExistingRating] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showReRateMessage, setShowReRateMessage] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true); // Estado para manejar el loader
+  const [loading, setLoading] = useState(true);
+
+  // Estados para manejar la Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +59,7 @@ const BlogDetail: React.FC = () => {
         setShowReRateMessage(true);
       }
 
-      setLoading(false); // Una vez que los datos se hayan cargado, se oculta el loader
+      setLoading(false); 
     };
 
     initialize();
@@ -63,11 +68,16 @@ const BlogDetail: React.FC = () => {
   const handleRatingSubmit = async (newRating: number) => {
     try {
       await submitRating(Number(id), newRating, userEmail, existingRating);
-      alert('Rating submitted successfully!');
+      setSnackbarMessage('¡Calificación enviada exitosamente!');
+      setOpenSnackbar(true);
+
+      // Actualizar inmediatamente el estado para reflejar que se ha calificado
       setRating(newRating);
       setExistingRating(newRating);
-      setShowReRateMessage(false);
+      setShowReRateMessage(true); // Cambia el mensaje a "Ya has calificado este blog"
     } catch (error) {
+      setSnackbarMessage('Error al enviar la calificación.');
+      setOpenSnackbar(true);
       console.error(error);
     }
   };
@@ -100,6 +110,10 @@ const BlogDetail: React.FC = () => {
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
   if (loading) {
     return <Loader />;
@@ -209,6 +223,18 @@ const BlogDetail: React.FC = () => {
             <Footer />
           </div>
         </Fade>
+
+        {/* Snackbar para mostrar mensajes */}
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </Slide>
   );

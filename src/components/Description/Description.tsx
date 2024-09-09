@@ -8,9 +8,9 @@ const Description: React.FC<{ description: string }> = ({ description }) => {
     <Box sx={{ marginBottom: 4 }}>
       <Typography variant="body1" sx={{fontSize: {
                   xs: '16px', 
-                  sm: '20px',
-                  md: '24px',
-                  lg: '28px',
+                  sm: '18px',
+                  md: '20px',
+                  lg: '22px',
                 },}}>{description}</Typography>
     </Box>
   );

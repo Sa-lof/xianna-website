@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Avatar, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material';
+import { Box, List, ListItem, ListItemButton, ListItemText, Button } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo/xianna.png';
@@ -37,12 +37,7 @@ const Sidebar: React.FC<{ selectedKey: string, onSelect: (key: string) => void }
         <img
           src={logo}
           alt="Xianna Logo"
-          style={{ width: '200px', marginBottom: '30px', marginTop: '30px' }}
-        />
-        <Avatar
-          src="https://your-profile-image-url.com/profile.jpg"
-          alt="User Profile"
-          sx={{ width: 100, height: 100, margin: '0 auto' }}
+          style={{ width: '200px', marginBottom: '30px', marginTop: '90px' }}
         />
       </Box>
       <List>

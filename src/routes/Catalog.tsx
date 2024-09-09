@@ -225,7 +225,9 @@ const Catalog: React.FC = () => {
                 Todo
               </Button>
               <FormControl sx={{ minWidth: { xs: '100%', sm: 120 } }}>
-                <InputLabel>Estilo</InputLabel>
+              <InputLabel shrink={selectedEstilos.length > 0}>
+                {selectedEstilos.length === 0 ? "Estilo" : ""}
+              </InputLabel>
                 <Select
                   multiple
                   value={selectedEstilos}
@@ -250,16 +252,27 @@ const Catalog: React.FC = () => {
                 >
                   {styles.map((estilo) => (
                     <MenuItem key={estilo} value={estilo}>
-                      <Checkbox
-                        checked={selectedEstilos.indexOf(estilo) > -1}
-                      />
-                      <ListItemText primary={estilo} />
-                    </MenuItem>
+                    <Checkbox
+                      checked={selectedEstilos.indexOf(estilo) > -1}
+                      sx={{
+                        color: pink, // Cambiar el color cuando no está seleccionado
+                        '&.Mui-checked': {
+                          color: pink, // Cambiar el color cuando está seleccionado
+                        },
+                        '& .MuiSvgIcon-root': {
+                          borderRadius: '50%', // Hacer que el checkbox sea redondo
+                        },
+                      }}
+                    />
+                    <ListItemText primary={estilo} />
+                  </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <FormControl sx={{ minWidth: { xs: '100%', sm: 120 } }}>
-                <InputLabel>Ocasión</InputLabel>
+              <InputLabel shrink={selectedOcasiones.length > 0}>
+                {selectedOcasiones.length === 0 ? "Ocasión" : ""}
+              </InputLabel>
                 <Select
                   multiple
                   value={selectedOcasiones}
@@ -284,11 +297,20 @@ const Catalog: React.FC = () => {
                 >
                   {occasions.map((ocasion) => (
                     <MenuItem key={ocasion} value={ocasion}>
-                      <Checkbox
-                        checked={selectedOcasiones.indexOf(ocasion) > -1}
-                      />
-                      <ListItemText primary={ocasion} />
-                    </MenuItem>
+                    <Checkbox
+                      checked={selectedOcasiones.indexOf(ocasion) > -1}
+                      sx={{
+                        color: pink, // Color rosa cuando no está seleccionado
+                        '&.Mui-checked': {
+                          color: pink, // Color rosa cuando está seleccionado
+                        },
+                        '& .MuiSvgIcon-root': {
+                          borderRadius: '50%', // Hacer que el checkbox sea redondo
+                        },
+                      }}
+                    />
+                    <ListItemText primary={ocasion} />
+                  </MenuItem>                  
                   ))}
                 </Select>
               </FormControl>

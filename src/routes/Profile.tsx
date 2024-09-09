@@ -226,13 +226,10 @@ const Profile: React.FC = () => {
                       variant="h5"
                       sx={{ fontWeight: "bold", marginBottom: 2 }}
                     >
-                      Tu estilo
-                    </Typography>
-                    <Typography variant="body2" sx={{ marginBottom: 2 }}>
                       {user.styleType}
                     </Typography>
                     <Typography variant="body2" sx={{ marginBottom: 2 }}>
-                      {user.styleDescription}
+                      Este es tu tipo de estilo. {user.styleDescription}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       {user.colors.map((color, index) => (
