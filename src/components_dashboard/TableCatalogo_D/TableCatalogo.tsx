@@ -362,7 +362,12 @@ const CatalogoTable: React.FC = () => {
         <>
       {showForm ? (
         <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Button onClick={handleCancelClick} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+          <Button onClick={handleCancelClick} variant="contained" sx={{borderRadius: '20px', alignSelf: 'flex-end', backgroundColor: '#E61F93','&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                }, }}>
             Regresar
           </Button>
           <Typography variant="h4" fontWeight="bold">
@@ -382,6 +387,15 @@ const CatalogoTable: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}
               />
@@ -400,6 +414,15 @@ const CatalogoTable: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}
               >
@@ -416,6 +439,15 @@ const CatalogoTable: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}>
                 <InputLabel>Ocasión</InputLabel>
@@ -457,6 +489,15 @@ const CatalogoTable: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}
               />
@@ -532,6 +573,15 @@ const CatalogoTable: React.FC = () => {
                     boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '24px',
+                      '& fieldset': {
+                        borderColor: 'transparent', // Sin borde
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'transparent', // Sin borde al hacer hover
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                      },
                     },
                   }}
                 />
@@ -547,6 +597,15 @@ const CatalogoTable: React.FC = () => {
                     boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '24px',
+                      '& fieldset': {
+                        borderColor: 'transparent', // Sin borde
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'transparent', // Sin borde al hacer hover
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                      },
                     },
                   }}
                 />
@@ -559,7 +618,12 @@ const CatalogoTable: React.FC = () => {
           <Button
             onClick={handleFormSubmit}
             variant="contained"
-            sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', mt: 2 }}
+            sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', mt: 2, '&:hover': {
+              bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+              '& .MuiTypography-root': {
+                color: 'white' // El texto se vuelve blanco en hover
+              }
+            },  }}
           >
             Guardar
           </Button>
@@ -571,10 +635,20 @@ const CatalogoTable: React.FC = () => {
               Catálogo
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+              <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 }, '&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                },}}>
                 Reporte
               </Button>
-              <Button onClick={handleAddClick} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
+              <Button onClick={handleAddClick} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', '&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                },}}>
                 Agregar
               </Button>
             </Box>

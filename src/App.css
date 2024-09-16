@@ -5,3 +5,16 @@
 Card{
     border-radius: 20;
 }
+
+.ql-container {
+  border: none !important;
+}
+
+.ql-toolbar {
+  border: none !important;
+}
+
+.ql-editor {
+  border: none !important;
+  box-shadow: none !important;
+}

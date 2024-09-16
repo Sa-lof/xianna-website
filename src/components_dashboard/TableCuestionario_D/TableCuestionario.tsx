@@ -216,7 +216,12 @@ const QuestionAnswerAccordion: React.FC = () => {
         <>
           {showForm ? (
             <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+              <Button onClick={handleHideForm} variant="contained" sx={{ borderRadius: '20px', alignSelf: 'flex-end', backgroundColor: '#E61F93', marginTop: { xs: 1, sm: 0 }, '&:hover': {
+            bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+            '& .MuiTypography-root': {
+              color: 'white' // El texto se vuelve blanco en hover
+            }
+          }, }}>
                 Regresar
               </Button>
               <Typography variant="h4" fontWeight="bold">
@@ -233,6 +238,15 @@ const QuestionAnswerAccordion: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}
               />
@@ -251,7 +265,7 @@ const QuestionAnswerAccordion: React.FC = () => {
                     borderRadius: '50%',
                     '&:hover': {
                       backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    }
+                    },
                   }}
                 >
                   <AddIcon />
@@ -273,6 +287,15 @@ const QuestionAnswerAccordion: React.FC = () => {
                           boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '24px',
+                            '& fieldset': {
+                              borderColor: 'transparent', // Sin borde
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'transparent', // Sin borde al hacer hover
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                            },
                           },
                         }}
                       >
@@ -301,6 +324,15 @@ const QuestionAnswerAccordion: React.FC = () => {
                           boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '24px',
+                            '& fieldset': {
+                              borderColor: 'transparent', // Sin borde
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'transparent', // Sin borde al hacer hover
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                            },
                           },
                         }}
                       />
@@ -318,6 +350,15 @@ const QuestionAnswerAccordion: React.FC = () => {
                           boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '24px',
+                            '& fieldset': {
+                              borderColor: 'transparent', // Sin borde
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'transparent', // Sin borde al hacer hover
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                            },
                           },
                         }}
                       >
@@ -351,7 +392,12 @@ const QuestionAnswerAccordion: React.FC = () => {
               <Button
                 onClick={handleSave}
                 variant="contained"
-                sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', marginTop: 2 }}
+                sx={{ backgroundColor: '#E61F93', borderRadius: '24px', boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)', marginTop: 2, '&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                }, }}
               >
                 Guardar
               </Button>
@@ -366,14 +412,24 @@ const QuestionAnswerAccordion: React.FC = () => {
                   <Button
                     onClick={handleDownloadExcel}
                     variant="contained"
-                    sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}
+                    sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 }, '&:hover': {
+                      bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                      '& .MuiTypography-root': {
+                        color: 'white' // El texto se vuelve blanco en hover
+                      }
+                    },}}
                   >
                     Reporte
                   </Button>
                   <Button
                     onClick={handleShowForm}
                     variant="contained"
-                    sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}
+                    sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', '&:hover': {
+                      bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                      '& .MuiTypography-root': {
+                        color: 'white' // El texto se vuelve blanco en hover
+                      }
+                    },}}
                   >
                     Agregar
                   </Button>

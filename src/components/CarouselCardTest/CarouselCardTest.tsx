@@ -8,13 +8,23 @@ import "slick-carousel/slick/slick-theme.css";
 
 const testimonials = [
   {
-    name: "Nombre usuario 1",
-    opinion: "Opinión 1",
+    name: "María G",
+    opinion: "Gracias a Xianna, descubrí mi estilo personal y ahora me siento más segura.",
     avatar: "user1.jpg",
   },
   {
-    name: "Nombre usuario 2",
-    opinion: "Opinión 2",
+    name: "Ana L.",
+    opinion: "Las recomendaciones de Xianna son prácticas y fáciles de seguir.",
+    avatar: "user2.jpg",
+  },
+  {
+    name: "Paola R",
+    opinion: "Xianna me ha enseñado a transformar mi guardarropa con prendas básicas.",
+    avatar: "user1.jpg",
+  },
+  {
+    name: "Rodrigo M.",
+    opinion: "Me encanta cómo Xianna hace que la moda sea accesible para todos",
     avatar: "user2.jpg",
   },
 ];
@@ -82,10 +92,10 @@ const CarouselCardTest: React.FC = () => {
                 {testimonial.name}
               </Typography>
               <Typography variant="body2" sx={{ fontSize: {
-                  xs: '18px', // Tamaño de fuente para pantallas pequeñas
-                  sm: '20px', // Tamaño de fuente para pantallas medianas
-                  md: '22px', // Tamaño de fuente para pantallas grandes
-                  lg: '24px', // Tamaño de fuente para pantallas extra grandes
+                  xs: '16px', // Tamaño de fuente para pantallas pequeñas
+                  sm: '19px', // Tamaño de fuente para pantallas medianas
+                  md: '20px', // Tamaño de fuente para pantallas grandes
+                  lg: '22px', // Tamaño de fuente para pantallas extra grandes
               }, }}>
                 {testimonial.opinion}
               </Typography>

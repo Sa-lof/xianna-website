@@ -54,8 +54,7 @@ const MainGrid: React.FC = () => {
                 md: '22px',
                 lg: '24px',
               }, }}>
-              Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
-              ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
+              Xianna es tu guía en moda y estilo personal. Descubre tendencias, consejos y tips para sentirte auténtica y segura todos los días.
             </Typography>
           </CardContent>
         </Card>
@@ -197,7 +196,7 @@ const MainGrid: React.FC = () => {
                 lg: '40px',
               }, fontWeight: "bold", textAlign: "center" }}
             >
-              Lorem ipsum lorem ipsum lorem
+              La moda pasa, pero el estilo permanece.
             </Typography>
           </CardContent>
         </Card>
@@ -231,8 +230,7 @@ const MainGrid: React.FC = () => {
                   md: '22px',
                   lg: '24px',
                 }, }}>
-              Lorem ipsum lorem ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem
-              ipsum lorem ipsum Lorem ipsum lorem ipsum Lorem ipsum lorem ipsum
+              Descubre las últimas tendencias en moda, belleza y estilo de vida. Encuentra inspiración para expresar tu mejor versión.
             </Typography>
           </CardContent>
           <Box

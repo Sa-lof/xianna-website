@@ -77,7 +77,12 @@ const UserProfile = () => {
         </Typography>
         <Button
           variant="contained"
-          sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginTop: { xs: 1, sm: 0 } }}
+          sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginTop: { xs: 1, sm: 0 }, '&:hover': {
+            bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+            '& .MuiTypography-root': {
+              color: 'white' // El texto se vuelve blanco en hover
+            }
+          }, }}
           onClick={handleDownloadReport}  // Evento de clic para descargar el reporte
         >
           Reporte

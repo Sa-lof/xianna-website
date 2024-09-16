@@ -48,7 +48,13 @@ const Sidebar: React.FC<{ selectedKey: string, onSelect: (key: string) => void }
               sx={{
                 borderRadius: '20px',
                 bgcolor: item.key === selectedKey ? '#E61F93' : '#f7f7f7',
-                margin: '10px 0'
+                margin: '10px 0',
+                '&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                },
               }}
             >
               <ListItemText

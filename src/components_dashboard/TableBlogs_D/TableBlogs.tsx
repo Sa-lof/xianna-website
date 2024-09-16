@@ -312,6 +312,12 @@ const CatalogoTable: React.FC = () => {
             borderRadius: '20px',
             textTransform: 'none',
             boxShadow: 'none',
+            '&:hover': {
+              bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+              '& .MuiTypography-root': {
+                color: 'white' // El texto se vuelve blanco en hover
+              }
+            },
           }}
         >
           Subir
@@ -355,27 +361,41 @@ const CatalogoTable: React.FC = () => {
         <>
           {showForm ? (
             <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Button onClick={handleHideForm} variant="contained" sx={{ alignSelf: 'flex-end', backgroundColor: '#E61F93' }}>
+              <Button onClick={handleHideForm} variant="contained" sx={{borderRadius: '20px', alignSelf: 'flex-end', backgroundColor: '#E61F93', flex: '0 1 auto', '&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                }, }}>
                 Regresar
               </Button>
               <Typography variant="h4" fontWeight="bold">
                 Blogs
               </Typography>
               <TextField
-                label="Título del blog"
-                name="titulo"
-                variant="outlined"
-                fullWidth
-                value={currentBlog?.titulo || ''}
-                onChange={handleInputChange}
-                sx={{
-                  borderRadius: '24px',
-                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '24px',
-                  },
-                }}
-              />
+  label="Título del blog"
+  name="titulo"
+  variant="outlined"
+  fullWidth
+  value={currentBlog?.titulo || ''}
+  onChange={handleInputChange}
+  sx={{
+    borderRadius: '24px',
+    boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '24px',
+      '& fieldset': {
+        borderColor: 'transparent', // Sin borde
+      },
+      '&:hover fieldset': {
+        borderColor: 'transparent', // Sin borde al hacer hover
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'transparent', // Sin borde cuando se enfoca el input
+      },
+    },
+  }}
+/>
               <TextField
                 label="Categoría"
                 name="id_categoria"
@@ -390,6 +410,15 @@ const CatalogoTable: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}
               >
@@ -410,30 +439,38 @@ const CatalogoTable: React.FC = () => {
                   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '24px',
+                    '& fieldset': {
+                      borderColor: 'transparent', // Sin borde
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'transparent', // Sin borde al hacer hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'transparent', // Sin borde cuando se enfoca el input
+                    },
                   },
                 }}
               />
               <ReactQuill
-  theme="snow"
-  value={currentBlog?.contenido || ''}
-  onChange={handleQuillChange}
-  modules={{
-    toolbar: [
-      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['bold', 'italic', 'underline'],
-      ['link', 'blockquote', 'code-block'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'align': [] }],
-      ['clean'] // remove formatting button
-    ],
-  }}
-  style={{
-    borderRadius: '24px',
-    boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
-  }}
-/>
-
+                theme="snow"
+                value={currentBlog?.contenido || ''}
+                onChange={handleQuillChange}
+                modules={{
+                  toolbar: [
+                    [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['bold', 'italic', 'underline'],
+                    ['link', 'blockquote', 'code-block'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['clean'] // remove formatting button
+                  ],
+                }}
+                style={{
+                  borderRadius: '24px',
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                }}
+              />
               <Typography variant="h6" fontWeight="bold">
                 Galería de imágenes
               </Typography>
@@ -477,7 +514,13 @@ const CatalogoTable: React.FC = () => {
                 sx={{
                   backgroundColor: '#E61F93',
                   borderRadius: '24px',
-                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)'
+                  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+                  '&:hover': {
+                    bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                    '& .MuiTypography-root': {
+                      color: 'white' // El texto se vuelve blanco en hover
+                    }
+                  }, 
                 }}
               >
                 Guardar
@@ -490,10 +533,20 @@ const CatalogoTable: React.FC = () => {
                   Blogs
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
+                <Button onClick={handleDownloadExcel} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 }, '&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                }, }}>
                     Reporte
                   </Button>
-                  <Button onClick={() => handleShowForm()} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto' }}>
+                  <Button onClick={() => handleShowForm()} variant="contained" sx={{ borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto','&:hover': {
+                  bgcolor: 'black', // Cambia a negro cuando se pasa el cursor
+                  '& .MuiTypography-root': {
+                    color: 'white' // El texto se vuelve blanco en hover
+                  }
+                }, }}>
                     Agregar
                   </Button>
                 </Box>
