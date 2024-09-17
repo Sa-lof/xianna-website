@@ -9,6 +9,9 @@ import {
   CardContent,
   Slide,
   Fade,
+  Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -16,14 +19,26 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer/Footer";
-import LargeButton from "../components/LargeButton/LargeButton";
 import { useInView } from "react-intersection-observer";
 import Loader from "../components/Loader/Loader";
+import emailjs from "emailjs-com";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
 
 const Contacto: React.FC = () => {
+
+  const [toSend, setToSend] = useState({
+    from_name: '',
+    to_name: 'xiannaoficial@gmail.com',
+    message: '',
+    reply_to: '',
+  });
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [messageSnackbar, setMessageSnackbar] = useState("");
+  const [severity, setSeverity] = useState<"success" | "error">("success");
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true); // Estado para manejar el loader
 
@@ -62,6 +77,53 @@ const Contacto: React.FC = () => {
   if (loading) {
     return <Loader />;
   }
+
+  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setToSend({ ...toSend, [e.target.name]: e.target.value });
+  };
+
+  const sendEmail = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    if (!toSend.from_name || !toSend.to_name || !toSend.message || !toSend.reply_to) {
+      setMessageSnackbar('Por favor, completa todos los campos');
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    emailjs.send(
+      'service_ghjc3pq',
+      'template_gqwjp6x',
+      toSend,
+      '7__nOmPuFW7JAk7fm'
+    )
+      .then((response) => {
+        setMessageSnackbar('Correo enviado con éxito');
+        setSeverity("success");
+        setOpenSnackbar(true);
+
+        // Limpiar los campos del formulario
+        setToSend({
+          from_name: '',
+          to_name: 'xiannaoficial@gmail.com',
+          message: '',
+          reply_to: '',
+        });
+      })
+      .catch((err) => {
+        setMessageSnackbar('Hubo un error al enviar el correo. Intenta nuevamente.');
+        setSeverity("error");
+        setOpenSnackbar(true);
+      });
+  };
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
@@ -143,87 +205,107 @@ const Contacto: React.FC = () => {
                     }}
                   >
                     <TextField
-                      variant="outlined"
-                      fullWidth
-                      label="Nombre"
-                      InputLabelProps={{
-                        style: { color: pink },
-                      }}
-                      sx={{
-                        backgroundColor: "white",
-                        borderRadius: 5,
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "white",
-                            borderRadius: 5,
-                          },
-                          "&:hover fieldset": {
-                            borderColor: lightpink,
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: lightpink,
-                          },
-                        },
-                      }}
-                    />
+                fullWidth
+                label="Tu nombre"
+                name="from_name"
+                value={toSend.from_name}
+                onChange={handleChange}
+                InputLabelProps={{
+                  style: { color: pink },
+                }}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 5,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "white",
+                      borderRadius: 5,
+                    },
+                    "&:hover fieldset": {
+                      borderColor: lightpink,
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: lightpink,
+                    },
+                  },
+                }}
+              />
                     <TextField
-                      variant="outlined"
-                      fullWidth
-                      label="Correo electrónico"
-                      InputLabelProps={{
-                        style: { color: pink },
-                      }}
-                      sx={{
-                        backgroundColor: "white",
-                        borderRadius: 5,
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "white",
-                            borderRadius: 5,
-                          },
-                          "&:hover fieldset": {
-                            borderColor: lightpink,
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: lightpink,
-                          },
-                        },
-                      }}
-                    />
+                fullWidth
+                label="Correo electrónico"
+                name="reply_to"
+                value={toSend.reply_to}
+                onChange={handleChange}
+                InputLabelProps={{
+                  style: { color: pink },
+                }}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 5,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "white",
+                      borderRadius: 5,
+                    },
+                    "&:hover fieldset": {
+                      borderColor: lightpink,
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: lightpink,
+                    },
+                  },
+                }}
+              />
                     <TextField
-                      variant="outlined"
-                      fullWidth
-                      multiline
-                      rows={4}
-                      label="Mensaje"
-                      InputLabelProps={{
-                        style: { color: pink },
-                      }}
-                      sx={{
-                        backgroundColor: "white",
-                        borderRadius: 5,
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "white",
-                            borderRadius: 5,
-                          },
-                          "&:hover fieldset": {
-                            borderColor: lightpink,
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: lightpink,
-                          },
-                        },
-                      }}
-                    />
+                fullWidth
+                multiline
+                rows={4}
+                label="Mensaje"
+                name="message"
+                value={toSend.message}
+                onChange={handleChange}
+                InputLabelProps={{
+                  style: { color: pink },
+                }}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 5,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "white",
+                      borderRadius: 5,
+                    },
+                    "&:hover fieldset": {
+                      borderColor: lightpink,
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: lightpink,
+                    },
+                  },
+                }}
+              />
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                      <LargeButton
-                        backgroundColor="white"
-                        arrowColor={pink}
-                        textColor={pink}
-                        link="/send"
-                        text="Enviar"
-                      />
+                    <Button 
+  variant="contained" 
+  sx={{ backgroundColor: "white", color: pink, borderRadius:'20px', "&:hover": {
+    backgroundColor: "black",
+    color: "white"
+  }}} 
+  onClick={sendEmail}
+>
+  Enviar
+</Button>
+{/* Snackbar para mostrar las alertas */}
+<Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: "100%" }}>
+            {messageSnackbar}
+          </Alert>
+        </Snackbar>
                     </Box>
                   </Card>
                 </div>

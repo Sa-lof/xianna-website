@@ -25,6 +25,39 @@ import { logoutUser } from "../supabase/ProfileServices/logoutService";
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
 
+const styleTips: Record<string, string[]> = {
+  "Casual": [
+    "Usa colores neutros para un look versátil.",
+    "Añade una chaqueta ligera para capas fáciles.",
+    "Combina con zapatillas blancas para un toque moderno."
+  ],
+  "Formal": [
+    "Siempre lleva tu ropa bien planchada.",
+    "Invierte en un buen reloj, es un accesorio clave.",
+    "Asegúrate de que tu traje esté ajustado correctamente."
+  ],
+  "Deportivo": [
+    "Elige prendas transpirables para mayor comodidad.",
+    "Combina tus prendas con calzado adecuado para el deporte.",
+    "Usa capas ligeras que puedas quitarte o ponerte fácilmente."
+  ],
+  "Elegante": [
+    "Los colores oscuros y ricos son perfectos para eventos formales.",
+    "Elige tejidos de calidad como seda o lana.",
+    "Usa joyas simples pero sofisticadas para complementar tu look."
+  ],
+  "Bohemio": [
+    "Opta por prendas sueltas y cómodas.",
+    "Usa accesorios con patrones étnicos o naturales.",
+    "Combina colores tierra para un look relajado y natural."
+  ],
+  "Urbano": [
+    "Prendas en tonos grises y negros siempre son un acierto.",
+    "Añade un toque de color con zapatillas o accesorios.",
+    "Usa ropa con cortes más ajustados para un look moderno."
+  ],
+};
+
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User>({
@@ -99,6 +132,8 @@ const Profile: React.FC = () => {
   if (isLoading) {
     return <Loader />;
   }
+
+  const styleBasedTips = styleTips[user.styleType] || ["Define tu estilo para recibir consejos personalizados."];
 
   return (
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
@@ -371,25 +406,37 @@ const Profile: React.FC = () => {
                       Consejos de estilo
                     </Typography>
                     <Grid container spacing={2}>
-                      {user.tips.map((tip, index) => (
-                        <Grid item xs={12} md={4} key={index}>
-                          <Card
-                            sx={{
-                              padding: 2,
-                              textAlign: "center",
-                            }}
-                          >
-                            <Typography
-                              variant="h6"
-                              sx={{ fontWeight: "bold", marginBottom: 1 }}
-                            >
-                              {`0${index + 1}`}
-                            </Typography>
-                            <Typography variant="body2">{tip}</Typography>
-                          </Card>
-                        </Grid>
-                      ))}
-                    </Grid>
+    {styleBasedTips.slice(0, 3).map((tip, index) => {
+      // Definir el color de fondo según el índice
+      const backgroundColor =
+        index === 0
+          ? "#FAACC1" // Primer consejo
+          : index === 1
+          ? "#FDE12D" // Segundo consejo
+          : "#00D1ED"; // Tercer consejo
+
+      return (
+        <Grid item xs={12} md={4} key={index}>
+          <Card
+            sx={{
+              padding: 2,
+              textAlign: "center",
+              backgroundColor: backgroundColor, // Aplicar el color de fondo
+              color: "white", // Color del texto (puedes cambiar si es necesario)
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", marginBottom: 1 }}
+            >
+              {`Consejo ${index + 1}`}
+            </Typography>
+            <Typography variant="body2">{tip}</Typography>
+          </Card>
+        </Grid>
+      );
+    })}
+  </Grid>
                   </Card>
                 </>
               ) : (
