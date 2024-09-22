@@ -124,15 +124,21 @@ const CatalogoTable: React.FC = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Eliminar espacios y reemplazar caracteres especiales por guiones bajos
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      
+      // Crear un nuevo archivo con el nombre sanitizado
+      const newFile = new File([file], sanitizedFileName, { type: file.type });
+  
       const updatedFiles = [...imageFiles];
-      const preview = URL.createObjectURL(file);
-      updatedFiles[index] = { file, preview };
+      const preview = URL.createObjectURL(newFile);
+      updatedFiles[index] = { file: newFile, preview };
       setImageFiles(updatedFiles);
     }
-  };
+  };   
 
   const handleDeleteImage = async (imagePath: string) => {
-    const imageName = imagePath.split('/').pop();
+    const imageName = encodeURIComponent(imagePath.split('/').pop()!); // Codificar el nombre de la imagen
     const bucketPath = `uploads/${currentBlog!.id}/${imageName}`;
     const success = await deleteBlogImage(bucketPath);
     if (success && currentBlog) {
@@ -142,7 +148,7 @@ const CatalogoTable: React.FC = () => {
         images: prevBlog!.images!.filter((image) => image !== imagePath)
       }));
     }
-  };
+  };  
 
   const handleDeleteBlog = async () => {
     setLoading(true);

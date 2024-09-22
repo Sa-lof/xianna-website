@@ -161,7 +161,7 @@ const CatalogoTable: React.FC = () => {
     }
 
     for (const prenda of prendas) {
-      if (!prenda.nombre || !prenda.link) {
+      if (!prenda.nombre) {
         return false;
       }
     }

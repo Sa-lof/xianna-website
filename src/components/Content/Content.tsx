@@ -11,8 +11,8 @@ const Content: React.FC<{ content: string }> = ({ content }) => {
     fontSize: {
       xs: '16px', 
       sm: '16px',
-      md: '18px',
-      lg: '20px',
+      md: '16px',
+      lg: '16px',
     },
     '& ul': {
       listStyleType: 'disc', // Aplica bullets para listas no ordenadas

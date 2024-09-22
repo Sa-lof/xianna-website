@@ -7,6 +7,7 @@ import CuestionarioTable from "../components_dashboard/TableCuestionario_D/Table
 import UsersTable from "../components_dashboard/TableUsers_D/TableUsers";
 import Insights from "../components_dashboard/Insights_D/Insights";
 import Loader from "../components/Loader/Loader";
+import Footer from "../components/Footer/Footer"; // Asegúrate de importar el Footer
 import { Box, IconButton, Drawer, useMediaQuery } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import '../../src/App.css';
@@ -45,39 +46,45 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {isSmallScreen ? (
-        <>
-          <IconButton
-            onClick={() => setDrawerOpen(true)}
-            sx={{ position: 'fixed', top: 16, left: 16 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Drawer
-            anchor="left"
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            sx={{ '& .MuiDrawer-paper': { width: sidebarWidth } }}
-          >
-            <SideBar selectedKey={selectedKey} onSelect={(key) => { setSelectedKey(key); setDrawerOpen(false); }} />
-          </Drawer>
-        </>
-      ) : (
-        <Box sx={{ width: `${sidebarWidth}px`, height: '100vh', position: 'fixed' }}>
-          <SideBar selectedKey={selectedKey} onSelect={setSelectedKey} />
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box sx={{ display: "flex", flexGrow: 1 }}>
+        {isSmallScreen ? (
+          <>
+            <IconButton
+              onClick={() => setDrawerOpen(true)}
+              sx={{ position: 'fixed', top: 16, left: 16 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Drawer
+              anchor="left"
+              open={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+              sx={{ '& .MuiDrawer-paper': { width: sidebarWidth } }}
+            >
+              <SideBar selectedKey={selectedKey} onSelect={(key) => { setSelectedKey(key); setDrawerOpen(false); }} />
+            </Drawer>
+          </>
+        ) : (
+          <Box sx={{ width: `${sidebarWidth}px`, height: '100vh', position: 'fixed' }}>
+            <SideBar selectedKey={selectedKey} onSelect={setSelectedKey} />
+          </Box>
+        )}
+        <Box
+          sx={{
+            flexGrow: 1,
+            padding: { xs: 4, sm: 3, md: 3, lg: 4, xl: 4 },
+            marginLeft: isSmallScreen ? 0 : `${sidebarWidth}px`,
+            height: '100vh',
+            overflowY: 'auto',
+          }}
+        >
+          {loading ? <Loader /> : renderTable()}
+          {/* Footer añadido */}
+          <Box sx={{ marginTop: 'auto' }}>
+            <Footer />
+          </Box>
         </Box>
-      )}
-      <Box
-        sx={{
-          flexGrow: 1,
-          padding: { xs: 4, sm: 3, md: 3, lg: 4, xl: 4 },
-          marginLeft: isSmallScreen ? 0 : `${sidebarWidth}px`,
-          height: '100vh',
-          overflowY: 'auto',
-        }}
-      >
-        {loading ? <Loader /> : renderTable()}
       </Box>
     </Box>
   );

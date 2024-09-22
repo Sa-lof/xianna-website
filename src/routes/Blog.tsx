@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Tabs, Tab, IconButton, Slide } from "@mui/material";
+import { Box, Grid, Tabs, Tab, IconButton, Slide, Pagination } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
@@ -11,6 +11,7 @@ import Loader from "../components/Loader/Loader";
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
+const blue = "#00D1ED";
 
 interface BlogData {
   id: number;
@@ -43,6 +44,8 @@ const BlogComponent: React.FC = () => {
   const [blogs, setBlogs] = useState<BlogWithExtras[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; // Mostrar 8 elementos por página
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,10 +53,11 @@ const BlogComponent: React.FC = () => {
       try {
         const [blogsData, categoriasData] = await Promise.all([getBlogs(), getCategorias()]);
         let sizeCounter = 0;
-        const blogsWithExtras = blogsData.map(blog => {
-          const size = sizeCounter % 5 === 3 ? 'large' : 'small';
+        const blogsWithExtras = blogsData.map((blog) => {
+          const size = sizeCounter % 5 === 3 ? "large" : "small";
           sizeCounter++;
-          const categoryColor = Math.random() > 0.5 ? pink : yellow;
+          const colors = [pink, blue, yellow];
+          const categoryColor = colors[Math.floor(Math.random() * colors.length)];
           return {
             ...blog,
             size: size,
@@ -74,6 +78,11 @@ const BlogComponent: React.FC = () => {
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
     setSelectedTab(newValue);
+    setCurrentPage(1); // Resetear a la primera página al cambiar la categoría
+  };
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
   };
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -91,10 +100,17 @@ const BlogComponent: React.FC = () => {
     threshold: 0.5,
   });
 
+  // Filtrar los blogs de acuerdo a la categoría seleccionada
   const filteredBlogData =
     selectedTab === "Todo"
       ? blogs
       : blogs.filter((blog) => blog.categoria === selectedTab);
+
+  // Obtener los blogs para la página actual
+  const paginatedBlogs = filteredBlogData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   if (loading) {
     return <Loader />;
@@ -186,7 +202,7 @@ const BlogComponent: React.FC = () => {
         </Box>
         <Grid container spacing={4} sx={{ marginBottom: 10 }} ref={blogRef}>
           {blogInView &&
-            filteredBlogData.map((blog) => (
+            paginatedBlogs.map((blog) => (
               <Grid
                 item
                 xs={12}
@@ -206,6 +222,28 @@ const BlogComponent: React.FC = () => {
               </Grid>
             ))}
         </Grid>
+        <Pagination
+          count={Math.ceil(filteredBlogData.length / itemsPerPage)}
+          page={currentPage}
+          onChange={handlePageChange}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 5,
+            "& .MuiPaginationItem-root": {
+              backgroundColor: 'white', // Fondo rosa
+              color: "black", // Texto blanco
+              "&.Mui-selected": {
+                backgroundColor: pink, // Fondo rosa cuando está seleccionado
+                color: "white", // Texto blanco cuando está seleccionado
+              },
+              "&:hover": {
+                backgroundColor: "black", // Fondo más oscuro al pasar el mouse
+                color: "white",
+              },
+            },
+          }}
+        />
         <Box ref={footerRef}>{footerInView && <Footer />}</Box>
       </Box>
     </Slide>

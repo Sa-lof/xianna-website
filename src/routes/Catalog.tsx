@@ -15,6 +15,7 @@ import {
   Card,
   CardActionArea,
   Typography,
+  Pagination,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
@@ -52,6 +53,8 @@ const Catalog: React.FC = () => {
   const [occasions, setOccasions] = useState<string[]>([]);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true); // Estado para manejar el loader
+  const [currentPage, setCurrentPage] = useState(1); // Para controlar la paginación
+  const itemsPerPage = 16; // Mostrar 16 outfits por página
   const navigate = useNavigate();
 
   const { ref: filterRef, inView: filterInView } = useInView({
@@ -144,11 +147,22 @@ const Catalog: React.FC = () => {
     }
   };
 
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page); // Cambiar la página actual
+  };
+
+  // Filtrar los outfits por estilo y ocasión seleccionados
   const filteredCatalogData = outfits.filter((item) => {
     const estiloMatch = selectedEstilos.length === 0 || selectedEstilos.includes(item.estilo);
     const ocasionMatch = selectedOcasiones.length === 0 || item.ocasiones.some(ocasion => selectedOcasiones.includes(ocasion));
     return estiloMatch && ocasionMatch;
   });
+
+  // Obtener los outfits para la página actual
+  const paginatedOutfits = filteredCatalogData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   if (loading) {
     return <Loader />;
@@ -255,12 +269,12 @@ const Catalog: React.FC = () => {
                     <Checkbox
                       checked={selectedEstilos.indexOf(estilo) > -1}
                       sx={{
-                        color: pink, // Cambiar el color cuando no está seleccionado
+                        color: pink, 
                         '&.Mui-checked': {
-                          color: pink, // Cambiar el color cuando está seleccionado
+                          color: pink, 
                         },
                         '& .MuiSvgIcon-root': {
-                          borderRadius: '50%', // Hacer que el checkbox sea redondo
+                          borderRadius: '50%',
                         },
                       }}
                     />
@@ -300,12 +314,12 @@ const Catalog: React.FC = () => {
                     <Checkbox
                       checked={selectedOcasiones.indexOf(ocasion) > -1}
                       sx={{
-                        color: pink, // Color rosa cuando no está seleccionado
+                        color: pink, 
                         '&.Mui-checked': {
-                          color: pink, // Color rosa cuando está seleccionado
+                          color: pink, 
                         },
                         '& .MuiSvgIcon-root': {
-                          borderRadius: '50%', // Hacer que el checkbox sea redondo
+                          borderRadius: '50%',
                         },
                       }}
                     />
@@ -314,13 +328,12 @@ const Catalog: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-              {/* Similar section for cuerpos if required */}
             </>
           )}
         </Box>
         <Grid container spacing={4} sx={{ marginBottom: 10 }} ref={catalogRef}>
           {catalogInView &&
-            filteredCatalogData.map((item) => (
+            paginatedOutfits.map((item) => (
               <Grid item xs={12} sm={6} md={3} key={item.id}>
                 <Card
                   sx={{
@@ -411,6 +424,28 @@ const Catalog: React.FC = () => {
               </Grid>
             ))}
         </Grid>
+        <Pagination
+          count={Math.ceil(filteredCatalogData.length / itemsPerPage)}
+          page={currentPage}
+          onChange={handlePageChange}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 5,
+            "& .MuiPaginationItem-root": {
+              backgroundColor: 'white', // Fondo rosa
+              color: "black", // Texto blanco
+              "&.Mui-selected": {
+                backgroundColor: pink, // Fondo rosa cuando está seleccionado
+                color: "white", // Texto blanco cuando está seleccionado
+              },
+              "&:hover": {
+                backgroundColor: "black", // Fondo más oscuro al pasar el mouse
+                color: "white",
+              },
+            },
+          }}
+        />
         <Box ref={footerRef}>{footerInView && <Footer />}</Box>
       </Box>
     </Slide>

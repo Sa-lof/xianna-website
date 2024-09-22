@@ -187,7 +187,7 @@ const Contacto: React.FC = () => {
                     Contáctanos
                   </Typography>
                   <Typography variant="body1" sx={{ marginBottom: 4 }}>
-                    Lorem ipsum lorem ipsum lorem ipsum lorem
+                    Estamos aquí para ayudarte a encontrar tu estilo perfecto. Escríbenos y descubramoslo juntos.
                   </Typography>
                 </div>
               </Fade>

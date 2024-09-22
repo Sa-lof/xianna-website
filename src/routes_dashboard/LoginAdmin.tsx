@@ -9,6 +9,7 @@ import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import supabase from '../supabaseClient';
 import { Box, Snackbar, Alert } from '@mui/material';
+import logo from "../assets/logo/xianna.png";
 
 const theme = createTheme({
   components: {
@@ -90,121 +91,131 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
-        <CssBaseline />
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          md={6}
+      <Grid container component="main" sx={{ height: '100vh', justifyContent: 'center' }}>
+  <CssBaseline />
+  <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+    {/* Sección de bienvenida rosada */}
+    <Grid
+      item
+      xs={12}  // Cambiado para pantallas extra pequeñas
+      sm={12}  // Cambiado para pantallas pequeñas
+      md={6}
+      sx={{
+        backgroundColor: '#E61F93',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        borderRadius: '20px',
+        padding: 4,
+        marginBottom: { xs: 1, sm: 0, md:0}, // Añade un margen inferior en pantallas pequeñas para separar las columnas
+        height: { xs: '30vh', md: '80vh' },
+      }}
+    >
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 'bold' }}>
+          ¡Bienvenida!
+        </Typography>
+        <Typography component="p" sx={{ marginTop: 2 }}>
+          Entra a tu panel de administrador para poder gestionar el contenido de tu sitio.
+        </Typography>
+      </Box>
+    </Grid>
+
+    {/* Sección de inicio de sesión */}
+    <Grid
+      item
+      xs={12}  // Cambiado para pantallas extra pequeñas
+      sm={12}  // Cambiado para pantallas pequeñas
+      md={6}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'white',
+        borderRadius: '20px',
+        padding: 4,
+      }}
+    >
+      <Box
+        component="img"
+        src={logo} // Asegúrate de tener el logo en la ruta correcta
+        alt="Xianna Logo"
+        sx={{ width: '300px', marginBottom: 3 }}
+      />
+      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="email"
+          label="Correo"
+          name="email"
+          autoComplete="email"
+          autoFocus
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Typography component="h1" variant="h4" sx={{ fontWeight: 'bold' }}>
-            ¡BIENVENIDO!
-          </Typography>
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={8}
-          md={6}
-          component={Container}
-          maxWidth="xs"
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'white',
-            borderRadius: 2,
-            padding: 4,
-          }}
-        >
-          <Typography component="h1" variant="h5" sx={{ color: '#E61F93', marginBottom: 2 }}>
-            Inicio de sesión
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Correo"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              sx={{
-                '& .MuiInputBase-input': { backgroundColor: 'white', borderRadius: '20px' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderRadius: '20px',
-                    borderColor: '#E61F93',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#E61F93',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#E61F93',
-                  },
-                },
-              }}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Contraseña"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              sx={{
-                '& .MuiInputBase-input': { backgroundColor: 'white', borderRadius: '20px' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderRadius: '20px',
-                    borderColor: '#E61F93',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#E61F93',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#E61F93',
-                  },
-                },
-              }}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ 
-                mt: 3, 
-                mb: 2, 
-                backgroundColor: '#E61F93', 
-                color: 'white', 
+            '& .MuiInputBase-input': { backgroundColor: 'white', borderRadius: '20px' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
                 borderRadius: '20px',
-                '&:hover': {
-                  backgroundColor: 'black',
-                },
-              }}
-            >
-              Iniciar sesión
-            </Button>
-            <Grid container justifyContent="center">
-              <Grid item>
-                <Typography variant="body2" color="black">
-                  ¿Olvidaste tu contraseña?
-                </Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        </Grid>
-      </Grid>
+                borderColor: '#E61F93',
+              },
+              '&:hover fieldset': {
+                borderColor: '#E61F93',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#E61F93',
+              },
+            },
+          }}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="password"
+          label="Contraseña"
+          type="password"
+          id="password"
+          autoComplete="current-password"
+          sx={{
+            '& .MuiInputBase-input': { backgroundColor: 'white', borderRadius: '20px' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderRadius: '20px',
+                borderColor: '#E61F93',
+              },
+              '&:hover fieldset': {
+                borderColor: '#E61F93',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#E61F93',
+              },
+            },
+          }}
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{
+            mt: 3,
+            mb: 2,
+            backgroundColor: '#E61F93',
+            color: 'white',
+            borderRadius: '20px',
+            '&:hover': {
+              backgroundColor: 'black',
+            },
+          }}
+        >
+          Iniciar sesión
+        </Button>
+      </Box>
+    </Grid>
+  </Container>
+</Grid>
       <Snackbar 
         open={open} 
         autoHideDuration={6000} 

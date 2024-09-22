@@ -7,10 +7,10 @@ const Description: React.FC<{ description: string }> = ({ description }) => {
   return (
     <Box sx={{ marginBottom: 4 }}>
       <Typography variant="body1" sx={{fontSize: {
-                  xs: '16px', 
-                  sm: '18px',
-                  md: '20px',
-                  lg: '22px',
+                  xs: '18px', 
+                  sm: '20px',
+                  md: '22px',
+                  lg: '24px',
                 },}}>{description}</Typography>
     </Box>
   );

@@ -13,21 +13,24 @@ const Header: React.FC<{
         <Typography
           variant="h4"
           sx={{ fontWeight: "bold", marginBottom: 1, fontSize: {
-            xs: '46px', 
-            sm: '50px',
-            md: '54px',
-            lg: '58px',
+            xs: '24px', 
+            sm: '28px',
+            md: '32px',
+            lg: '40px',
           }, }}
         >
           {title}
         </Typography>
         <Typography variant="body1" sx={{ marginBottom: 4, fontSize: {
-                xs: '26px', 
-                sm: '28px',
-                md: '30px',
-                lg: '32px',
+                xs: '18px', 
+                sm: '20px',
+                md: '22px',
+                lg: '24px',
               }, }}>
           {description}
+        </Typography>
+        <Typography variant="body1" sx={{ marginBottom: 4, fontSize: '16px'}}>
+          Por Betsabe Calatayud
         </Typography>
         <Chip
           label={category}
