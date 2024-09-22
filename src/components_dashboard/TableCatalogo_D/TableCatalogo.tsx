@@ -741,13 +741,41 @@ const CatalogoTable: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-            Cancelar
-          </Button>
-          <Button onClick={handleConfirmDelete} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-            Eliminar
-          </Button>
-        </DialogActions>
+  <Button 
+    onClick={handleCloseConfirmDialog} 
+    sx={{
+      color: 'white', 
+      borderRadius: '20px', 
+      backgroundColor: '#E61F93', 
+      flex: '0 1 auto', 
+      marginBottom: { xs: 1, sm: 0 },
+      fontSize: '0.8rem',  // Tamaño de la fuente más pequeño
+      padding: '4px 16px',  // Ajustar el padding para hacerlo más compacto
+      '&:hover': {
+        backgroundColor: 'black'
+      }
+    }}
+  >
+    Cancelar
+  </Button>
+  <Button 
+    onClick={handleConfirmDelete} 
+    sx={{
+      color: 'white', 
+      borderRadius: '20px', 
+      backgroundColor: '#E61F93', 
+      flex: '0 1 auto', 
+      marginBottom: { xs: 1, sm: 0 },
+      fontSize: '0.8rem',  // Tamaño de la fuente más pequeño
+      padding: '4px 16px',  // Ajustar el padding para hacerlo más compacto
+      '&:hover': {
+        backgroundColor: 'black'
+      }
+    }}
+  >
+    Eliminar
+  </Button>
+</DialogActions>
       </Dialog>
       </>
       )}

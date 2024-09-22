@@ -510,13 +510,42 @@ const QuestionAnswerAccordion: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialogOpen(false)} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-            Cancelar
-          </Button>
-          <Button onClick={handleDelete} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-            Confirmar
-          </Button>
-        </DialogActions>
+  <Button 
+    onClick={() => setConfirmDialogOpen(false)} 
+    sx={{
+      color: 'white', 
+      borderRadius: '20px', 
+      backgroundColor: '#E61F93', 
+      flex: '0 1 auto', 
+      marginBottom: { xs: 1, sm: 0 },
+      fontSize: '0.8rem',  // Tamaño de la fuente más pequeño
+      padding: '4px 16px',  // Ajustar el padding para hacerlo más compacto
+      '&:hover': {
+        backgroundColor: 'black'
+      }
+    }}
+  >
+    Cancelar
+  </Button>
+  <Button 
+    onClick={handleDelete} 
+    sx={{
+      color: 'white', 
+      borderRadius: '20px', 
+      backgroundColor: '#E61F93', 
+      flex: '0 1 auto', 
+      marginBottom: { xs: 1, sm: 0 },
+      fontSize: '0.8rem',  // Tamaño de la fuente más pequeño
+      padding: '4px 16px',  // Ajustar el padding para hacerlo más compacto
+      '&:hover': {
+        backgroundColor: 'black'
+      }
+    }}
+  >
+    Confirmar
+  </Button>
+</DialogActions>
+
       </Dialog>
     </Box>
   );

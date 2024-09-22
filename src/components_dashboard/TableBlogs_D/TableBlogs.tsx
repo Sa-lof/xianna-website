@@ -137,18 +137,13 @@ const CatalogoTable: React.FC = () => {
     }
   };   
 
-  const handleDeleteImage = async (imagePath: string) => {
-    const imageName = encodeURIComponent(imagePath.split('/').pop()!); // Codificar el nombre de la imagen
-    const bucketPath = `uploads/${currentBlog!.id}/${imageName}`;
-    const success = await deleteBlogImage(bucketPath);
-    if (success && currentBlog) {
-      setDeletedImages([...deletedImages, imagePath]);
-      setCurrentBlog((prevBlog) => ({
-        ...prevBlog!,
-        images: prevBlog!.images!.filter((image) => image !== imagePath)
-      }));
-    }
-  };  
+  const handleDeleteImage = (imagePath: string) => {
+    setDeletedImages([...deletedImages, imagePath]);
+    setCurrentBlog((prevBlog) => ({
+      ...prevBlog!,
+      images: prevBlog!.images!.filter((image) => image !== imagePath),
+    }));
+  };
 
   const handleDeleteBlog = async () => {
     setLoading(true);
@@ -189,16 +184,30 @@ const CatalogoTable: React.FC = () => {
       setToastOpen(true);
       return;
     }
-
+  
     setLoading(true);
     try {
       if (currentBlog) {
         let updatedImages = [...currentBlog.images!];
+        
+        // Sube nuevas imágenes si las hay
         if (imageFiles.length > 0) {
           const newImages = await postBlogImages(currentBlog.id!, imageFiles.map(({ file }) => file));
           updatedImages = [...updatedImages, ...newImages];
         }
-
+  
+        // Elimina las imágenes marcadas para eliminación
+        if (deletedImages.length > 0) {
+          await Promise.all(
+            deletedImages.map(async (imagePath) => {
+              const imageName = encodeURIComponent(imagePath.split('/').pop()!);
+              const bucketPath = `uploads/${currentBlog!.id}/${imageName}`;
+              await deleteBlogImage(bucketPath);
+            })
+          );
+        }
+  
+        // Actualiza o crea el blog
         if (currentBlog.id) {
           await updateBlog(currentBlog.id, {
             titulo: currentBlog.titulo!,
@@ -206,6 +215,7 @@ const CatalogoTable: React.FC = () => {
             contenido: currentBlog.contenido!,
             id_categoria: currentBlog.id_categoria!
           });
+  
           setRows((prevRows) =>
             prevRows.map((row) =>
               row.id === currentBlog.id ? { ...currentBlog, images: updatedImages } as Blog : row
@@ -646,13 +656,43 @@ const CatalogoTable: React.FC = () => {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseConfirmDialog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-                Cancelar
-              </Button>
-              <Button onClick={handleDeleteBlog} sx={{color:'white', borderRadius: '20px', backgroundColor: '#E61F93', flex: '0 1 auto', marginBottom: { xs: 1, sm: 0 } }}>
-                Eliminar
-              </Button>
-            </DialogActions>
+  <Button 
+    onClick={handleCloseConfirmDialog} 
+    sx={{
+      color: 'white', 
+      borderRadius: '20px', 
+      backgroundColor: '#E61F93', 
+      flex: '0 1 auto', 
+      marginBottom: { xs: 1, sm: 0 },
+      fontSize: '0.8rem',  // Tamaño de la fuente más pequeño
+      padding: '4px 16px',  // Ajustar el padding para hacerlo más compacto
+      '&:hover': {
+        backgroundColor: 'black'
+      }
+    }}
+  >
+    Cancelar
+  </Button>
+  <Button 
+    onClick={handleDeleteBlog} 
+    sx={{
+      color: 'white', 
+      borderRadius: '20px', 
+      backgroundColor: '#E61F93', 
+      flex: '0 1 auto', 
+      marginBottom: { xs: 1, sm: 0 },
+      fontSize: '0.8rem',  // Tamaño de la fuente más pequeño
+      padding: '4px 16px',  // Ajustar el padding para hacerlo más compacto
+      '&:hover': {
+        backgroundColor: 'black'
+      }
+    }}
+  >
+    Eliminar
+  </Button>
+</DialogActions>
+
+
           </Dialog>
         </>
       )}
