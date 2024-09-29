@@ -23,6 +23,7 @@ import { getFavorites, getOutfitsByIds, removeFavorite } from "../supabase/Users
 import { getUserSession } from "../supabase/ProfileServices/getUserSession";
 import { getUserDetails } from "../supabase/ProfileServices/getUserDetails";
 import Loader from "../components/Loader/Loader";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -203,7 +204,7 @@ const MyOutfits: React.FC = () => {
                 }}
               >
                 <Avatar
-                  src="path/to/avatar.jpg"
+                  src={x}
                   alt={user.name}
                   sx={{ width: 100, height: 100, marginBottom: 2 }}
                 />

@@ -51,7 +51,7 @@ const Question: React.FC<QuestionProps> = ({
             marginRight: 2,
           }}
         >
-          {`0${questionNumber}`}
+          {questionNumber < 10 ? `0${questionNumber}` : questionNumber}
         </Typography>
         <Typography
           variant="h6"

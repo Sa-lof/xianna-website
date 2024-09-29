@@ -124,7 +124,7 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
       >
         <Avatar
           sx={{ bgcolor: blue[600], width: 100, height: 100 }}
-          src="profile.jpg"
+          src={x}
           alt="Nombre"
         />
         <Typography

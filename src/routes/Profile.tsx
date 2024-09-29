@@ -21,6 +21,7 @@ import { User } from "../supabase/UsersServices/types";
 import { checkUserSession } from "../supabase/ProfileServices/checkUserSession";
 import { updateUserProfile } from "../supabase/ProfileServices/updateUserService";
 import { logoutUser } from "../supabase/ProfileServices/logoutService";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -186,7 +187,7 @@ const Profile: React.FC = () => {
                 }}
               >
                 <Avatar
-                  src="path/to/avatar.jpg"
+                  src={x}
                   alt={user.name}
                   sx={{ width: 100, height: 100, marginBottom: 2 }}
                 />
@@ -264,7 +265,7 @@ const Profile: React.FC = () => {
                       {user.styleType}
                     </Typography>
                     <Typography variant="body2" sx={{ marginBottom: 2 }}>
-                      Este es tu tipo de estilo. {user.styleDescription}
+                      {user.styleDescription}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       {user.colors.map((color, index) => (
