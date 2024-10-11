@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Tabs, Tab, IconButton, Slide, Pagination } from "@mui/material";
+import { Box, Grid, Tabs, Tab, IconButton, Slide, Pagination,Snackbar, Alert } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
@@ -47,6 +47,9 @@ const BlogComponent: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8; // Mostrar 8 elementos por página
   const navigate = useNavigate();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
 
   useEffect(() => {
     const fetchBlogsAndCategorias = async () => {
@@ -112,11 +115,34 @@ const BlogComponent: React.FC = () => {
     currentPage * itemsPerPage
   );
 
+  useEffect(() => {
+    if (!loading) {
+      setSnackbarMessage('Entra a tu blog favorito y califícalo'); // Configurar el mensaje del Snackbar
+      setOpenSnackbar(true); // Mostrar el Snackbar una vez que el loader desaparezca
+    }
+  }, [loading]);
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   if (loading) {
-    return <Loader />;
+    return <Loader />; // Mostrar el loader mientras está cargando
   }
 
   return (
+    <>
+    <Snackbar
+  open={openSnackbar}
+  autoHideDuration={6000}
+  onClose={handleCloseSnackbar}
+  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+>
+  <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: "100%" }}>
+    {snackbarMessage}
+  </Alert>
+</Snackbar>
+
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Box
         sx={{
@@ -247,6 +273,7 @@ const BlogComponent: React.FC = () => {
         <Box ref={footerRef}>{footerInView && <Footer />}</Box>
       </Box>
     </Slide>
+    </>
   );
 };
 

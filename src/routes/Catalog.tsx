@@ -16,6 +16,8 @@ import {
   CardActionArea,
   Typography,
   Pagination,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
@@ -56,6 +58,10 @@ const Catalog: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1); // Para controlar la paginación
   const itemsPerPage = 16; // Mostrar 16 outfits por página
   const navigate = useNavigate();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+
 
   const { ref: filterRef, inView: filterInView } = useInView({
     triggerOnce: true,
@@ -164,11 +170,33 @@ const Catalog: React.FC = () => {
     currentPage * itemsPerPage
   );
 
+  useEffect(() => {
+    if (!loading && session) {
+      setSnackbarMessage('Haz clic en la estrella para guardar tus outfits favoritos'); // Configurar el mensaje del Snackbar
+      setOpenSnackbar(true); // Mostrar el Snackbar una vez que el loader desaparezca y el usuario esté logueado
+    }
+  }, [loading, session]);
+  
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+  
   if (loading) {
-    return <Loader />;
+    return <Loader />; // Mostrar el loader mientras está cargando
   }
 
   return (
+    <>
+    <Snackbar
+  open={openSnackbar}
+  autoHideDuration={6000}
+  onClose={handleCloseSnackbar}
+  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+>
+  <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: "100%" }}>
+    {snackbarMessage}
+  </Alert>
+</Snackbar>
     <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
       <Box
         sx={{
@@ -449,6 +477,7 @@ const Catalog: React.FC = () => {
         <Box ref={footerRef}>{footerInView && <Footer />}</Box>
       </Box>
     </Slide>
+    </>
   );
 };
 

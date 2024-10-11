@@ -18,7 +18,7 @@ import x from "../../assets/logo/x.png";
 
 const MainGrid: React.FC = () => {
   const pink = "#E61F93";
-  const yellow = "#FDE12D";
+  const yellow = "#ffd300";
   const blue = "#00D1ED";
   const lightpink = "#FAACC1";
   return (

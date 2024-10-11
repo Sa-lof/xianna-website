@@ -31,7 +31,7 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
   }, [userStyleId]);
 
   const pink = "#E61F93";
-  const yellow = "#FDE12D";
+  const yellow = "#ffd300";
   const blue = "#00D1ED";
   const lightpink = "#FAACC1";
 
