@@ -1,5 +1,5 @@
 /*
-  Access-Control-Allow-Origin: https://xiannawebsite.netlify.app
+  Access-Control-Allow-Origin: https://xianna.com.mx/
   Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS
   Access-Control-Allow-Headers: Content-Type, Authorization, apikey
   X-Frame-Options: SAMEORIGIN
