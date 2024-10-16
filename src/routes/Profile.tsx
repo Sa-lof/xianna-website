@@ -28,14 +28,14 @@ const lightpink = "#FFD3E2";
 
 const styleTips: Record<string, string[]> = {
   "Casual": [
-    "Usa colores neutros para un look versátil.",
-    "Añade una chaqueta ligera para capas fáciles.",
-    "Combina con zapatillas blancas para un toque moderno."
+    "Usa jeans de corte recto con camisas de botones o blazers.",
+    "Opta por zapatos cómodos como mocasines o zapatillas elegantes.",
+    "Añade un reloj clásico o bufandas para elevar el look."
   ],
   "Formal": [
-    "Siempre lleva tu ropa bien planchada.",
-    "Invierte en un buen reloj, es un accesorio clave.",
-    "Asegúrate de que tu traje esté ajustado correctamente."
+    "Opta por prendas de corte estructurado, como blazers y abrigos.",
+    "Elige accesorios minimalistas, como perlas o relojes clásicos.",
+    "Mantén una paleta de colores neutros y suaves para un look elegante."
   ],
   "Deportivo": [
     "Elige prendas transpirables para mayor comodidad.",
@@ -48,15 +48,50 @@ const styleTips: Record<string, string[]> = {
     "Usa joyas simples pero sofisticadas para complementar tu look."
   ],
   "Bohemio": [
-    "Opta por prendas sueltas y cómodas.",
-    "Usa accesorios con patrones étnicos o naturales.",
-    "Combina colores tierra para un look relajado y natural."
+    "Elige vestidos largos y fluidos con estampados florales o terrosos.",
+    "Combina con botas camperas y sombreros de ala ancha.",
+    "Utiliza accesorios de materiales naturales, como collares de piedras o tejidos."
   ],
   "Urbano": [
-    "Prendas en tonos grises y negros siempre son un acierto.",
-    "Añade un toque de color con zapatillas o accesorios.",
-    "Usa ropa con cortes más ajustados para un look moderno."
+    "Incorpora prendas coloridas y de diseño llamativo, como tops cortos y botas extravagantes.",
+    "No temas mezclar patrones y texturas para un efecto audaz.",
+    "Utiliza accesorios divertidos, como gafas de sol grandes o joyería única."
   ],
+  "Romántico": [
+    "Opta por vestidos con volantes y estampados florales.",
+    "Agrega accesorios como diademas o joyería delicada para un toque encantador.",
+    "Elige un maquillaje suave con tonos pastel y un look natural."
+  ],
+  "Rebelde": [
+    "Combina prendas de cuero con palyeras de bandas y jeans rasgados.",
+    "Incorpora accesorios llamativos, como gargantillas o anillos de plata.",
+    "Opta por un maquillaje intenso con delineado negro y labios oscuros."
+  ],
+  "Cómodo": [
+    "Opta por chándales, leggings y sudaderas oversize.",
+    "Combina con calzado deportivo para un toque casual.",
+    "Añade accesorios prácticos, como mochilas y gorras."
+  ],
+  "Futurista": [
+    "Incorpora prendas con detalles metálicos y siluetas innovadoras.",
+    "Utiliza accesorios futuristas, como gafas de sol de diseño y collares geométricos.",
+    "Juega con el maquillaje metálico o gráfico para complementar el look."
+  ],
+  "Llamativo": [
+    "Elige vestidos ajustados y tacones altos para un impacto visual.",
+    "Agrega joyería llamativa y de diseñador para un toque de lujo.",
+    "Opta por un maquillaje audaz con sombras brillantes y labios rojos."
+  ],
+  "Versátil": [
+    "Opta por blusas de seda y pantalones de vestir en tonos neutros.",
+    "Elige zapatos de salón minimalistas o mocasines elegantes.",
+    "Mantén la joyería discreta y moderna."
+  ],
+  "Retro": [
+    "Incorpora piezas vintage, como chalecos o cárdigans, en tus looks.",
+    "Mezcla y combina objetos decorativos retro para un toque auténtico.",
+    "Juega con la moda de décadas pasadas, como vestidos de los 50 o 60."
+  ]
 };
 
 const Profile: React.FC = () => {

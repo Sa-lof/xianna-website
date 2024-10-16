@@ -13,7 +13,7 @@ import LargeButton from "../LargeButton/LargeButton";
 import SmallButton from "../SmallButton/SmallButton";
 import CarouselCardTest from "../CarouselCardTest/CarouselCardTest";
 
-import placeholder1 from "../../assets/placeholders/place1.jpg";
+import placeholder1 from "../../assets/placeholders/catalogo_portada.png";
 import x from "../../assets/logo/x.png";
 
 const MainGrid: React.FC = () => {
@@ -54,7 +54,7 @@ const MainGrid: React.FC = () => {
                 md: '22px',
                 lg: '24px',
               }, }}>
-              Xianna es tu guía en moda y estilo personal. Descubre tendencias, consejos y tips para sentirte auténtica y segura todos los días.
+              Xianna es tu guía en moda y estilo personal, celebrando la singularidad y el talento mexicano. Descubre tendencias y tips para sentirte auténtica y segura cada día.
             </Typography>
           </CardContent>
         </Card>
@@ -190,13 +190,13 @@ const MainGrid: React.FC = () => {
             <Typography
               variant="h5"
               sx={{ fontSize: {
-                xs: '24px', 
-                sm: '28px',
-                md: '32px',
-                lg: '40px',
+                xs: '18px', 
+                sm: '22px',
+                md: '26px',
+                lg: '30px',
               }, fontWeight: "bold", textAlign: "center" }}
             >
-              La moda pasa, pero el estilo permanece.
+              Celebrando la diversidad de cuerpos, estilos y modos de vida de las mujeres mexicanas.
             </Typography>
           </CardContent>
         </Card>
@@ -253,7 +253,7 @@ const MainGrid: React.FC = () => {
       </Grid>
       <Grid item xs={12} md={4} sm={12}>
         <a
-          href="https://www.instagram.com/xianna"
+          href="https://www.instagram.com/xianna.mx?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"

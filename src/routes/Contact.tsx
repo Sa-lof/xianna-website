@@ -187,7 +187,7 @@ const Contacto: React.FC = () => {
                     Contáctanos
                   </Typography>
                   <Typography variant="body1" sx={{ marginBottom: 4 }}>
-                    Estamos aquí para ayudarte a encontrar tu estilo perfecto. Escríbenos y descubramoslo juntos.
+                  En Xianna, valoramos tu opinión y estamos aquí para apoyarte en tu viaje de moda. Escríbenos a continuación y te responderemos lo antes posible. ¡Conéctate con nosotras!
                   </Typography>
                 </div>
               </Fade>
@@ -331,7 +331,7 @@ const Contacto: React.FC = () => {
                         <IconButton
                           onClick={() =>
                             handleSocialClick(
-                              "https://www.instagram.com/xianna/"
+                              "https://www.instagram.com/xianna.mx?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                             )
                           }
                         >
