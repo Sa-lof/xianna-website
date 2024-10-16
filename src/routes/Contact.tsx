@@ -30,7 +30,7 @@ const Contacto: React.FC = () => {
 
   const [toSend, setToSend] = useState({
     from_name: '',
-    to_name: 'xiannaoficial@gmail.com',
+    to_name: 'xianna.mx1@gmail.com',
     message: '',
     reply_to: '',
   });
@@ -113,7 +113,7 @@ const Contacto: React.FC = () => {
         // Limpiar los campos del formulario
         setToSend({
           from_name: '',
-          to_name: 'xiannaoficial@gmail.com',
+          to_name: 'xianna.mx1@gmail.com',
           message: '',
           reply_to: '',
         });
