@@ -60,6 +60,8 @@ const BlogComponent: React.FC = () => {
     ReactGA.event({
       category: "User",
       action: `Clicked on blog post with ID: ${blogId}`,
+      label: "Blog Post Interaction",
+      value: blogId,
     });
   };  
 
