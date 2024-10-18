@@ -13,6 +13,7 @@ import ReactGA from "react-ga";  // Importar ReactGA
 // Inicializa Google Analytics con tu tracking ID
 const trackingId = "G-Z29X3H1VNJ";  // Reemplaza con tu ID de Google Analytics
 ReactGA.initialize(trackingId);  // Inicialización de Google Analytics
+ReactGA.initialize(trackingId, { gaOptions: { cookieFlags: 'SameSite=None; Secure' } });
 const rootElement = document.getElementById("root");
 
 if (rootElement) {
