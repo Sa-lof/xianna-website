@@ -30,6 +30,7 @@ import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesA
 import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
 import Loader from "../components/Loader/Loader";
 import { checkSession} from '../supabase/ProfileServices/checkSession';
+import ReactGA from "react-ga"
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -61,7 +62,15 @@ const Catalog: React.FC = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-
+  const handleOutfitClick = (outfitId: number, outfitName: string) => {
+    ReactGA.event({
+      category: "User",
+      action: `Clicked on outfit with ID: ${outfitId}`,
+      label: outfitName,
+    });
+    navigate(`/catalogo/${outfitId}`);  // Navega a la página del outfit
+  };
+  
 
   const { ref: filterRef, inView: filterInView } = useInView({
     triggerOnce: true,
@@ -126,7 +135,7 @@ const Catalog: React.FC = () => {
     setSelectedOcasiones(event.target.value as string[]);
   };
 
-  const handleToggleOutfit = async (id: number) => {
+  const handleToggleOutfit = async (id: number, nombre: string) => {
     if (!session) {
       alert('You must be logged in to save favorites');
       return;
@@ -144,11 +153,21 @@ const Catalog: React.FC = () => {
       const success = await removeFavorite(user.email, id);
       if (success) {
         setMyOutfits((prevOutfits) => prevOutfits.filter((outfitId) => outfitId !== id));
+        ReactGA.event({
+          category: "User",
+          action: `Removed outfit from favorites`,
+          label: nombre,
+        });
       }
     } else {
       const success = await addFavorite(user.email, id);
       if (success) {
         setMyOutfits((prevOutfits) => [...prevOutfits, id]);
+        ReactGA.event({
+          category: "User",
+          action: `Added outfit to favorites`,
+          label: nombre,
+        });
       }
     }
   };
@@ -376,7 +395,7 @@ const Catalog: React.FC = () => {
                       display: 'flex',
                       flexDirection: 'column',
                     }}
-                    onClick={() => navigate(`/catalogo/${item.id}`)}
+                    onClick={() => handleOutfitClick(item.id, item.nombre)}
                   >
                     <Box 
                       sx={{
@@ -443,7 +462,7 @@ const Catalog: React.FC = () => {
                         backgroundColor: "rgba(0, 0, 0, 0.5)",
                         borderRadius: "50%",
                       }}
-                      onClick={() => handleToggleOutfit(item.id)}
+                      onClick={() => handleToggleOutfit(item.id, item.nombre)} 
                     >
                       <StarIcon />
                     </IconButton>
