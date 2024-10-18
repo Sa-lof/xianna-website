@@ -8,6 +8,7 @@ import Footer from "../components/Footer/Footer";
 import getBlogs from "../supabase/BlogServices/getBlogs";
 import getCategorias from "../supabase/BlogServices/getCategorias";
 import Loader from "../components/Loader/Loader";
+import ReactGA from "react-ga"
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -50,6 +51,17 @@ const BlogComponent: React.FC = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
+  // Rastrear la vista de página en cada carga
+  useEffect(() => {
+    ReactGA.pageview("/blog"); // Indica el path que quieres rastrear
+  }, []);
+
+  const handleBlogClick = (blogId: number) => {
+    ReactGA.event({
+      category: "User",
+      action: `Clicked on blog post with ID: ${blogId}`,
+    });
+  };  
 
   useEffect(() => {
     const fetchBlogsAndCategorias = async () => {
@@ -244,6 +256,7 @@ const BlogComponent: React.FC = () => {
                   title={blog.titulo}
                   description={blog.descripcion}
                   link={blog.link}
+                  onClick={() => handleBlogClick(blog.id)}
                 />
               </Grid>
             ))}

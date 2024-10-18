@@ -10,6 +10,7 @@ interface BlogCardProps {
   title: string;
   description: string;
   link: string;
+  onClick?: () => void;
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({
@@ -20,6 +21,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   title,
   description,
   link,
+  onClick,
 }) => {
   return (
     <Card
@@ -31,6 +33,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         height: "400px", // Ajusta la altura según tus necesidades
         padding: 0,
       }}
+      onClick={onClick}
     >
       <Box
         sx={{
