@@ -11,6 +11,8 @@ import Rating from "../components/Rating/Rating";
 import LargeButton from "../components/LargeButton/LargeButton";
 import { fetchBlog, fetchUserEmail, fetchRating, submitRating } from "../supabase/BlogServices/BlogService";
 import Loader from "../components/Loader/Loader";
+import { Helmet } from "react-helmet";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 
@@ -124,119 +126,131 @@ const BlogDetail: React.FC = () => {
   }
 
   return (
-    <Slide direction="right" in={true} mountOnEnter unmountOnExit timeout={800}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-          paddingBottom: 10,
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
-          paddingTop: 5,
-        }}
-      >
-        <IconButton
-          onClick={() => navigate("/blog")}
+    <>
+      <Helmet>
+        <title>Xianna | {blog ? `${blog.titulo}` : "Detalles del Blog"}</title>
+        <meta name="description" content={blog ? blog.descripcion : "Detalles del artículo en nuestro blog"} />
+        <meta name="keywords" content={`blog, ${blog ? blog.categoria : "categoría"}, artículo, información`} />
+        <meta property="og:title" content={blog ? blog.titulo : "Detalles del Blog"} />
+        <meta property="og:description" content={blog ? blog.descripcion : "Detalles del artículo en nuestro blog"} />
+        <meta property="og:image" content={x} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://xianna.com.mx/blog/${id}`} />
+      </Helmet>
+      <Slide direction="right" in={true} mountOnEnter unmountOnExit timeout={800}>
+        <Box
           sx={{
-            backgroundColor: pink,
-            width: 100,
-            height: 100,
-            mb: 8,
-            "&:hover": {
-              backgroundColor: pink,
-              transform: "scale(1.1)",
-              transition: "transform 0.3s ease-in-out",
-              boxShadow: "none",
-            },
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+            paddingBottom: 10,
+            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+            paddingTop: 5,
           }}
         >
-          <ArrowBackIcon sx={{ fontSize: 40, color: "white" }} />
-        </IconButton>
-        <Grid container spacing={4} sx={{ marginBottom: 10 }}>
-          <Grid item xs={12} md={5}>
-            <Fade in={headerInView} timeout={2000}>
-              <div ref={headerRef}>
-                <Header
-                  title={blog.titulo}
-                  description={blog.descripcion}
-                  category={blog.categoria}
-                  chipColor={pink}
-                />
-              </div>
-            </Fade>
-          </Grid>
-          <Grid item xs={12} md={7}>
-            <Fade in={contentInView} timeout={2000}>
-              <div ref={contentRef}>
-                <Content content={blog.contenido} />
-              </div>
-            </Fade>
-          </Grid>
-          <Grid item xs={12}>
-            <Fade in={imagesInView} timeout={2000}>
-              <div ref={imagesRef}>
-                <BlogImages images={blog.images} />
-              </div>
-            </Fade>
-          </Grid>
-          <Grid item xs={12}>
-            <Fade in={ratingInView} timeout={2000}>
-              <div
-                ref={ratingRef}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexDirection: 'column',
-                  textAlign: 'center',
-                }}
-              >
-                {showReRateMessage ? (
-                  <Box mt={2} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                      Ya has calificado este blog
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ marginY: 2 }}>
-                      ¿Quieres volverlo a calificar?
-                    </Typography>
-                    <Box sx={{ marginTop: 2 }}>
-                      <LargeButton
-                        backgroundColor={pink}
-                        arrowColor="white"
-                        link="#"
-                        text="Calificar"
-                        textColor="white"
-                        onClick={handleReRate}
-                      />
+          <IconButton
+            onClick={() => navigate("/blog")}
+            sx={{
+              backgroundColor: pink,
+              width: 100,
+              height: 100,
+              mb: 8,
+              "&:hover": {
+                backgroundColor: pink,
+                transform: "scale(1.1)",
+                transition: "transform 0.3s ease-in-out",
+                boxShadow: "none",
+              },
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: 40, color: "white" }} />
+          </IconButton>
+          <Grid container spacing={4} sx={{ marginBottom: 10 }}>
+            <Grid item xs={12} md={5}>
+              <Fade in={headerInView} timeout={2000}>
+                <div ref={headerRef}>
+                  <Header
+                    title={blog.titulo}
+                    description={blog.descripcion}
+                    category={blog.categoria}
+                    chipColor={pink}
+                  />
+                </div>
+              </Fade>
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <Fade in={contentInView} timeout={2000}>
+                <div ref={contentRef}>
+                  <Content content={blog.contenido} />
+                </div>
+              </Fade>
+            </Grid>
+            <Grid item xs={12}>
+              <Fade in={imagesInView} timeout={2000}>
+                <div ref={imagesRef}>
+                  <BlogImages images={blog.images} />
+                </div>
+              </Fade>
+            </Grid>
+            <Grid item xs={12}>
+              <Fade in={ratingInView} timeout={2000}>
+                <div
+                  ref={ratingRef}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    textAlign: 'center',
+                  }}
+                >
+                  {showReRateMessage ? (
+                    <Box mt={2} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        Ya has calificado este blog
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ marginY: 2 }}>
+                        ¿Quieres volverlo a calificar?
+                      </Typography>
+                      <Box sx={{ marginTop: 2 }}>
+                        <LargeButton
+                          backgroundColor={pink}
+                          arrowColor="white"
+                          link="#"
+                          text="Calificar"
+                          textColor="white"
+                          onClick={handleReRate}
+                        />
+                      </Box>
                     </Box>
-                  </Box>
-                ) : (
-                  <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />
-                )}
-              </div>
-            </Fade>
+                  ) : (
+                    <Rating initialRating={rating || 0} onSubmit={handleRatingSubmit} />
+                  )}
+                </div>
+              </Fade>
+            </Grid>
           </Grid>
-        </Grid>
-        <Fade in={footerInView} timeout={2000}>
-          <div ref={footerRef}>
-            <Footer />
-          </div>
-        </Fade>
+          <Fade in={footerInView} timeout={2000}>
+            <div ref={footerRef}>
+              <Footer />
+            </div>
+          </Fade>
 
-        {/* Snackbar para mostrar mensajes */}
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Box>
-    </Slide>
+          {/* Snackbar para mostrar mensajes */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </Box>
+      </Slide>
+    </>
   );
 };
 

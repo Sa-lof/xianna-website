@@ -22,6 +22,8 @@ import { registerUser, loginUser } from '../supabase/UsersServices/loginService'
 import loginImage from "../assets/login/login.jpg";
 import logo from "../assets/logo/xianna.png";
 import { ArrowBack } from "@mui/icons-material";
+import x from "../assets/logo/x.png";
+import { Helmet } from "react-helmet";
 
 const pink = "#E61F93";
 
@@ -86,22 +88,101 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
   };  
 
   return (
-    <div
-      style={{
-        padding: 6,
-        margin: "auto",
-        maxWidth: 450,
-      }}
-    >
-      <Grid container spacing={3}>
-        {!isLogin && (
+    <>
+      <Helmet>
+        <title>Xianna | Bienvenido</title>
+        <meta name="description" content="Accede o crea tu cuenta en Xianna para descubrir estilos personalizados y gestionar tus outfits favoritos. Regístrate en minutos y explora el mundo de la moda." />
+        <meta name="keywords" content="Iniciar sesión, Registrarse, Xianna, moda, cuenta, perfil, outfits, estilo, guardarropa, ropa personalizada" />
+        
+        <meta property="og:title" content="Xianna | Bienvenido" />
+        <meta property="og:description" content="Inicia sesión o crea una cuenta en Xianna para explorar estilos personalizados, gestionar tu guardarropa y descubrir los mejores outfits." />
+        <meta property="og:image" content={x} />
+        <meta property="og:url" content="https://xianna.com.mx/registro" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
+      <div
+        style={{
+          padding: 6,
+          margin: "auto",
+          maxWidth: 450,
+        }}
+      >
+        <Grid container spacing={3}>
+          {!isLogin && (
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                fullWidth
+                label="Nombre"
+                InputLabelProps={{
+                  style: { color: pink },
+                }}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 1,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: pink,
+                      borderRadius: 5,
+                    },
+                    "&:hover fieldset": {
+                      borderColor: pink,
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: pink,
+                    },
+                  },
+                }}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Grid>
+          )}
           <Grid item xs={12}>
             <TextField
               variant="outlined"
               fullWidth
-              label="Nombre"
-              InputLabelProps={{
-                style: { color: pink },
+              label="Correo"
+              InputLabelProps={{ style: { color: pink } }}
+              sx={{
+                backgroundColor: "white",
+                borderRadius: 1,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: pink,
+                    borderRadius: 5,
+                  },
+                  "&:hover fieldset": {
+                    borderColor: pink,
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: pink,
+                  },
+                }}}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              label="Contraseña"
+              type={showPassword ? "text" : "password"}
+              InputLabelProps={{ style: { color: pink } }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleClickShowPassword} edge="end">
+                      {showPassword ? (
+                        <VisibilityOff sx={{ color: pink }} />
+                      ) : (
+                        <Visibility sx={{ color: pink }} />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
               sx={{
                 backgroundColor: "white",
@@ -117,301 +198,250 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
                   "&.Mui-focused fieldset": {
                     borderColor: pink,
                   },
-                },
-              }}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Grid>
-        )}
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            label="Correo"
-            InputLabelProps={{ style: { color: pink } }}
-            sx={{
-              backgroundColor: "white",
-              borderRadius: 1,
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                  borderColor: pink,
-                  borderRadius: 5,
-                },
-                "&:hover fieldset": {
-                  borderColor: pink,
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: pink,
-                },
-              }}}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            label="Contraseña"
-            type={showPassword ? "text" : "password"}
-            InputLabelProps={{ style: { color: pink } }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleClickShowPassword} edge="end">
-                    {showPassword ? (
-                      <VisibilityOff sx={{ color: pink }} />
-                    ) : (
-                      <Visibility sx={{ color: pink }} />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              backgroundColor: "white",
-              borderRadius: 1,
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                  borderColor: pink,
-                  borderRadius: 5,
-                },
-                "&:hover fieldset": {
-                  borderColor: pink,
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: pink,
-                },
-              }}}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Grid>
-        {!isLogin && (
-          <Grid item xs={12}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              label="Confirmar Contraseña"
-              type={showConfirmPassword ? "text" : "password"}
-              InputLabelProps={{
-                style: { color: pink },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleClickShowConfirmPassword}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? (
-                        <VisibilityOff sx={{ color: pink }} />
-                      ) : (
-                        <Visibility sx={{ color: pink }} />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                backgroundColor: "white",
-                borderRadius: 10,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: pink,
-                    borderRadius: 5,
-                  },
-                  "&:hover fieldset": {
-                    borderColor: pink,
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: pink,
-                  },
                 }}}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </Grid>
-        )}
-        <Grid
-          item
-          xs={12}
-          sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}
-        >
-          <LargeButton
-            backgroundColor={pink}
-            arrowColor="white"
-            textColor="white"
-            text={isLogin ? "Iniciar Sesión" : "Registrarse"}
-            link="#"
-            onClick={isLogin ? handleLogin : handleRegister}
-          />
+          {!isLogin && (
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                fullWidth
+                label="Confirmar Contraseña"
+                type={showConfirmPassword ? "text" : "password"}
+                InputLabelProps={{
+                  style: { color: pink },
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickShowConfirmPassword}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? (
+                          <VisibilityOff sx={{ color: pink }} />
+                        ) : (
+                          <Visibility sx={{ color: pink }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: 10,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: pink,
+                      borderRadius: 5,
+                    },
+                    "&:hover fieldset": {
+                      borderColor: pink,
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: pink,
+                    },
+                  }}}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </Grid>
+          )}
+          <Grid
+            item
+            xs={12}
+            sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}
+          >
+            <LargeButton
+              backgroundColor={pink}
+              arrowColor="white"
+              textColor="white"
+              text={isLogin ? "Iniciar Sesión" : "Registrarse"}
+              link="#"
+              onClick={isLogin ? handleLogin : handleRegister}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
-          {message}
-        </Alert>
-      </Snackbar>
-    </div>
-  );
-};
-
-const Signup: React.FC = () => {
-  const [tab, setTab] = useState("Iniciar Sesión");
-  const navigate = useNavigate();
-
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setTab(newValue);
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
+            {message}
+          </Alert>
+        </Snackbar>
+      </div>
+      </>
+    );
   };
 
-  return (
-    <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
-      <Fade in={true} timeout={800}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            minHeight: "100vh",
-            backgroundColor: "#fff",
-            paddingBottom: 5,
-            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
-            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
-            paddingTop: 2,
-          }}
-        >
-          <Grid container sx={{ flexGrow: 1 }}>
-            <Grid
-              item
-              xs={12}
-              md={6}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "#fff",
-                padding: 3,
-              }}
-            >
-              <Card
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  height: "100%",
-                }}
-              >
-                <img src={loginImage} alt="login" />
-              </Card>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={6}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 3,
-                position: "relative",
-              }}
-            >
-              <Box
-                sx={{
-                  display: { xs: "none", md: "block" },
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  margin: 2,
-                }}
-              >
-                <IconButton
-                  sx={{
-                    backgroundColor: pink,
-                    width: 70,
-                    height: 70,
-                    "&:hover": {
-                      backgroundColor: pink,
-                      transform: "scale(1.1)",
-                      transition: "transform 0.3s ease-in-out",
-                      boxShadow: "none",
-                    },
-                  }}
-                  onClick={() => navigate("/")}
-                >
-                  <ArrowBack sx={{ fontSize: 40, color: "white" }} />
-                </IconButton>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginBottom: 8,
-                }}
-              >
-                <img
-                  src={logo}
-                  alt="Xianna Logo"
-                  style={{
-                    maxWidth: "70%",
-                  }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginBottom: 2,
-                }}
-              >
-                <Tabs
-                  value={tab}
-                  onChange={handleChange}
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  sx={{
-                    marginBottom: 2,
-                    "& .MuiTabs-flexContainer": {
-                      justifyContent: "center",
-                    },
-                    "& .MuiTab-root": {
-                      textTransform: "none",
-                      borderRadius: "16px",
-                      margin: "0 8px",
-                      padding: "8px 16px",
-                      fontWeight: "bold",
-                      color: "black",
-                      "&.Mui-selected": {
-                        backgroundColor: pink,
-                        color: "white",
-                      },
-                    },
-                    "& .MuiTabs-indicator": {
-                      display: "none",
-                    },
-                  }}
-                >
-                  <Tab label="Iniciar Sesión" value="Iniciar Sesión" />
-                  <Tab label="Registrarse" value="Registrarse" />
-                </Tabs>
-              </Box>
+  const Signup: React.FC = () => {
+    const [tab, setTab] = useState("Iniciar Sesión");
+    const navigate = useNavigate();
 
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <AuthForm isLogin={tab === "Iniciar Sesión"} />
-              </div>
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+      setTab(newValue);
+    };
+
+    return (
+      <>
+      <Helmet>
+        <title>Xianna | Bienvenido</title>
+        <meta name="description" content="Accede o crea tu cuenta en Xianna para descubrir estilos personalizados y gestionar tus outfits favoritos. Regístrate en minutos y explora el mundo de la moda." />
+        <meta name="keywords" content="Iniciar sesión, Registrarse, Xianna, moda, cuenta, perfil, outfits, estilo, guardarropa, ropa personalizada" />
+        
+        <meta property="og:title" content="Xianna | Bienvenido" />
+        <meta property="og:description" content="Inicia sesión o crea una cuenta en Xianna para explorar estilos personalizados, gestionar tu guardarropa y descubrir los mejores outfits." />
+        <meta property="og:image" content={x} />
+        <meta property="og:url" content="https://xianna.com.mx/registro" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
+      <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
+        <Fade in={true} timeout={800}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              minHeight: "100vh",
+              backgroundColor: "#fff",
+              paddingBottom: 5,
+              paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+              paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+              paddingTop: 2,
+            }}
+          >
+            <Grid container sx={{ flexGrow: 1 }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#fff",
+                  padding: 3,
+                }}
+              >
+                <Card
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    height: "100%",
+                  }}
+                >
+                  <img src={loginImage} alt="login" />
+                </Card>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: 3,
+                  position: "relative",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: { xs: "none", md: "block" },
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    margin: 2,
+                  }}
+                >
+                  <IconButton
+                    sx={{
+                      backgroundColor: pink,
+                      width: 70,
+                      height: 70,
+                      "&:hover": {
+                        backgroundColor: pink,
+                        transform: "scale(1.1)",
+                        transition: "transform 0.3s ease-in-out",
+                        boxShadow: "none",
+                      },
+                    }}
+                    onClick={() => navigate("/")}
+                  >
+                    <ArrowBack sx={{ fontSize: 40, color: "white" }} />
+                  </IconButton>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: 8,
+                  }}
+                >
+                  <img
+                    src={logo}
+                    alt="Xianna Logo"
+                    style={{
+                      maxWidth: "70%",
+                    }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: 2,
+                  }}
+                >
+                  <Tabs
+                    value={tab}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    sx={{
+                      marginBottom: 2,
+                      "& .MuiTabs-flexContainer": {
+                        justifyContent: "center",
+                      },
+                      "& .MuiTab-root": {
+                        textTransform: "none",
+                        borderRadius: "16px",
+                        margin: "0 8px",
+                        padding: "8px 16px",
+                        fontWeight: "bold",
+                        color: "black",
+                        "&.Mui-selected": {
+                          backgroundColor: pink,
+                          color: "white",
+                        },
+                      },
+                      "& .MuiTabs-indicator": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    <Tab label="Iniciar Sesión" value="Iniciar Sesión" />
+                    <Tab label="Registrarse" value="Registrarse" />
+                  </Tabs>
+                </Box>
+
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <AuthForm isLogin={tab === "Iniciar Sesión"} />
+                </div>
+              </Grid>
             </Grid>
-          </Grid>
-          <Footer />
-        </Box>
-      </Fade>
-    </Slide>
+            <Footer />
+          </Box>
+        </Fade>
+      </Slide>
+    </>
   );
 };
 

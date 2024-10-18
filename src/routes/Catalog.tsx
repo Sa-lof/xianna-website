@@ -30,6 +30,8 @@ import { getStyles, getOccasions } from '../supabase/CatalogoServices/getStylesA
 import { getFavorites, addFavorite, removeFavorite } from '../supabase/UsersServices/favoriteService';
 import Loader from "../components/Loader/Loader";
 import { checkSession} from '../supabase/ProfileServices/checkSession';
+import { Helmet } from "react-helmet";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -187,6 +189,16 @@ const Catalog: React.FC = () => {
 
   return (
     <>
+    <Helmet>
+      <title>Xianna | Catálogo</title>
+      <meta name="description" content="Explora nuestro catálogo de outfits con una variedad de estilos y ocasiones. Guarda tus favoritos y descubre nuevas combinaciones para cada evento." />
+      <meta name="keywords" content="catálogo, outfits, moda, estilo, ocasiones, guardar favoritos, tendencias, ropa, fashion, looks" />
+      <meta property="og:title" content="Xianna | Catálogo" />
+      <meta property="og:description" content="Descubre outfits para cualquier ocasión. Explora diferentes estilos y guarda tus favoritos para inspirarte en nuevas combinaciones." />
+      <meta property="og:image" content={x} />
+      <meta property="og:url" content="https://xianna.com.mx/catalogo" />
+      <meta property="og:type" content="website" />
+    </Helmet>
     <Snackbar
   open={openSnackbar}
   autoHideDuration={6000}

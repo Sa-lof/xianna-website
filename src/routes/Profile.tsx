@@ -22,6 +22,7 @@ import { checkUserSession } from "../supabase/ProfileServices/checkUserSession";
 import { updateUserProfile } from "../supabase/ProfileServices/updateUserService";
 import { logoutUser } from "../supabase/ProfileServices/logoutService";
 import x from "../assets/logo/x.png";
+import { Helmet } from "react-helmet";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -172,367 +173,380 @@ const Profile: React.FC = () => {
   const styleBasedTips = styleTips[user.styleType] || ["Define tu estilo para recibir consejos personalizados."];
 
   return (
-    <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
-      <Fade in={true} timeout={800}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            minHeight: "100vh",
-            backgroundColor: "#fff",
-            paddingBottom: 10,
-            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
-            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
-            paddingTop: 5,
-          }}
-        >
+    <>
+      <Helmet>
+        <title>Xianna | Perfil</title>
+        <meta name="description" content="Gestiona tu perfil en Xianna. Personaliza tus preferencias de estilo, explora tus outfits guardados y recibe consejos personalizados de moda según tu estilo único." />
+        <meta name="keywords" content="Xianna, perfil de usuario, moda, estilo, outfits, guardarropa, personalizar perfil, consejos de moda, looks personalizados, guardar outfits" />
+        
+        <meta property="og:title" content="Xianna | Perfil" />
+        <meta property="og:description" content="Explora y personaliza tu perfil en Xianna. Descubre tus outfits guardados y obtén consejos de estilo personalizados." />
+        <meta property="og:image" content={x} />
+        <meta property="og:url" content="https://xianna.com.mx/perfil" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
+        <Fade in={true} timeout={800}>
           <Box
             sx={{
-              justifyContent: "center",
-              marginBottom: 7,
               display: "flex",
+              flexDirection: "column",
+              minHeight: "100vh",
+              backgroundColor: "#fff",
+              paddingBottom: 10,
+              paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+              paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 },
+              paddingTop: 5,
             }}
           >
-            <IconButton
+            <Box
               sx={{
-                backgroundColor: pink,
-                width: 100,
-                height: 100,
-                "&:hover": {
-                  backgroundColor: pink,
-                  transform: "scale(1.1)",
-                  transition: "transform 0.3s ease-in-out",
-                  boxShadow: "none",
-                },
+                justifyContent: "center",
+                marginBottom: 7,
+                display: "flex",
               }}
-              onClick={() => navigate("/")}
             >
-              <CloseIcon sx={{ fontSize: 40, color: "white" }} />
-            </IconButton>
-          </Box>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Card
+              <IconButton
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: 3,
-                  position: "relative",
-                }}
-              >
-                <Avatar
-                  src={x}
-                  alt={user.name}
-                  sx={{ width: 100, height: 100, marginBottom: 2 }}
-                />
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "25px" }}
-                >
-                  {user.name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "gray", marginBottom: 3, fontSize: "15px" }}
-                >
-                  {user.email}
-                </Typography>
-                <LargeButton
-                  backgroundColor={lightpink}
-                  arrowColor={pink}
-                  textColor={pink}
-                  link="/perfil"
-                  text="Mi estilo"
-                  sx={{ marginBottom: 2 }}
-                />
-                <LargeButton
-                  backgroundColor="white"
-                  arrowColor={pink}
-                  textColor={pink}
-                  link="/mis-outfits"
-                  text="Mis outfits"
-                />
-                <Box sx={{ textAlign: "center", marginTop: 4 }}>
-      <LargeButton
-        text="Cerrar Sesión"
-        link="/logout"
-        textColor="white"
-        arrowColor="white"
-        backgroundColor={pink}
-        onClick={handleLogout}
-        sx={{
-          padding: "5px 30px",
-          fontSize: "15px",
-          minWidth: "200px",
-        }}
-      />
-    </Box>
-                <IconButton
-                  sx={{
-                    position: "absolute",
-                    top: 10,
-                    right: 10,
+                  backgroundColor: pink,
+                  width: 100,
+                  height: 100,
+                  "&:hover": {
                     backgroundColor: pink,
-                    "&:hover": {
-                      backgroundColor: lightpink,
-                    },
-                  }}
-                  onClick={handleModalOpen}
-                >
-                  <EditIcon sx={{ color: "white" }} />
-                </IconButton>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              {user.styleType ? (
-                <>
-                  <Card
-                    sx={{
-                      padding: 3,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{ fontWeight: "bold", marginBottom: 2 }}
-                    >
-                      {user.styleType}
-                    </Typography>
-                    <Typography variant="body2" sx={{ marginBottom: 2 }}>
-                      {user.styleDescription}
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      {user.colors.map((color, index) => (
-                        <Box
-                          key={index}
-                          sx={{
-                            width: 50,
-                            height: 50,
-                            backgroundColor: color,
-                            borderRadius: 1,
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </Card>
-                  <Card
-                    sx={{
-                      padding: 3,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{ fontWeight: "bold", marginBottom: 2 }}
-                    >
-                      Outfits para ti
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        overflowX: "auto",
-                        padding: 1,
-                      }}
-                    >
-                      {user.outfits.map((outfit) => (
-                        <Box
-                          key={outfit.id}
-                          sx={{
-                            minWidth: "200px",
-                            marginRight: 2,
-                          }}
-                        >
-                          <CatalogCard
-                            id={outfit.id.toString()}
-                            image={outfit.imagen}
-                            title={outfit.nombre}
-                            link={`/catalogo/${outfit.id}`}
-                          />
-                        </Box>
-                      ))}
-                    </Box>
-                  </Card>
-                  <Card
-                    sx={{
-                      padding: 3,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{ fontWeight: "bold", marginBottom: 2 }}
-                    >
-                      Prendas básicas
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        overflowX: "auto",
-                        padding: 1,
-                      }}
-                    >
-                      {user.basicItems.map((item) => (
-                        <Box
-                          key={item.id}
-                          sx={{
-                            minWidth: "200px",
-                            marginRight: 2,
-                          }}
-                        >
-                          <Card
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "flex-end",
-                              padding: 2,
-                              cursor: "pointer",
-                              width: "200px",
-                              height: "300px",
-                              position: "relative",
-                              overflow: "hidden",
-                            }}
-                            onClick={() => window.open(item.link, "_blank")}
-                          >
-                            <img
-                              src={item.imagen}
-                              alt={item.nombre}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                zIndex: 1,
-                              }}
-                            />
-                            <Box
-                              sx={{
-                                position: "absolute",
-                                bottom: 0,
-                                width: "100%",
-                                zIndex: 2,
-                                textAlign: "right",
-                                color: "white",
-                                fontWeight: "bold",
-                                padding: "10px 0",
-                                paddingRight: "15%"
-                              }}
-                            >
-                              <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "24px" }}>
-                                {item.nombre}
-                              </Typography>
-                            </Box>
-                          </Card>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Card>
-                  <Card
-                    sx={{
-                      padding: 3,
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{ fontWeight: "bold", marginBottom: 2 }}
-                    >
-                      Consejos de estilo
-                    </Typography>
-                    <Grid container spacing={2}>
-    {styleBasedTips.slice(0, 3).map((tip, index) => {
-      // Definir el color de fondo según el índice
-      const backgroundColor =
-        index === 0
-          ? "#FAACC1" // Primer consejo
-          : index === 1
-          ? "#FDE12D" // Segundo consejo
-          : "#00D1ED"; // Tercer consejo
-
-      return (
-        <Grid item xs={12} md={4} key={index}>
-          <Card
-            sx={{
-              padding: 2,
-              textAlign: "center",
-              backgroundColor: backgroundColor, // Aplicar el color de fondo
-              color: "white", // Color del texto (puedes cambiar si es necesario)
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", marginBottom: 1 }}
-            >
-              {`Consejo ${index + 1}`}
-            </Typography>
-            <Typography variant="body2">{tip}</Typography>
-          </Card>
-        </Grid>
-      );
-    })}
-  </Grid>
-                  </Card>
-                </>
-              ) : (
-                <Box
+                    transform: "scale(1.1)",
+                    transition: "transform 0.3s ease-in-out",
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={() => navigate("/")}
+              >
+                <CloseIcon sx={{ fontSize: 40, color: "white" }} />
+              </IconButton>
+            </Box>
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={4}>
+                <Card
                   sx={{
-                    backgroundColor: "#fff",
-                    padding: "20px",
-                    borderRadius: "10px",
-                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: 3,
+                    position: "relative",
                   }}
                 >
-                  <Typography variant="h1" sx={{ fontWeight: "bold", mb: 2, fontSize: {
-                        xs: '20px', 
-                        sm: '24px',
-                        md: '28px',
-                        lg: '30px',
-                      }, }}>
-                    ¡Aún no encuentras tu tipo de estilo!
+                  <Avatar
+                    src={x}
+                    alt={user.name}
+                    sx={{ width: 100, height: 100, marginBottom: 2 }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: "bold", marginBottom: 1, fontSize: "25px" }}
+                  >
+                    {user.name}
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 2, fontSize: {
-                      xs: '16px', 
-                      sm: '18px', 
-                      md: '20px', 
-                      lg: '22px', 
-                    },}}>
-                    Responde un cuestionario rápido y descúbrelo.
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "gray", marginBottom: 3, fontSize: "15px" }}
+                  >
+                    {user.email}
                   </Typography>
+                  <LargeButton
+                    backgroundColor={lightpink}
+                    arrowColor={pink}
+                    textColor={pink}
+                    link="/perfil"
+                    text="Mi estilo"
+                    sx={{ marginBottom: 2 }}
+                  />
+                  <LargeButton
+                    backgroundColor="white"
+                    arrowColor={pink}
+                    textColor={pink}
+                    link="/mis-outfits"
+                    text="Mis outfits"
+                  />
+                  <Box sx={{ textAlign: "center", marginTop: 4 }}>
+        <LargeButton
+          text="Cerrar Sesión"
+          link="/logout"
+          textColor="white"
+          arrowColor="white"
+          backgroundColor={pink}
+          onClick={handleLogout}
+          sx={{
+            padding: "5px 30px",
+            fontSize: "15px",
+            minWidth: "200px",
+          }}
+        />
+      </Box>
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      backgroundColor: pink,
+                      "&:hover": {
+                        backgroundColor: lightpink,
+                      },
+                    }}
+                    onClick={handleModalOpen}
+                  >
+                    <EditIcon sx={{ color: "white" }} />
+                  </IconButton>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                {user.styleType ? (
+                  <>
+                    <Card
+                      sx={{
+                        padding: 3,
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", marginBottom: 2 }}
+                      >
+                        {user.styleType}
+                      </Typography>
+                      <Typography variant="body2" sx={{ marginBottom: 2 }}>
+                        {user.styleDescription}
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        {user.colors.map((color, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              width: 50,
+                              height: 50,
+                              backgroundColor: color,
+                              borderRadius: 1,
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Card>
+                    <Card
+                      sx={{
+                        padding: 3,
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", marginBottom: 2 }}
+                      >
+                        Outfits para ti
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          overflowX: "auto",
+                          padding: 1,
+                        }}
+                      >
+                        {user.outfits.map((outfit) => (
+                          <Box
+                            key={outfit.id}
+                            sx={{
+                              minWidth: "200px",
+                              marginRight: 2,
+                            }}
+                          >
+                            <CatalogCard
+                              id={outfit.id.toString()}
+                              image={outfit.imagen}
+                              title={outfit.nombre}
+                              link={`/catalogo/${outfit.id}`}
+                            />
+                          </Box>
+                        ))}
+                      </Box>
+                    </Card>
+                    <Card
+                      sx={{
+                        padding: 3,
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", marginBottom: 2 }}
+                      >
+                        Prendas básicas
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          overflowX: "auto",
+                          padding: 1,
+                        }}
+                      >
+                        {user.basicItems.map((item) => (
+                          <Box
+                            key={item.id}
+                            sx={{
+                              minWidth: "200px",
+                              marginRight: 2,
+                            }}
+                          >
+                            <Card
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "flex-end",
+                                padding: 2,
+                                cursor: "pointer",
+                                width: "200px",
+                                height: "300px",
+                                position: "relative",
+                                overflow: "hidden",
+                              }}
+                              onClick={() => window.open(item.link, "_blank")}
+                            >
+                              <img
+                                src={item.imagen}
+                                alt={item.nombre}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                  position: "absolute",
+                                  top: 0,
+                                  left: 0,
+                                  zIndex: 1,
+                                }}
+                              />
+                              <Box
+                                sx={{
+                                  position: "absolute",
+                                  bottom: 0,
+                                  width: "100%",
+                                  zIndex: 2,
+                                  textAlign: "right",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  padding: "10px 0",
+                                  paddingRight: "15%"
+                                }}
+                              >
+                                <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "24px" }}>
+                                  {item.nombre}
+                                </Typography>
+                              </Box>
+                            </Card>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Card>
+                    <Card
+                      sx={{
+                        padding: 3,
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", marginBottom: 2 }}
+                      >
+                        Consejos de estilo
+                      </Typography>
+                      <Grid container spacing={2}>
+      {styleBasedTips.slice(0, 3).map((tip, index) => {
+        // Definir el color de fondo según el índice
+        const backgroundColor =
+          index === 0
+            ? "#FAACC1" // Primer consejo
+            : index === 1
+            ? "#FDE12D" // Segundo consejo
+            : "#00D1ED"; // Tercer consejo
 
+        return (
+          <Grid item xs={12} md={4} key={index}>
+            <Card
+              sx={{
+                padding: 2,
+                textAlign: "center",
+                backgroundColor: backgroundColor, // Aplicar el color de fondo
+                color: "white", // Color del texto (puedes cambiar si es necesario)
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", marginBottom: 1 }}
+              >
+                {`Consejo ${index + 1}`}
+              </Typography>
+              <Typography variant="body2">{tip}</Typography>
+            </Card>
+          </Grid>
+        );
+      })}
+    </Grid>
+                    </Card>
+                  </>
+                ) : (
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      mt: 4,
-                      mb: 4,
+                      backgroundColor: "#fff",
+                      padding: "20px",
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                      textAlign: "center",
                     }}
                   >
-                    <LargeButton
-                      text="Responder"
-                      link="/formulario"
-                      textColor="white"
-                      arrowColor="white"
-                      backgroundColor={pink}
-                      onClick={() => navigate("/formulario")}
-                    />
+                    <Typography variant="h1" sx={{ fontWeight: "bold", mb: 2, fontSize: {
+                          xs: '20px', 
+                          sm: '24px',
+                          md: '28px',
+                          lg: '30px',
+                        }, }}>
+                      ¡Aún no encuentras tu tipo de estilo!
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 2, fontSize: {
+                        xs: '16px', 
+                        sm: '18px', 
+                        md: '20px', 
+                        lg: '22px', 
+                      },}}>
+                      Responde un cuestionario rápido y descúbrelo.
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        mt: 4,
+                        mb: 4,
+                      }}
+                    >
+                      <LargeButton
+                        text="Responder"
+                        link="/formulario"
+                        textColor="white"
+                        arrowColor="white"
+                        backgroundColor={pink}
+                        onClick={() => navigate("/formulario")}
+                      />
+                    </Box>
                   </Box>
-                </Box>
-              )}
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-          <Footer />
-          <EditProfileModal
-            open={isModalOpen}
-            handleClose={handleModalClose}
-            user={user}
-            handleSave={handleSave}
-          />
-        </Box>
-      </Fade>
-    </Slide>
+            <Footer />
+            <EditProfileModal
+              open={isModalOpen}
+              handleClose={handleModalClose}
+              user={user}
+              handleSave={handleSave}
+            />
+          </Box>
+        </Fade>
+      </Slide>
+    </>
   );
 };
 

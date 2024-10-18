@@ -27,8 +27,7 @@ const Rating: React.FC<RatingProps> = ({ initialRating, onSubmit }) => {
           Califica este artículo
         </Typography>
         <Typography variant="body1" sx={{ marginBottom: 2 }}>
-          Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem
-          ipsum
+          Tu opinión es importante para mejorar la calidad de nuestro contenido y brindarte información aún más valiosa. 
         </Typography>
       </Grid>
       <Grid item xs={12} md={6}>

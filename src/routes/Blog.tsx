@@ -8,6 +8,8 @@ import Footer from "../components/Footer/Footer";
 import getBlogs from "../supabase/BlogServices/getBlogs";
 import getCategorias from "../supabase/BlogServices/getCategorias";
 import Loader from "../components/Loader/Loader";
+import { Helmet } from "react-helmet";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 const yellow = "#FDE12D";
@@ -131,6 +133,17 @@ const BlogComponent: React.FC = () => {
 
   return (
     <>
+    <Helmet>
+      <title>Xianna | Blog</title>
+      <meta name="description" content="Mantente al día con nuestras publicaciones sobre moda, tecnología, estilo de vida y más. Descubre artículos, noticias y categorías para todos los gustos." />
+      <meta name="keywords" content="blog, tecnología, estilo de vida, moda, noticias, belleza, artículos, novedades, tendencias, últimas publicaciones" />
+      
+      <meta property="og:title" content="Xianna | Blog" />
+      <meta property="og:description" content="Explora nuestro blog con artículos sobre tendencias en moda, tecnología y estilo de vida. Mantente informado con nuestras últimas publicaciones." />
+      <meta property="og:image" content={x} />
+      <meta property="og:url" content="https://xianna.com.mx/blog" />
+      <meta property="og:type" content="website" />
+    </Helmet>
     <Snackbar
   open={openSnackbar}
   autoHideDuration={6000}

@@ -11,6 +11,8 @@ import Loader from "../components/Loader/Loader";
 import { checkSession} from '../supabase/ProfileServices/checkSession';
 import { getUserDetails } from '../supabase/ProfileServices/getUserDetails2';
 import { updateUserDetails } from '../supabase/ProfileServices/updateUserDetails2';
+import { Helmet } from "react-helmet";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 
@@ -224,232 +226,245 @@ const Form: React.FC = () => {
   }
 
   return (
-    <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
-      <Box
-        sx={{
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingTop: 5,
-        }}
-      >
+    <>
+      <Helmet>
+        <title>Xianna | Cuestionario de Moda en Xianna</title>
+        <meta name="description" content="Responde nuestro cuestionario de estilo y descubre qué tipo de moda es ideal para ti. Con Xianna, obtén recomendaciones personalizadas según tu perfil y preferencias." />
+        <meta name="keywords" content="cuestionario de moda, estilo, Xianna, descubrir estilo, recomendaciones de moda, perfil de moda, tipo de estilo, encuesta de moda, asesoría de moda" />
+        
+        <meta property="og:title" content="Xianna | Cuestionario de Moda en Xianna" />
+        <meta property="og:description" content="Responde a nuestro cuestionario de moda y descubre tu estilo único con recomendaciones personalizadas. Xianna te ayuda a encontrar el estilo que mejor se adapte a ti." />
+        <meta property="og:image" content={x} />
+        <meta property="og:url" content="https://xianna.com.mx/formulario" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
         <Box
           sx={{
             justifyContent: "center",
-            marginBottom: 7,
-            display: "flex",
+            alignItems: "center",
+            minHeight: "100vh", // Full viewport height
+            paddingBottom: 10, // Responsive padding
+            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+            paddingTop: 5,
           }}
         >
-          <IconButton
-            sx={{
-              backgroundColor: pink,
-              width: 100,
-              height: 100,
-              "&:hover": {
-                backgroundColor: pink,
-                transform: "scale(1.1)",
-                transition: "transform 0.3s ease-in-out",
-                boxShadow: "none",
-              },
-            }}
-            onClick={() => navigate("/")}
-          >
-            <CloseIcon sx={{ fontSize: 40, color: "white" }} />
-          </IconButton>
-        </Box>
-        {hasSubmitted ? (
           <Box
             sx={{
-              backgroundColor: "#fff",
-              padding: "20px",
-              borderRadius: "10px",
-              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-              textAlign: "center",
+              justifyContent: "center",
+              marginBottom: 7,
+              display: "flex",
             }}
           >
-            <Typography variant="h1" sx={{ mb: 2, fontSize: {
-                  xs: '18px', 
-                  sm: '20px',
-                  md: '22px',
-                  lg: '24px',
-                }, }}>
-              Tu tipo de estilo es:
-            </Typography>
-            <Typography variant="h1" sx={{ fontWeight: "bold", fontSize: {
-                  xs: '24px', 
-                  sm: '28px',
-                  md: '32px',
-                  lg: '40px',
-                }, }}>
-              {userStyle}
-            </Typography>
-            <Grid container>
-  <Grid item xs={12} sm={12} md={6} lg={6}>
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: { xs: "center", md: "flex-end" }, // centrado en pantallas pequeñas, alineado a la derecha en grandes
-        mt: 4,
-        mb: 4,
-      }}
-    >
-      <LargeButton
-        text="Volver a hacer el test"
-        link="#"
-        textColor="white"
-        arrowColor="white"
-        backgroundColor={pink}
-        onClick={handleRetakeForm}
-      />
-    </Box>
-  </Grid>
-  <Grid item xs={12} sm={12} md={6} lg={6}>
-    <Box
-      sx={{
-        display: "flex",
-        pl:"2%",
-        justifyContent: { xs: "center", md: "flex-start"}, // centrado en pantallas pequeñas, alineado a la izquierda en grandes
-        mt: 4,
-        mb: 4,
-      }}
-    >
-      <LargeButton
-        text="Conocer más sobre mi estilo"
-        link="/perfil"
-        textColor="black"
-        arrowColor="black"
-        backgroundColor="white"
-        sx={{
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // sombra al botón
-        }}
-      />
-    </Box>
-  </Grid>
-</Grid>
-            
+            <IconButton
+              sx={{
+                backgroundColor: pink,
+                width: 100,
+                height: 100,
+                "&:hover": {
+                  backgroundColor: pink,
+                  transform: "scale(1.1)",
+                  transition: "transform 0.3s ease-in-out",
+                  boxShadow: "none",
+                },
+              }}
+              onClick={() => navigate("/")}
+            >
+              <CloseIcon sx={{ fontSize: 40, color: "white" }} />
+            </IconButton>
           </Box>
-        ) : (
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={12} md={7} lg={6}>
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: "bold", fontSize: {
-                  xs: '48px', 
-                  sm: '52px',
-                  md: '56px',
-                  lg: '64px',
-                }, }}
-              >
-                Descubre tu verdadero estilo
+          {hasSubmitted ? (
+            <Box
+              sx={{
+                backgroundColor: "#fff",
+                padding: "20px",
+                borderRadius: "10px",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                textAlign: "center",
+              }}
+            >
+              <Typography variant="h1" sx={{ mb: 2, fontSize: {
+                    xs: '18px', 
+                    sm: '20px',
+                    md: '22px',
+                    lg: '24px',
+                  }, }}>
+                Tu tipo de estilo es:
               </Typography>
-              <Typography variant="subtitle1" sx={{ mb: 4, fontSize: "40px" }}>
-                Responde el cuestionario y descubre tu estilo prevalecedor
+              <Typography variant="h1" sx={{ fontWeight: "bold", fontSize: {
+                    xs: '24px', 
+                    sm: '28px',
+                    md: '32px',
+                    lg: '40px',
+                  }, }}>
+                {userStyle}
               </Typography>
-            </Grid>
-            <Grid item xs={12} sm={12} md={5} lg={6}>
-              {currentStep === 0 ? (
-                <UserDataForm onSubmit={handleUserDataSubmit} />
-              ) : (
-                <>
-                  {getQuestionsForCurrentStep().map((q, index) => (
-                    <QuestionComponent
-                      key={q.id}
-                      color={questionColors[index % questionColors.length]}
-                      question={q.pregunta}
-                      questionNumber={(currentStep - 1) * questionsPerPage + index + 1}
-                      responses={q.answers.map((answer: Answer) => answer.respuesta)}
-                      selectedResponse={selectedAnswers[q.id] || ""}
-                      onResponseChange={(answer) => handleAnswerChange(q.id, answer)}
-                    />
-                  ))}
-                  <Box
-                    sx={{
-                      textAlign: "center",
-                      mt: 4,
-                      justifyContent: "space-between",
-                      display: "flex",
-                    }}
-                  >
-                    {currentStep > 1 && (
+              <Grid container>
+    <Grid item xs={12} sm={12} md={6} lg={6}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: { xs: "center", md: "flex-end" }, // centrado en pantallas pequeñas, alineado a la derecha en grandes
+          mt: 4,
+          mb: 4,
+        }}
+      >
+        <LargeButton
+          text="Volver a hacer el test"
+          link="#"
+          textColor="white"
+          arrowColor="white"
+          backgroundColor={pink}
+          onClick={handleRetakeForm}
+        />
+      </Box>
+    </Grid>
+    <Grid item xs={12} sm={12} md={6} lg={6}>
+      <Box
+        sx={{
+          display: "flex",
+          pl:"2%",
+          justifyContent: { xs: "center", md: "flex-start"}, // centrado en pantallas pequeñas, alineado a la izquierda en grandes
+          mt: 4,
+          mb: 4,
+        }}
+      >
+        <LargeButton
+          text="Conocer más sobre mi estilo"
+          link="/perfil"
+          textColor="black"
+          arrowColor="black"
+          backgroundColor="white"
+          sx={{
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // sombra al botón
+          }}
+        />
+      </Box>
+    </Grid>
+  </Grid>
+              
+            </Box>
+          ) : (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={12} md={7} lg={6}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "bold", fontSize: {
+                    xs: '48px', 
+                    sm: '52px',
+                    md: '56px',
+                    lg: '64px',
+                  }, }}
+                >
+                  Descubre tu verdadero estilo
+                </Typography>
+                <Typography variant="subtitle1" sx={{ mb: 4, fontSize: "40px" }}>
+                  Responde el cuestionario y descubre tu estilo prevalecedor
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={12} md={5} lg={6}>
+                {currentStep === 0 ? (
+                  <UserDataForm onSubmit={handleUserDataSubmit} />
+                ) : (
+                  <>
+                    {getQuestionsForCurrentStep().map((q, index) => (
+                      <QuestionComponent
+                        key={q.id}
+                        color={questionColors[index % questionColors.length]}
+                        question={q.pregunta}
+                        questionNumber={(currentStep - 1) * questionsPerPage + index + 1}
+                        responses={q.answers.map((answer: Answer) => answer.respuesta)}
+                        selectedResponse={selectedAnswers[q.id] || ""}
+                        onResponseChange={(answer) => handleAnswerChange(q.id, answer)}
+                      />
+                    ))}
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        mt: 4,
+                        justifyContent: "space-between",
+                        display: "flex",
+                      }}
+                    >
+                      {currentStep > 1 && (
+                        <LargeButton
+                          text="Atrás"
+                          link="#"
+                          textColor="white"
+                          arrowColor="white"
+                          backgroundColor={pink}
+                          onClick={handleBack}
+                          sx={{ mt: 4 }} // Additional styles if needed
+                        />
+                      )}
                       <LargeButton
-                        text="Atrás"
+                        text={currentStep < totalSteps - 1 ? "Siguiente" : "Enviar"}
                         link="#"
                         textColor="white"
                         arrowColor="white"
                         backgroundColor={pink}
-                        onClick={handleBack}
+                        onClick={handleNext}
                         sx={{ mt: 4 }} // Additional styles if needed
                       />
-                    )}
-                    <LargeButton
-                      text={currentStep < totalSteps - 1 ? "Siguiente" : "Enviar"}
-                      link="#"
-                      textColor="white"
-                      arrowColor="white"
-                      backgroundColor={pink}
-                      onClick={handleNext}
-                      sx={{ mt: 4 }} // Additional styles if needed
-                    />
-                  </Box>
-                </>
-              )}
+                    </Box>
+                  </>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-        )}
-        <Dialog
-  open={openDialog}
-  onClose={handleCloseDialog}
-  PaperProps={{
-    style: {
-      backgroundColor: pink,
-      borderRadius: "20px",
-      padding: "20px", // Add padding to the dialog content
-      display: "flex", // Ensure dialog content is centered
-      alignItems: "center",
-      justifyContent: "center",
-    },
-  }}
->
-  <DialogContent sx={{ textAlign: "center" }}>
-    <Typography variant="h5" sx={{ color: "white", fontWeight: "bold", mb: 2 }}>
-      ¡Conóce tus resultados!
-    </Typography>
-    <Typography variant="body1" sx={{ color: "white", mb: 3 }}>
-      Crea tu cuenta para poder descubrir tu estilo y recibir consejos para mejorarlo.
-    </Typography>
-    <Box
-      sx={{
-        display: "flex",
+          )}
+          <Dialog
+    open={openDialog}
+    onClose={handleCloseDialog}
+    PaperProps={{
+      style: {
+        backgroundColor: pink,
+        borderRadius: "20px",
+        padding: "20px", // Add padding to the dialog content
+        display: "flex", // Ensure dialog content is centered
+        alignItems: "center",
         justifyContent: "center",
-        mt: 2,
-      }}
-    >
-      <LargeButton
-        text="Registrarse"
-        link="/registro"
-        textColor="black"
-        arrowColor="black"
-        backgroundColor="white"
-      />
-    </Box>
-  </DialogContent>
-</Dialog>
-<Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-
+      },
+    }}
+  >
+    <DialogContent sx={{ textAlign: "center" }}>
+      <Typography variant="h5" sx={{ color: "white", fontWeight: "bold", mb: 2 }}>
+        ¡Conóce tus resultados!
+      </Typography>
+      <Typography variant="body1" sx={{ color: "white", mb: 3 }}>
+        Crea tu cuenta para poder descubrir tu estilo y recibir consejos para mejorarlo.
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          mt: 2,
+        }}
+      >
+        <LargeButton
+          text="Registrarse"
+          link="/registro"
+          textColor="black"
+          arrowColor="black"
+          backgroundColor="white"
+        />
       </Box>
-    </Slide>
+    </DialogContent>
+  </Dialog>
+  <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: "100%" }}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+
+        </Box>
+      </Slide>
+    </>
   );
 };
 

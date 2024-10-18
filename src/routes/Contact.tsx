@@ -22,6 +22,8 @@ import Footer from "../components/Footer/Footer";
 import { useInView } from "react-intersection-observer";
 import Loader from "../components/Loader/Loader";
 import emailjs from "emailjs-com";
+import { Helmet } from "react-helmet";
+import x from "../assets/logo/x.png";
 
 const pink = "#E61F93";
 const lightpink = "#FFD3E2";
@@ -126,259 +128,272 @@ const Contacto: React.FC = () => {
   };
 
   return (
-    <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          minHeight: "100vh", // Full viewport height
-          paddingBottom: 10, // Responsive padding
-          paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
-          paddingTop: 5,
-        }}
-      >
+    <>
+      <Helmet>
+        <title>Xianna | Contacto</title>
+        <meta name="description" content="En Xianna valoramos tu opinión. Contáctanos y conéctate con nosotros a través de correo electrónico o redes sociales. ¡Estamos aquí para ayudarte!" />
+        <meta name="keywords" content="contacto, xianna, moda, redes sociales, email, whatsapp, instagram, facebook, soporte" />
+        
+        <meta property="og:title" content="Xiana | Contacto" />
+        <meta property="og:description" content="Contáctanos para cualquier consulta o sugerencia. Nos encantaría escucharte y ayudarte con cualquier cosa relacionada con moda en Xianna." />
+        <meta property="og:image" content={x} />
+        <meta property="og:url" content="https://xianna.com.mx/contacto" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <Slide direction="up" in={true} mountOnEnter unmountOnExit timeout={800}>
         <Box
           sx={{
-            justifyContent: "center",
-            marginBottom: 7,
             display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            minHeight: "100vh", // Full viewport height
+            paddingBottom: 10, // Responsive padding
+            paddingRight: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+            paddingLeft: { xs: 2, sm: 4, md: 8, lg: 10, xl: 15 }, // Responsive padding
+            paddingTop: 5,
           }}
         >
-          <IconButton
+          <Box
             sx={{
-              backgroundColor: pink,
-              width: 100,
-              height: 100,
-              "&:hover": {
-                backgroundColor: pink,
-                transform: "scale(1.1)",
-                transition: "transform 0.3s ease-in-out",
-                boxShadow: "none",
-              },
+              justifyContent: "center",
+              marginBottom: 7,
+              display: "flex",
             }}
-            onClick={() => navigate("/")}
           >
-            <CloseIcon sx={{ fontSize: 40, color: "white" }} />
-          </IconButton>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "100%",
-            marginBottom: 4,
-          }}
-        >
-          <Grid container spacing={4} sx={{ maxWidth: 1200 }}>
-            <Grid item xs={12} md={4}>
-              <Fade in={headerInView} timeout={2000}>
-                <div ref={headerRef}>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: "bold",
-                      marginBottom: 2,
-                      fontSize: "50px",
-                    }}
-                  >
-                    Contáctanos
-                  </Typography>
-                  <Typography variant="body1" sx={{ marginBottom: 4 }}>
-                  En Xianna, valoramos tu opinión y estamos aquí para apoyarte en tu viaje de moda. Escríbenos a continuación y te responderemos lo antes posible. ¡Conéctate con nosotras!
-                  </Typography>
-                </div>
-              </Fade>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Fade in={formInView} timeout={2000}>
-                <div ref={formRef}>
-                  <Card
-                    sx={{
-                      backgroundColor: lightpink,
-                      padding: 4,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 2,
-                    }}
-                  >
-                    <TextField
-                fullWidth
-                label="Tu nombre"
-                name="from_name"
-                value={toSend.from_name}
-                onChange={handleChange}
-                InputLabelProps={{
-                  style: { color: pink },
-                }}
-                sx={{
-                  backgroundColor: "white",
-                  borderRadius: 5,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "white",
-                      borderRadius: 5,
-                    },
-                    "&:hover fieldset": {
-                      borderColor: lightpink,
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: lightpink,
-                    },
-                  },
-                }}
-              />
-                    <TextField
-                fullWidth
-                label="Correo electrónico"
-                name="reply_to"
-                value={toSend.reply_to}
-                onChange={handleChange}
-                InputLabelProps={{
-                  style: { color: pink },
-                }}
-                sx={{
-                  backgroundColor: "white",
-                  borderRadius: 5,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "white",
-                      borderRadius: 5,
-                    },
-                    "&:hover fieldset": {
-                      borderColor: lightpink,
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: lightpink,
-                    },
-                  },
-                }}
-              />
-                    <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Mensaje"
-                name="message"
-                value={toSend.message}
-                onChange={handleChange}
-                InputLabelProps={{
-                  style: { color: pink },
-                }}
-                sx={{
-                  backgroundColor: "white",
-                  borderRadius: 5,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "white",
-                      borderRadius: 5,
-                    },
-                    "&:hover fieldset": {
-                      borderColor: lightpink,
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: lightpink,
-                    },
-                  },
-                }}
-              />
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button 
-  variant="contained" 
-  sx={{ backgroundColor: "white", color: pink, borderRadius:'20px', "&:hover": {
-    backgroundColor: "black",
-    color: "white"
-  }}} 
-  onClick={sendEmail}
->
-  Enviar
-</Button>
-{/* Snackbar para mostrar las alertas */}
-<Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: "100%" }}>
-            {messageSnackbar}
-          </Alert>
-        </Snackbar>
-                    </Box>
-                  </Card>
-                </div>
-              </Fade>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <Fade in={socialInView} timeout={2000}>
-                <div ref={socialRef}>
-                  <Card
-                    className="flex flex-col items-center h-full"
-                    sx={{ backgroundColor: pink, color: "white", padding: 2 }}
-                  >
-                    <CardContent
-                      className="flex-grow flex items-center justify-center"
+            <IconButton
+              sx={{
+                backgroundColor: pink,
+                width: 100,
+                height: 100,
+                "&:hover": {
+                  backgroundColor: pink,
+                  transform: "scale(1.1)",
+                  transition: "transform 0.3s ease-in-out",
+                  boxShadow: "none",
+                },
+              }}
+              onClick={() => navigate("/")}
+            >
+              <CloseIcon sx={{ fontSize: 40, color: "white" }} />
+            </IconButton>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              marginBottom: 4,
+            }}
+          >
+            <Grid container spacing={4} sx={{ maxWidth: 1200 }}>
+              <Grid item xs={12} md={4}>
+                <Fade in={headerInView} timeout={2000}>
+                  <div ref={headerRef}>
+                    <Typography
+                      variant="h4"
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
+                        fontWeight: "bold",
+                        marginBottom: 2,
+                        fontSize: "50px",
                       }}
                     >
-                      <Box sx={{ marginBottom: 4 }}>
-                        <IconButton
-                          onClick={() =>
-                            handleSocialClick(
-                              "https://www.instagram.com/xianna.mx?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-                            )
-                          }
-                        >
-                          <InstagramIcon
-                            sx={{ color: "white", fontSize: 45 }}
-                          />
-                        </IconButton>
+                      Contáctanos
+                    </Typography>
+                    <Typography variant="body1" sx={{ marginBottom: 4 }}>
+                    En Xianna, valoramos tu opinión y estamos aquí para apoyarte en tu viaje de moda. Escríbenos a continuación y te responderemos lo antes posible. ¡Conéctate con nosotras!
+                    </Typography>
+                  </div>
+                </Fade>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Fade in={formInView} timeout={2000}>
+                  <div ref={formRef}>
+                    <Card
+                      sx={{
+                        backgroundColor: lightpink,
+                        padding: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <TextField
+                  fullWidth
+                  label="Tu nombre"
+                  name="from_name"
+                  value={toSend.from_name}
+                  onChange={handleChange}
+                  InputLabelProps={{
+                    style: { color: pink },
+                  }}
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 5,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "white",
+                        borderRadius: 5,
+                      },
+                      "&:hover fieldset": {
+                        borderColor: lightpink,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: lightpink,
+                      },
+                    },
+                  }}
+                />
+                      <TextField
+                  fullWidth
+                  label="Correo electrónico"
+                  name="reply_to"
+                  value={toSend.reply_to}
+                  onChange={handleChange}
+                  InputLabelProps={{
+                    style: { color: pink },
+                  }}
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 5,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "white",
+                        borderRadius: 5,
+                      },
+                      "&:hover fieldset": {
+                        borderColor: lightpink,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: lightpink,
+                      },
+                    },
+                  }}
+                />
+                      <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Mensaje"
+                  name="message"
+                  value={toSend.message}
+                  onChange={handleChange}
+                  InputLabelProps={{
+                    style: { color: pink },
+                  }}
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: 5,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "white",
+                        borderRadius: 5,
+                      },
+                      "&:hover fieldset": {
+                        borderColor: lightpink,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: lightpink,
+                      },
+                    },
+                  }}
+                />
+                      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button 
+    variant="contained" 
+    sx={{ backgroundColor: "white", color: pink, borderRadius:'20px', "&:hover": {
+      backgroundColor: "black",
+      color: "white"
+    }}} 
+    onClick={sendEmail}
+  >
+    Enviar
+  </Button>
+  {/* Snackbar para mostrar las alertas */}
+  <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: "100%" }}>
+              {messageSnackbar}
+            </Alert>
+          </Snackbar>
                       </Box>
-                      <Box sx={{ marginBottom: 4 }}>
-                        <IconButton
-                          onClick={() =>
-                            handleSocialClick("https://wa.me/1234567890")
-                          }
-                        >
-                          <WhatsAppIcon sx={{ color: "white", fontSize: 45 }} />
-                        </IconButton>
-                      </Box>
-                      <Box sx={{ marginBottom: 4 }}>
-                        <IconButton
-                          onClick={() =>
-                            handleSocialClick(
-                              "https://www.facebook.com/xianna/"
-                            )
-                          }
-                        >
-                          <FacebookIcon sx={{ color: "white", fontSize: 45 }} />
-                        </IconButton>
-                      </Box>
-                      <Box>
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                          Redes
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </div>
-              </Fade>
+                    </Card>
+                  </div>
+                </Fade>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Fade in={socialInView} timeout={2000}>
+                  <div ref={socialRef}>
+                    <Card
+                      className="flex flex-col items-center h-full"
+                      sx={{ backgroundColor: pink, color: "white", padding: 2 }}
+                    >
+                      <CardContent
+                        className="flex-grow flex items-center justify-center"
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box sx={{ marginBottom: 4 }}>
+                          <IconButton
+                            onClick={() =>
+                              handleSocialClick(
+                                "https://www.instagram.com/xianna.mx?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                              )
+                            }
+                          >
+                            <InstagramIcon
+                              sx={{ color: "white", fontSize: 45 }}
+                            />
+                          </IconButton>
+                        </Box>
+                        <Box sx={{ marginBottom: 4 }}>
+                          <IconButton
+                            onClick={() =>
+                              handleSocialClick("https://wa.me/1234567890")
+                            }
+                          >
+                            <WhatsAppIcon sx={{ color: "white", fontSize: 45 }} />
+                          </IconButton>
+                        </Box>
+                        <Box sx={{ marginBottom: 4 }}>
+                          <IconButton
+                            onClick={() =>
+                              handleSocialClick(
+                                "https://www.facebook.com/xianna/"
+                              )
+                            }
+                          >
+                            <FacebookIcon sx={{ color: "white", fontSize: 45 }} />
+                          </IconButton>
+                        </Box>
+                        <Box>
+                          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                            Redes
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </Fade>
+              </Grid>
             </Grid>
-          </Grid>
+          </Box>
+          <Fade in={footerInView} timeout={2000}>
+            <div ref={footerRef}>
+              <Footer />
+            </div>
+          </Fade>
         </Box>
-        <Fade in={footerInView} timeout={2000}>
-          <div ref={footerRef}>
-            <Footer />
-          </div>
-        </Fade>
-      </Box>
-    </Slide>
+      </Slide>
+    </>
   );
 };
 
