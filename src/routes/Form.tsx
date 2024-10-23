@@ -113,8 +113,9 @@ const Form: React.FC = () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Si el usuario no está autenticado, almacenar el estilo seleccionado en localStorage
+      // Verificar si el usuario no está autenticado
       if (!isAuthenticated) {
+        // Aquí se guarda el resultado del cuestionario en localStorage antes de que el usuario se registre
         const styleCount: Record<number, number> = {};
         Object.values(selectedAnswers).forEach((answer) => {
           const answerObj = questions.flatMap(q => q.answers).find(a => a.respuesta === answer);
@@ -123,24 +124,25 @@ const Form: React.FC = () => {
             styleCount[styleId] = (styleCount[styleId] || 0) + 1;
           }
         });
-  
+        
         let mostSelectedStyleId = parseInt(Object.entries(styleCount).reduce(
           (acc, [styleId, count]) => count > acc.count ? { styleId: Number(styleId), count } : acc,
           { styleId: 0, count: 0 }
         ).styleId.toString(), 10);
-  
-        // Si no se encontró un estilo mayoritario, usa uno aleatorio
+        
         if (!mostSelectedStyleId || isNaN(mostSelectedStyleId)) {
           mostSelectedStyleId = getRandomStyleId();
         }
   
-        // Almacenar el estilo en localStorage
-        localStorage.setItem('userStyle', mostSelectedStyleId.toString());
+        // Guardar el tipo de estilo en localStorage
+        localStorage.setItem('tipo_estilo', mostSelectedStyleId.toString());
   
-        setOpenDialog(true); // Mostrar el diálogo de registro
+        // Abre el diálogo para el registro
+        setOpenDialog(true);
       } else {
-        await updateUserData(); // Actualizar los datos del usuario si ya está autenticado
-        navigate("/perfil");
+        // Si el usuario está autenticado, actualiza sus datos
+        await updateUserData();
+        navigate("/perfil"); // Reemplaza con el enlace real
       }
     }
   };  

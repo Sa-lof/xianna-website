@@ -25,6 +25,7 @@ import { ArrowBack } from "@mui/icons-material";
 import x from "../assets/logo/x.png";
 import { Helmet } from "react-helmet";
 import { updateUserDetails } from '../supabase/ProfileServices/updateUserDetails2';
+import supabase from '../supabaseClient';
 
 const pink = "#E61F93";
 
@@ -59,41 +60,43 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
         return;
       }
   
-      // Primero, registrar al usuario
-      const result = await registerUser(email, password, name);
+      // Registra al usuario
+      const { success } = await registerUser(email, password, name);
   
-      // Verificar que el registro fue exitoso
-      if (result && result.success) {
-        // Recuperar el estilo almacenado en localStorage
-        const savedStyle = localStorage.getItem('userStyle');
-        
-        if (savedStyle) {
-          const updatedDetails = {
-            tipo_estilo: Number(savedStyle),
-            nombre: name,
-            email: email,  // Aquí usamos el email que ya capturamos
-            // Agregar otros detalles que desees actualizar
-          };
+      if (success) {
+        // Obtenemos la sesión actual para obtener la información del usuario
+        const { data, error } = await supabase.auth.getSession();
   
-          // Asegurarte de que los detalles se están enviando correctamente
-          console.log('Detalles a actualizar:', updatedDetails);
-  
-          // Llamar a la función de actualización de detalles
-          const success = await updateUserDetails(email, updatedDetails);
-  
-          if (success) {
-            console.log('Detalles del usuario actualizados con éxito');
-            localStorage.removeItem('userStyle');
-          } else {
-            console.error('Error actualizando los detalles del usuario');
-          }
+        if (error) {
+          throw new Error("No se pudo obtener la sesión");
         }
-      } else {
-        console.error('Error durante el registro');
+  
+        if (data.session && data.session.user && data.session.user.email) {
+          const userEmail = data.session.user.email;
+  
+          const estiloId = localStorage.getItem('tipo_estilo');
+          if (estiloId) {
+            const updatedDetails = {
+              tipo_estilo: Number(estiloId),
+              nombre: name,
+              correo: userEmail, // Asegúrate de que coincida con la columna de tu tabla
+            };
+  
+            // Usa userEmail (que contiene el correo) en lugar de user
+            const updateSuccess = await updateUserDetails(userEmail, updatedDetails);
+            if (updateSuccess) {
+              console.log('Detalles del usuario actualizados correctamente');
+              // Eliminar tipo_estilo de localStorage
+              localStorage.removeItem('tipo_estilo');
+            }
+          }
+        } else {
+          throw new Error("El email del usuario es indefinido.");
+        }
       }
   
       setSeverity("success");
-      navigate("/");
+      navigate("/perfil");
     } catch (error) {
       setMessage((error as Error).message);
       setSeverity("error");
