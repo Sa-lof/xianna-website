@@ -201,10 +201,6 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     onChange={handleSelectChange}
     label="Tipo de Cuerpo"
   >
-    <MenuItem value="Delgado">Delgado</MenuItem>
-    <MenuItem value="Atlético">Atlético</MenuItem>
-    <MenuItem value="Robusto">Robusto</MenuItem>
-    <MenuItem value="Musculoso">Musculoso</MenuItem>
     <MenuItem value="Manzana">Manzana</MenuItem>
     <MenuItem value="Pera">Pera</MenuItem>
     <MenuItem value="Triángulo invertido">Triángulo invertido</MenuItem>

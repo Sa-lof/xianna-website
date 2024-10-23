@@ -312,7 +312,7 @@ const Profile: React.FC = () => {
                       >
                         {user.styleType}
                       </Typography>
-                      <Typography variant="body2" sx={{ marginBottom: 2 }}>
+                      <Typography variant="body2" sx={{ marginBottom: 2, fontSize: "20px"}}>
                         {user.styleDescription}
                       </Typography>
                       <Box sx={{ display: "flex", gap: 1 }}>

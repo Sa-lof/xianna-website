@@ -64,7 +64,7 @@ const MainGrid: React.FC = () => {
           className="flex flex-col h-full"
           sx={{
             color: "white",
-            backgroundColor: yellow,
+            backgroundColor: blue,
             padding: 2,
             position: "relative",
           }}
@@ -103,7 +103,7 @@ const MainGrid: React.FC = () => {
       <Grid item xs={12} md={3} sm={12}>
         <Card
           className="bg-blue-500 text-white flex flex-col items-center h-full"
-          sx={{ color: "white", backgroundColor: blue, padding: 2 }}
+          sx={{ color: "white", backgroundColor: yellow, padding: 2 }}
         >
           <CardContent className="flex-grow flex justify-center items-center">
             <Typography
@@ -115,7 +115,7 @@ const MainGrid: React.FC = () => {
                 lg: '40px',
               }, fontWeight: "bold", textAlign: "center" }}
             >
-              Forma parte de Xianna
+              Regístrate
             </Typography>
           </CardContent>
           <LargeButton
@@ -174,7 +174,7 @@ const MainGrid: React.FC = () => {
               }}
             >
               <LargeButton
-                text="Catálogo"
+                text="Nuestros outfits"
                 link="/catalogo"
                 textColor="black"
                 arrowColor="black"

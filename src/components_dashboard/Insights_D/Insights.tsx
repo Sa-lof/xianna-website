@@ -155,18 +155,19 @@ const Insights: React.FC = () => {
     });
   
     const bodyTypeCounts = {
-      Delgado: filteredUsers.filter(user => user.tipo_cuerpo === 'Delgado').length,
-      Atlético: filteredUsers.filter(user => user.tipo_cuerpo === 'Atlético').length,
-      Robusto: filteredUsers.filter(user => user.tipo_cuerpo === 'Robusto').length,
-      Musculoso: filteredUsers.filter(user => user.tipo_cuerpo === 'Musculoso').length
+      Manzana: filteredUsers.filter(user => user.tipo_cuerpo === 'Manzana').length,
+      Pera: filteredUsers.filter(user => user.tipo_cuerpo === 'Pera').length,
+      Triangulo: filteredUsers.filter(user => user.tipo_cuerpo === 'Triángulo').length,
+      Reloj: filteredUsers.filter(user => user.tipo_cuerpo === 'Reloj de Arena').length,
+      Rectangulo: filteredUsers.filter(user => user.tipo_cuerpo === 'Rectángulo').length,
     };
   
     setPyramidData({
-      categories: ['Delgado', 'Atlético', 'Robusto', 'Musculoso'],
+      categories: ['Manzana', 'Pera', 'Triángulo', 'Reloj', 'Rectángulo'],
       series: [
         {
           name: 'Usuarios',
-          data: [bodyTypeCounts.Delgado, bodyTypeCounts.Atlético, bodyTypeCounts.Robusto, bodyTypeCounts.Musculoso],
+          data: [bodyTypeCounts.Manzana, bodyTypeCounts.Pera, bodyTypeCounts.Triangulo, bodyTypeCounts.Reloj, bodyTypeCounts.Rectangulo],
         }
       ],
     });
@@ -180,17 +181,19 @@ const Insights: React.FC = () => {
     });
 
     const bodyTypeCounts = {
-      Delgado: filteredUsers.filter(user => user.tipo_cuerpo === 'Delgado').length,
-      Atlético: filteredUsers.filter(user => user.tipo_cuerpo === 'Atlético').length,
-      Robusto: filteredUsers.filter(user => user.tipo_cuerpo === 'Robusto').length,
+      Manzana: filteredUsers.filter(user => user.tipo_cuerpo === 'Manzana').length,
+      Pera: filteredUsers.filter(user => user.tipo_cuerpo === 'Pera').length,
+      Triangulo: filteredUsers.filter(user => user.tipo_cuerpo === 'Triángulo').length,
+      Reloj: filteredUsers.filter(user => user.tipo_cuerpo === 'Reloj de Arena').length,
+      Rectangulo: filteredUsers.filter(user => user.tipo_cuerpo === 'Rectángulo').length,
     };
 
     setPyramidData({
-      categories: ['Delgado', 'Atlético', 'Robusto', 'Musculoso'],
+      categories: ['Manzana', 'Pera', 'Triángulo', 'Reloj', 'Rectángulo'],
       series: [
         {
           name: 'Usuarios',
-          data: [bodyTypeCounts.Delgado, bodyTypeCounts.Atlético, bodyTypeCounts.Robusto],
+          data: [bodyTypeCounts.Manzana, bodyTypeCounts.Pera, bodyTypeCounts.Triangulo, bodyTypeCounts.Reloj, bodyTypeCounts.Rectangulo],
         }
       ],
     });
@@ -226,10 +229,11 @@ const Insights: React.FC = () => {
     if (users.length > 0) {
       // Contar la cantidad de usuarios por tipo de cuerpo
       const bodyTypeCounts = {
-        Delgado: users.filter(user => user.tipo_cuerpo === 'Delgado').length,
-        Atlético: users.filter(user => user.tipo_cuerpo === 'Atlético').length,
-        Robusto: users.filter(user => user.tipo_cuerpo === 'Robusto').length,
-        Musculoso: users.filter(user => user.tipo_cuerpo === 'Musculoso').length
+        Manzana: users.filter(user => user.tipo_cuerpo === 'Manzana').length,
+        Pera: users.filter(user => user.tipo_cuerpo === 'Pera').length,
+        Triangulo: users.filter(user => user.tipo_cuerpo === 'Triángulo invertido').length,
+        Reloj: users.filter(user => user.tipo_cuerpo === 'Reloj de Arena').length,
+        Rectangulo: users.filter(user => user.tipo_cuerpo === 'Rectángulo').length,
       };
   
       // Encontrar el tipo de cuerpo más popular

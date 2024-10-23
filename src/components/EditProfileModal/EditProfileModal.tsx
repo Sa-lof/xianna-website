@@ -235,10 +235,11 @@ const EditProfileModal = ({
             },
           }}
         >
-          <MenuItem value="Delgado">Delgado</MenuItem>
-          <MenuItem value="Atlético">Atlético</MenuItem>
-          <MenuItem value="Robusto">Robusto</MenuItem>
-          <MenuItem value="Musculoso">Musculoso</MenuItem>
+          <MenuItem value="Manzana">Manzana</MenuItem>
+          <MenuItem value="Pera">Pera</MenuItem>
+          <MenuItem value="Triángulo invertido">Triángulo invertido</MenuItem>
+          <MenuItem value="Reloj de Arena">Reloj de Arena</MenuItem>
+          <MenuItem value="Rectángulo">Rectángulo</MenuItem>
         </TextField>
 
         <TextField
