@@ -24,6 +24,7 @@ import logo from "../assets/logo/xianna.png";
 import { ArrowBack } from "@mui/icons-material";
 import x from "../assets/logo/x.png";
 import { Helmet } from "react-helmet";
+import { updateUserDetails } from '../supabase/ProfileServices/updateUserDetails2';
 
 const pink = "#E61F93";
 
@@ -58,7 +59,39 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
         return;
       }
   
-      await registerUser(email, password, name);
+      // Primero, registrar al usuario
+      const result = await registerUser(email, password, name);
+  
+      // Verificar que el registro fue exitoso
+      if (result && result.success) {
+        // Recuperar el estilo almacenado en localStorage
+        const savedStyle = localStorage.getItem('userStyle');
+        
+        if (savedStyle) {
+          const updatedDetails = {
+            tipo_estilo: Number(savedStyle),
+            nombre: name,
+            email: email,  // Aquí usamos el email que ya capturamos
+            // Agregar otros detalles que desees actualizar
+          };
+  
+          // Asegurarte de que los detalles se están enviando correctamente
+          console.log('Detalles a actualizar:', updatedDetails);
+  
+          // Llamar a la función de actualización de detalles
+          const success = await updateUserDetails(email, updatedDetails);
+  
+          if (success) {
+            console.log('Detalles del usuario actualizados con éxito');
+            localStorage.removeItem('userStyle');
+          } else {
+            console.error('Error actualizando los detalles del usuario');
+          }
+        }
+      } else {
+        console.error('Error durante el registro');
+      }
+  
       setSeverity("success");
       navigate("/");
     } catch (error) {
@@ -67,17 +100,30 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
     } finally {
       setOpen(true);
     }
-  };
+  };  
   
   const handleLogin = async () => {
     try {
       await loginUser(email, password);
+  
+      // Recuperar el estilo almacenado en localStorage
+      const savedStyle = localStorage.getItem('userStyle');
+  
+      if (savedStyle) {
+        // Actualizar el estilo del usuario en su perfil
+        const updatedDetails = {
+          tipo_estilo: Number(savedStyle),
+          email: email,
+          // Otros detalles que quieras actualizar
+        };
+  
+        await updateUserDetails(email, updatedDetails);
+  
+        // Limpiar localStorage
+        localStorage.removeItem('userStyle');
+      }
+  
       setSeverity("success");
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('rating-')) {
-          localStorage.removeItem(key);
-        }
-      });
       navigate("/");
     } catch (error) {
       setMessage((error as Error).message);

@@ -98,7 +98,7 @@ const Form: React.FC = () => {
 
   const handleNext = async () => {
     const currentQuestions = getQuestionsForCurrentStep();
-    
+  
     // Verificar que todas las preguntas actuales tengan una respuesta seleccionada
     const allAnswered = currentQuestions.every(
       (q) => selectedAnswers[q.id] && selectedAnswers[q.id] !== ""
@@ -113,11 +113,34 @@ const Form: React.FC = () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      // Si el usuario no está autenticado, almacenar el estilo seleccionado en localStorage
       if (!isAuthenticated) {
-        setOpenDialog(true);
+        const styleCount: Record<number, number> = {};
+        Object.values(selectedAnswers).forEach((answer) => {
+          const answerObj = questions.flatMap(q => q.answers).find(a => a.respuesta === answer);
+          if (answerObj) {
+            const styleId = answerObj.id_estilo;
+            styleCount[styleId] = (styleCount[styleId] || 0) + 1;
+          }
+        });
+  
+        let mostSelectedStyleId = parseInt(Object.entries(styleCount).reduce(
+          (acc, [styleId, count]) => count > acc.count ? { styleId: Number(styleId), count } : acc,
+          { styleId: 0, count: 0 }
+        ).styleId.toString(), 10);
+  
+        // Si no se encontró un estilo mayoritario, usa uno aleatorio
+        if (!mostSelectedStyleId || isNaN(mostSelectedStyleId)) {
+          mostSelectedStyleId = getRandomStyleId();
+        }
+  
+        // Almacenar el estilo en localStorage
+        localStorage.setItem('userStyle', mostSelectedStyleId.toString());
+  
+        setOpenDialog(true); // Mostrar el diálogo de registro
       } else {
-        await updateUserData();
-        navigate("/perfil"); // Reemplaza con el enlace real
+        await updateUserData(); // Actualizar los datos del usuario si ya está autenticado
+        navigate("/perfil");
       }
     }
   };  
