@@ -177,6 +177,9 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
   fullWidth
   error={errors.bodyType}
   sx={{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: "white",
     borderRadius: 1,
     mb: 4,
@@ -194,20 +197,31 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     },
   }}
 >
-  <InputLabel sx={{ color: pink }}>Tipo de Cuerpo</InputLabel>
-  <Select
-    name="bodyType"
-    value={formData.bodyType}
-    onChange={handleSelectChange}
-    label="Tipo de Cuerpo"
-  >
-    <MenuItem value="Manzana">Manzana</MenuItem>
-    <MenuItem value="Pera">Pera</MenuItem>
-    <MenuItem value="Triángulo invertido">Triángulo invertido</MenuItem>
-    <MenuItem value="Reloj de Arena">Reloj de Arena</MenuItem>
-    <MenuItem value="Rectángulo">Rectángulo</MenuItem>
-  </Select>
+  <Box sx={{ flexGrow: 1 }}>
+    <InputLabel sx={{ color: pink }}>Tipo de Cuerpo</InputLabel>
+    <Select
+      name="bodyType"
+      value={formData.bodyType}
+      onChange={handleSelectChange}
+      label="Tipo de Cuerpo"
+      fullWidth
+    >
+      <MenuItem value="Manzana">Manzana</MenuItem>
+      <MenuItem value="Pera">Pera</MenuItem>
+      <MenuItem value="Triángulo invertido">Triángulo invertido</MenuItem>
+      <MenuItem value="Reloj de Arena">Reloj de Arena</MenuItem>
+      <MenuItem value="Rectángulo">Rectángulo</MenuItem>
+    </Select>
+    <Typography variant="body2" sx={{ color: pink, mt: 1 }}>
+    ¿No conoces tu tipo de estilo?{" "}
+    <a href="https://xianna.com.mx/blog/56" target="_blank" rel="noopener noreferrer" style={{ color: pink, fontWeight: "bold" }}>
+      Este blog te ayudará
+    </a>
+  </Typography>
+  </Box>
 </FormControl>
+
+
 
 <FormControl
   fullWidth

@@ -273,7 +273,7 @@ const MainGrid: React.FC = () => {
                   textAlign: "center",
                 }}
               >
-                @xianna
+                @xianna.mx
               </Typography>
             </CardContent>
           </Card>

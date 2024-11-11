@@ -321,7 +321,7 @@ const MainGridLogged: React.FC<{ userName: string, userStyleId: number }> = ({ u
                   textAlign: "center",
                 }}
               >
-                @xianna
+                @xianna.mx
               </Typography>
             </CardContent>
           </Card>
