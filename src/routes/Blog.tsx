@@ -201,41 +201,54 @@ const BlogComponent: React.FC = () => {
         >
           {filterInView && (
             <Tabs
-              value={selectedTab}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                "& .MuiTabs-flexContainer": {
-                  justifyContent: "center",
+            value={selectedTab}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto" // Cambiar a "auto" para mostrar los botones solo cuando sea necesario
+            allowScrollButtonsMobile // Asegurar botones en dispositivos móviles
+            sx={{
+              overflowX: "auto", // Habilita el desbordamiento horizontal
+              whiteSpace: "nowrap", // Asegura que las pestañas no se envuelvan
+              "& .MuiTabs-flexContainer": {
+                display: "flex",
+                justifyContent: "flex-start", // Alinea a la izquierda si necesario
+              },
+              "& .MuiTab-root": {
+                textTransform: "none",
+                borderRadius: "16px",
+                margin: "0 8px",
+                padding: "8px 16px",
+                fontWeight: "bold",
+                fontSize: "16px",
+                color: "black",
+                minWidth: "auto", // Evita que las pestañas tengan un ancho mínimo grande
+                "&.Mui-selected": {
+                  backgroundColor: pink,
+                  color: "white",
                 },
-                "& .MuiTab-root": {
-                  textTransform: "none",
-                  borderRadius: "16px",
-                  margin: "0 8px",
-                  padding: "8px 16px",
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  color: "black",
-                  "&.Mui-selected": {
-                    backgroundColor: pink,
-                    color: "white",
-                  },
-                },
-                "& .MuiTabs-indicator": {
-                  display: "none",
-                },
-              }}
-            >
-              <Tab label="Todo" value="Todo" />
-              {categorias.map((categoria) => (
-                <Tab
-                  key={categoria.id}
-                  label={categoria.categoria}
-                  value={categoria.categoria}
-                />
-              ))}
-            </Tabs>
+              },
+              "& .MuiTabs-indicator": {
+                display: "none", // Oculta el indicador por defecto
+              },
+              "&::-webkit-scrollbar": {
+                height: "8px", // Tamaño del scrollbar horizontal
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: pink, // Color de la barra de scroll
+                borderRadius: "4px",
+              },
+            }}
+          >
+            <Tab label="Todo" value="Todo" />
+            {categorias.map((categoria) => (
+              <Tab
+                key={categoria.id}
+                label={categoria.categoria}
+                value={categoria.categoria}
+              />
+            ))}
+          </Tabs>
+          
           )}
         </Box>
         <Grid container spacing={4} sx={{ marginBottom: 10 }} ref={blogRef}>

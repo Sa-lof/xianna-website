@@ -77,7 +77,8 @@ const getBlogs = async (): Promise<Blog[]> => {
       })
     );
 
-    return blogs;
+    // Ordenar por id en orden descendente
+    return blogs.sort((a, b) => b.id - a.id);
   } catch (error) {
     console.error('Error fetching blogs:', error);
     return [];

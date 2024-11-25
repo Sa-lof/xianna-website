@@ -379,7 +379,7 @@ const Catalog: React.FC = () => {
                   sx={{
                     position: "relative",
                     overflow: "hidden",
-                    height: '100%',
+                    height: '400px',
                   }}
                 >
                   <CardActionArea 
@@ -393,7 +393,7 @@ const Catalog: React.FC = () => {
                     <Box 
                       sx={{
                         width: "100%",
-                        height: 0,
+                        height: "100%",
                         paddingTop: "75%",
                         position: "relative",
                       }}
