@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://fkweyjkmjgluvbaydsac.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrd2V5amttamdsdXZiYXlkc2FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjA2NDk3MDQsImV4cCI6MjAzNjIyNTcwNH0.HX6g0Mc8tpnaq1iHkhmGKLEx4S17h96tMiIWKngKVOw';
+const SUPABASE_URL = 'https://rskbayibhrapatiysrzm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJza2JheWliaHJhcGF0aXlzcnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTgzNTYsImV4cCI6MjA3MDUzNDM1Nn0.pUY3ippO8AHtjD76NPK-5P83ms3GsBxSv4eEBdSjAag';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const fetchOutfits = async () => {
