@@ -24,7 +24,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     name: "",
     age: "",
     profession: "",
-    bodyType: "",
+    bodyType: "Rectangular",
     size: "",
     country: "",
     sex: "",
@@ -147,39 +147,11 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     },
   }}
 />
-      <TextField
-        label="Profesión"
-        name="profession"
-        fullWidth
-        value={formData.profession}
-        onChange={handleInputChange}
-        error={errors.profession}
-        InputLabelProps={{ style: { color: pink } }}
-        sx={{
-          backgroundColor: "white",
-          borderRadius: 1,
-          mb: 4,
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: pink,
-              borderRadius: 5,
-            },
-            "&:hover fieldset": {
-              borderColor: pink,
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: pink,
-            },
-          },
-        }}
-      />
-      <FormControl
+
+<FormControl
   fullWidth
-  error={errors.bodyType}
+  error={errors.profession}
   sx={{
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: "white",
     borderRadius: 1,
     mb: 4,
@@ -197,30 +169,22 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     },
   }}
 >
-  <Box sx={{ flexGrow: 1 }}>
-    <InputLabel sx={{ color: pink }}>Tipo de Cuerpo</InputLabel>
-    <Select
-      name="bodyType"
-      value={formData.bodyType}
-      onChange={handleSelectChange}
-      label="Tipo de Cuerpo"
-      fullWidth
-    >
-      <MenuItem value="Manzana">Manzana</MenuItem>
-      <MenuItem value="Pera">Pera</MenuItem>
-      <MenuItem value="Triángulo invertido">Triángulo invertido</MenuItem>
-      <MenuItem value="Reloj de Arena">Reloj de Arena</MenuItem>
-      <MenuItem value="Rectángulo">Rectángulo</MenuItem>
-    </Select>
-    <Typography variant="body2" sx={{ color: pink, mt: 1 }}>
-    ¿No conoces tu tipo de estilo?{" "}
-    <a href="https://xianna.com.mx/blog/56" target="_blank" rel="noopener noreferrer" style={{ color: pink, fontWeight: "bold" }}>
-      Este blog te ayudará
-    </a>
-  </Typography>
-  </Box>
+  <InputLabel sx={{ color: pink }}>Ocupación</InputLabel>
+  <Select
+    name="profession"
+    value={formData.profession}
+    onChange={handleSelectChange}
+    label="Ocupación"
+  >
+    <MenuItem value="Estudiante">Estudiante</MenuItem>
+    <MenuItem value="Profesionista en oficina (contadora, abogada, ejecutiva)">Profesionista en oficina (contadora, abogada, ejecutiva)</MenuItem>
+    <MenuItem value="Profesionista creativa (diseñadora, fotógrafa, artista)">Profesionista creativa (diseñadora, fotógrafa, artista)</MenuItem>
+    <MenuItem value="Profesionista en sector salud">Profesionista en sector salud</MenuItem>
+    <MenuItem value="Profesionista en sector educativo">Profesionista en sector educativo</MenuItem>
+    <MenuItem value="Dueña de negocio / Emprendedora">Dueña de negocio / Emprendedora</MenuItem>
+    <MenuItem value="Ama de casa / Cuidadora">Ama de casa / Cuidadora</MenuItem>
+  </Select>
 </FormControl>
-
 
 
 <FormControl
@@ -258,16 +222,14 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
     <MenuItem value="XL">XL</MenuItem>
     <MenuItem value="XXL">XXL</MenuItem>
   </Select>
+  <Typography variant="body2" sx={{ color: pink, mt: 1 }}>
+    Este dato lo queremos para personalizar tu experiencia de acuerdo a tus necesidades
+  </Typography>
 </FormControl>
 
-      <TextField
-        label="estado"
-        name="country"
+<FormControl
         fullWidth
-        value={formData.country}
-        onChange={handleInputChange}
         error={errors.country}
-        InputLabelProps={{ style: { color: pink } }}
         sx={{
           backgroundColor: "white",
           borderRadius: 1,
@@ -285,7 +247,49 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
             },
           },
         }}
-      />
+      >
+        <InputLabel sx={{ color: pink }}>Estado</InputLabel>
+        <Select
+          name="country"
+          value={formData.country}
+          onChange={handleSelectChange}
+          label="Estado"
+        >
+          <MenuItem value="Aguascalientes">Aguascalientes</MenuItem>
+<MenuItem value="Baja California">Baja California</MenuItem>
+<MenuItem value="Baja California Sur">Baja California Sur</MenuItem>
+<MenuItem value="Campeche">Campeche</MenuItem>
+<MenuItem value="Coahuila de Zaragoza">Coahuila de Zaragoza</MenuItem>
+<MenuItem value="Colima">Colima</MenuItem>
+<MenuItem value="Chiapas">Chiapas</MenuItem>
+<MenuItem value="Chihuahua">Chihuahua</MenuItem>
+<MenuItem value="estado de México">estado de México</MenuItem>
+<MenuItem value="Durango">Durango</MenuItem>
+<MenuItem value="Guanajuato">Guanajuato</MenuItem>
+<MenuItem value="Guerrero">Guerrero</MenuItem>
+<MenuItem value="Hidalgo">Hidalgo</MenuItem>
+<MenuItem value="Jalisco">Jalisco</MenuItem>
+<MenuItem value="México">México</MenuItem>
+<MenuItem value="Michoacán de Ocampo">Michoacán de Ocampo</MenuItem>
+<MenuItem value="Morelos">Morelos</MenuItem>
+<MenuItem value="Nayarit">Nayarit</MenuItem>
+<MenuItem value="Nuevo León">Nuevo León</MenuItem>
+<MenuItem value="Oaxaca">Oaxaca</MenuItem>
+<MenuItem value="Puebla">Puebla</MenuItem>
+<MenuItem value="Querétaro">Querétaro</MenuItem>
+<MenuItem value="Quintana Roo">Quintana Roo</MenuItem>
+<MenuItem value="San Luis Potosí">San Luis Potosí</MenuItem>
+<MenuItem value="Sinaloa">Sinaloa</MenuItem>
+<MenuItem value="Sonora">Sonora</MenuItem>
+<MenuItem value="Tabasco">Tabasco</MenuItem>
+<MenuItem value="Tamaulipas">Tamaulipas</MenuItem>
+<MenuItem value="Tlaxcala">Tlaxcala</MenuItem>
+<MenuItem value="Veracruz de Ignacio de la Llave">Veracruz de Ignacio de la Llave</MenuItem>
+<MenuItem value="Yucatán">Yucatán</MenuItem>
+<MenuItem value="Zacatecas">Zacatecas</MenuItem>
+        </Select>
+      </FormControl>
+
       <FormControl
         fullWidth
         error={errors.sex}
