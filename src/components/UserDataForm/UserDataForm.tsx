@@ -261,7 +261,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
 </FormControl>
 
       <TextField
-        label="Ciudad"
+        label="estado"
         name="country"
         fullWidth
         value={formData.country}
@@ -307,12 +307,12 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
           },
         }}
       >
-        <InputLabel sx={{ color: pink }}>Sexo</InputLabel>
+        <InputLabel sx={{ color: pink }}>genero</InputLabel>
         <Select
           name="sex"
           value={formData.sex}
           onChange={handleSelectChange}
-          label="Sexo"
+          label="genero"
         >
           <MenuItem value="Male">Masculino</MenuItem>
           <MenuItem value="Female">Femenino</MenuItem>

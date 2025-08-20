@@ -3,10 +3,10 @@ import supabase from '../../supabaseClient';
 interface User {
   id: number;
   correo: string;
-  ciudad: string;
+  estado: string;
   nombre: string;
   tipo_estilo: number;
-  profesion: string;
+  ocupacion: string;
   edad: number;
   talla: string;
   tipo_cuerpo:string;
@@ -18,7 +18,7 @@ const getUsers = async (): Promise<User[]> => {
   try {
     const { data, error } = await supabase
       .from('user_details')
-      .select('id, correo, ciudad, nombre, tipo_estilo, profesion, edad, talla, tipo_cuerpo');
+      .select('id, correo, estado, nombre, tipo_estilo, ocupacion, edad, talla, tipo_cuerpo');
 
     if (error) {
       throw error;

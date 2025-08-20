@@ -218,13 +218,13 @@ const Form: React.FC = () => {
   
         const updatedDetails = {
           tipo_estilo: mostSelectedStyleId,
-          sexo: userData.sex,
+          genero: userData.sex,
           edad: userData.age,
-          profesion: userData.profession,
+          ocupacion: userData.profession,
           talla: userData.size,
           tipo_cuerpo: userData.bodyType,
           nombre: userData.name,
-          ciudad: userData.country,
+          estado: userData.country,
         };
   
         const success = await updateUserDetails(user.email, updatedDetails);

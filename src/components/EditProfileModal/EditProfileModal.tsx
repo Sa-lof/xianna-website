@@ -106,7 +106,7 @@ const EditProfileModal = ({
         <TextField
           margin="dense"
           name="city"
-          label="Ciudad"
+          label="estado"
           fullWidth
           value={formData.city}
           onChange={handleChange}
@@ -131,7 +131,7 @@ const EditProfileModal = ({
         <TextField
           margin="dense"
           name="sex"
-          label="Sexo"
+          label="genero"
           fullWidth
           value={formData.sex}
           onChange={handleChange}

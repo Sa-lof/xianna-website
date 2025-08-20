@@ -86,10 +86,10 @@ const MyOutfits: React.FC = () => {
         setUser({
           name: userDetails.nombre,
           email: userDetails.correo,
-          city: userDetails.ciudad,
-          sex: userDetails.sexo,
+          city: userDetails.estado,
+          sex: userDetails.genero,
           age: userDetails.edad,
-          profession: userDetails.profesion,
+          profession: userDetails.ocupacion,
           bodyType: userDetails.tipo_cuerpo,
           size: userDetails.talla,
           country: userDetails.country,

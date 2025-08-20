@@ -20,10 +20,10 @@ export const updateUserDetails = async (updatedUser: any) => {
     .from('user_details')
     .update({
       nombre: updatedUser.name,
-      ciudad: updatedUser.city,
-      sexo: updatedUser.sex,
+      estado: updatedUser.city,
+      genero: updatedUser.sex,
       edad: updatedUser.age,
-      profesion: updatedUser.profession,
+      ocupacion: updatedUser.profession,
       tipo_cuerpo: updatedUser.bodyType,
       talla: updatedUser.size,
       country: updatedUser.country,

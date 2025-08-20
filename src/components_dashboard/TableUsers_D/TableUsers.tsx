@@ -8,10 +8,10 @@ import logo2 from '../../assets/logo/x.png';
 interface User {
   id: number;
   correo: string;
-  ciudad: string;
+  estado: string;
   nombre: string;
   tipo_estilo: number;
-  profesion: string;
+  ocupacion: string;
   edad: number;
   talla: string;
   tipo_cuerpo: string;
@@ -50,8 +50,8 @@ const UserProfile = () => {
     const data = users.map(user => ({
       Nombre: user.nombre,
       Correo: user.correo,
-      Ciudad: user.ciudad,
-      Profesión: user.profesion,
+      estado: user.estado,
+      Profesión: user.ocupacion,
       Edad: user.edad,
       Talla: user.talla,
       'Tipo de cuerpo': user.tipo_cuerpo,
@@ -145,15 +145,15 @@ const UserProfile = () => {
               </Grid>
               <Grid item xs={4}>
                 <Typography variant="body1" color={"white"} fontWeight="bold">Profesión</Typography>
-                <Typography variant="body2" color={"white"}>{selectedUser.profesion}</Typography>
+                <Typography variant="body2" color={"white"}>{selectedUser.ocupacion}</Typography>
               </Grid>
               <Grid item xs={4}>
                 <Typography variant="body1" color={"white"} fontWeight="bold">Edad</Typography>
                 <Typography variant="body2" color={"white"}>{selectedUser.edad} años</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography variant="body1" color={"white"} fontWeight="bold">Ciudad</Typography>
-                <Typography variant="body2" color={"white"}>{selectedUser.ciudad}</Typography>
+                <Typography variant="body1" color={"white"} fontWeight="bold">estado</Typography>
+                <Typography variant="body2" color={"white"}>{selectedUser.estado}</Typography>
               </Grid>
               <Grid item xs={4}>
                 <Typography variant="body1" color={"white"} fontWeight="bold">Talla</Typography>

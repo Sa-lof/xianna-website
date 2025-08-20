@@ -2,13 +2,13 @@ import supabase from '../../supabaseClient';
 
 interface UserDetails {
   tipo_estilo?: number;
-  sexo?: string;
+  genero?: string;
   edad?: number;
-  profesion?: string;
+  ocupacion?: string;
   talla?: string;
   tipo_cuerpo?: string;
   nombre?: string;
-  ciudad?: string;
+  estado?: string;
 }
 
 export const updateUserDetails = async (email: string, details: UserDetails) => {

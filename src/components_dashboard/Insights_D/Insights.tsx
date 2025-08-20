@@ -14,10 +14,10 @@ import Loader from '../../../src/components/Loader/Loader';
 interface User {
   id: number;
   correo: string;
-  ciudad: string;
+  estado: string;
   nombre: string;
   tipo_estilo: number;
-  profesion: string;
+  ocupacion: string;
   edad: number;
   talla: string;
   tipo_cuerpo: string;
@@ -67,10 +67,10 @@ const Insights: React.FC = () => {
     if (users.length > 0) {
       const cityCounts: { [key: string]: number } = {};
       users.forEach(user => {
-        if (cityCounts[user.ciudad]) {
-          cityCounts[user.ciudad]++;
+        if (cityCounts[user.estado]) {
+          cityCounts[user.estado]++;
         } else {
-          cityCounts[user.ciudad] = 1;
+          cityCounts[user.estado] = 1;
         }
       });
   
@@ -78,7 +78,7 @@ const Insights: React.FC = () => {
         cityCounts[a] > cityCounts[b] ? a : b
       );
   
-      setMostPopularCity(mostPopularCity); // Establecer la ciudad más popular
+      setMostPopularCity(mostPopularCity); // Establecer la estado más popular
     }
   }, [users]);
   
@@ -149,7 +149,7 @@ const Insights: React.FC = () => {
   
   useEffect(() => {
     const filteredUsers = users.filter(user => {
-      const professionMatches = selectedProfession.length === 0 || selectedProfession.includes(user.profesion);
+      const professionMatches = selectedProfession.length === 0 || selectedProfession.includes(user.ocupacion);
       const sizeMatches = selectedSize.length === 0 || selectedSize.includes(user.talla);
       return professionMatches && sizeMatches;
     });
@@ -175,7 +175,7 @@ const Insights: React.FC = () => {
 
   useEffect(() => {
     const filteredUsers = users.filter(user => {
-      const professionMatches = selectedProfession.length === 0 || selectedProfession.includes(user.profesion);
+      const professionMatches = selectedProfession.length === 0 || selectedProfession.includes(user.ocupacion);
       const sizeMatches = selectedSize.length === 0 || selectedSize.includes(user.talla);
       return professionMatches && sizeMatches;
     });
