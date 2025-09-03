@@ -38,7 +38,7 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
   const [name, setName] = useState("");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState<"success" | "error">("success");
+  const [severity, setSeverity] = useState<"success" | "error" | "info" | "warning">("success");
   const navigate = useNavigate();
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -60,50 +60,53 @@ const AuthForm = ({ isLogin }: { isLogin: boolean }) => {
         return;
       }
   
-      // Registra al usuario
+      // Registrar al usuario en Supabase
       const { success } = await registerUser(email, password, name);
   
       if (success) {
-        // Obtenemos la sesión actual para obtener la información del usuario
+        // Intentamos obtener la sesión
         const { data, error } = await supabase.auth.getSession();
   
         if (error) {
           throw new Error("No se pudo obtener la sesión");
         }
   
-        if (data.session && data.session.user && data.session.user.email) {
+        // Si el usuario ya está en sesión y tiene email
+        if (data.session?.user?.email) {
           const userEmail = data.session.user.email;
   
-          const estiloId = localStorage.getItem('tipo_estilo');
+          const estiloId = localStorage.getItem("tipo_estilo");
           if (estiloId) {
             const updatedDetails = {
               tipo_estilo: Number(estiloId),
               nombre: name,
-              correo: userEmail, // Asegúrate de que coincida con la columna de tu tabla
+              correo: userEmail, // debe coincidir con tu columna en la BD
             };
   
-            // Usa userEmail (que contiene el correo) en lugar de user
             const updateSuccess = await updateUserDetails(userEmail, updatedDetails);
             if (updateSuccess) {
-              console.log('Detalles del usuario actualizados correctamente');
-              // Eliminar tipo_estilo de localStorage
-              localStorage.removeItem('tipo_estilo');
+              console.log("Detalles del usuario actualizados correctamente");
+              localStorage.removeItem("tipo_estilo");
             }
           }
+  
+          // Redirigir al perfil
+          setSeverity("success");
+          navigate("/perfil");
         } else {
-          throw new Error("El email del usuario es indefinido.");
+          // Usuario registrado pero aún no verificado
+          setMessage("Registro exitoso. Revisa tu correo y confirma tu cuenta para continuar.");
+          setSeverity("info");
         }
       }
-  
-      setSeverity("success");
-      navigate("/perfil");
     } catch (error) {
       setMessage((error as Error).message);
       setSeverity("error");
     } finally {
       setOpen(true);
     }
-  };  
+  };
+  
   
   const handleLogin = async () => {
     try {

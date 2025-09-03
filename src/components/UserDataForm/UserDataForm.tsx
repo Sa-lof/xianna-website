@@ -150,7 +150,8 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
 
 <FormControl
   fullWidth
-  error={errors.profession}
+  error={Boolean(errors.profession)}
+  variant="outlined"
   sx={{
     backgroundColor: "white",
     borderRadius: 1,
@@ -160,29 +161,77 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
         borderColor: pink,
         borderRadius: 5,
       },
-      "&:hover fieldset": {
-        borderColor: pink,
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: pink,
-      },
+      "&:hover fieldset": { borderColor: pink },
+      "&.Mui-focused fieldset": { borderColor: pink },
     },
   }}
 >
-  <InputLabel sx={{ color: pink }}>Ocupación</InputLabel>
+  <InputLabel sx={{ color: pink, fontSize: { sm: 16 } }}>
+    Ocupación
+  </InputLabel>
+
   <Select
     name="profession"
     value={formData.profession}
     onChange={handleSelectChange}
     label="Ocupación"
+    sx={{
+      "& .MuiSelect-select": {
+        whiteSpace: "normal",
+        wordBreak: "break-word",
+        display: "block",
+        lineHeight: 1.25,
+        fontSize: { sm: 16 },
+        py: { sm: 1.5 },
+      },
+      minHeight: {sm: 56 },
+    }}
+    MenuProps={{
+      PaperProps: {
+        sx: {
+          width: { xs: "92vw", sm: "auto" },
+          maxWidth: { xs: "92vw", sm: 420 },
+          minWidth: 0,
+        },
+      },
+      MenuListProps: {
+        sx: {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+          // Mejor espaciado en mobile
+          "& .MuiMenuItem-root": {
+            lineHeight: 1.3,
+            py: 1,
+            fontSize: { xs: 14, sm: 16 },
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+          },
+        },
+      },
+      // Evita que se pegue demasiado al borde en mobile
+      anchorOrigin: { vertical: "bottom", horizontal: "left" },
+      transformOrigin: { vertical: "top", horizontal: "left" },
+    }}
   >
     <MenuItem value="Estudiante">Estudiante</MenuItem>
-    <MenuItem value="Profesionista en oficina (contadora, abogada, ejecutiva)">Profesionista en oficina (contadora, abogada, ejecutiva)</MenuItem>
-    <MenuItem value="Profesionista creativa (diseñadora, fotógrafa, artista)">Profesionista creativa (diseñadora, fotógrafa, artista)</MenuItem>
-    <MenuItem value="Profesionista en sector salud">Profesionista en sector salud</MenuItem>
-    <MenuItem value="Profesionista en sector educativo">Profesionista en sector educativo</MenuItem>
-    <MenuItem value="Dueña de negocio / Emprendedora">Dueña de negocio / Emprendedora</MenuItem>
-    <MenuItem value="Ama de casa / Cuidadora">Ama de casa / Cuidadora</MenuItem>
+    <MenuItem value="Profesionista en oficina (contadora, abogada, ejecutiva)">
+      Profesionista en oficina (contadora, abogada, ejecutiva)
+    </MenuItem>
+    <MenuItem value="Profesionista creativa (diseñadora, fotógrafa, artista)">
+      Profesionista creativa (diseñadora, fotógrafa, artista)
+    </MenuItem>
+    <MenuItem value="Profesionista en sector salud">
+      Profesionista en sector salud
+    </MenuItem>
+    <MenuItem value="Profesionista en sector educativo">
+      Profesionista en sector educativo
+    </MenuItem>
+    <MenuItem value="Dueña de negocio / Emprendedora">
+      Dueña de negocio / Emprendedora
+    </MenuItem>
+    <MenuItem value="Ama de casa / Cuidadora">
+      Ama de casa / Cuidadora
+    </MenuItem>
   </Select>
 </FormControl>
 
@@ -263,7 +312,7 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ onSubmit }) => {
 <MenuItem value="Colima">Colima</MenuItem>
 <MenuItem value="Chiapas">Chiapas</MenuItem>
 <MenuItem value="Chihuahua">Chihuahua</MenuItem>
-<MenuItem value="estado de México">estado de México</MenuItem>
+<MenuItem value="Estado de México">Estado de México</MenuItem>
 <MenuItem value="Durango">Durango</MenuItem>
 <MenuItem value="Guanajuato">Guanajuato</MenuItem>
 <MenuItem value="Guerrero">Guerrero</MenuItem>
